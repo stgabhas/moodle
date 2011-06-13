@@ -3809,6 +3809,13 @@ function update_course($data, $editoroptions = NULL) {
         update_restricted_mods($course, $data->allowedmods);
     }
 
+    // update course conditions @EC SMC
+    if (isset($data->courseconditiongradegroup)) {
+        if (@include_once($CFG->libdir."/courseconditionlib.php")) {
+            coursecompletion_updatecourse( $course, $data->courseconditiongradegroup );
+        }
+    }
+
     // Save any custom role names.
     save_local_role_names($course->id, $data);
 

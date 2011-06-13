@@ -2478,6 +2478,16 @@ function require_login($courseorid = NULL, $autologinguest = true, $cm = NULL, $
         }
     }
 
+    //@EC SMC before enroling we should check if course conditions have been met
+    if (!($course->id==SITEID) && !empty($CFG->enableavailability) && !has_capability('moodle/course:viewhiddenactivities', $coursecontext)) {
+        if (@include_once($CFG->libdir."/courseconditionlib.php")) {
+          $hasoutstanding = coursecompletion_checkcompletion( $course );
+          if ($hasoutstanding) {
+            notice(get_string('cannotentercourse', 'core_coursecondition', $hasoutstanding), "{$CFG->wwwroot}/course/view.php?id={$course->id}");
+          }
+        }
+    }
+
     // is the user enrolled?
     if ($course->id == SITEID) {
         // everybody is enrolled on the frontpage

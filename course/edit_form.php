@@ -310,6 +310,13 @@ class course_edit_form extends moodleform {
             }
         }
 
+        // Course based restrictions @EC SMC
+        if (!empty($CFG->enableavailability)) {
+            if (@include_once($CFG->libdir."/courseconditionlib.php")) {
+                coursecompletion_formelements( $course, $this, $mform );
+            }
+        }
+
 //--------------------------------------------------------------------------------
         $this->add_action_buttons();
 //--------------------------------------------------------------------------------
@@ -337,6 +344,15 @@ class course_edit_form extends moodleform {
             $gr_el =& $mform->getElement('defaultgroupingid');
             $gr_el->load($options);
         }
+
+        // Availability conditions @EC SMC
+        global $CFG;
+        if (!empty($CFG->enableavailability) && $courseid = $mform->getElementValue('id')) {
+            if (@include_once( $CFG->libdir . "/courseconditionlib.php")) {
+                coursecompletion_definition_after_data( $courseid, $mform );
+            }
+        }
+
     }
 
 
