@@ -1131,7 +1131,16 @@ function forum_user_outline($course, $user, $mod, $forum) {
     } else if ($grade) {
         $result = new stdClass();
         $result->info = get_string('grade') . ': ' . $grade->str_long_grade;
-        $result->time = $grade->dategraded;
+
+        //datesubmitted == time created. dategraded == time modified or time overridden
+        //if grade was last modified by the user themselves use date graded. Otherwise use date submitted
+        //TODO: move this copied & pasted code somewhere in the grades API. See MDL-26704
+        if ($grade->usermodified == $user->id || empty($grade->datesubmitted)) {
+            $result->time = $grade->dategraded;
+        } else {
+            $result->time = $grade->datesubmitted;
+        }
+
         return $result;
     }
     return NULL;
@@ -1939,7 +1948,7 @@ function forum_search_posts($searchterms, $courseid=0, $limitfrom=0, $limitnum=5
         if ($forum->type == 'qanda'
             && !has_capability('mod/forum:viewqandawithoutposting', $context)) {
             if (!empty($forum->onlydiscussions)) {
-                list($discussionid_sql, $discussionid_params) = $DB->get_in_or_equal($forum->onlydiscussions, SQL_PARAMS_NAMED, 'qanda'.$forumid.'_0000');
+                list($discussionid_sql, $discussionid_params) = $DB->get_in_or_equal($forum->onlydiscussions, SQL_PARAMS_NAMED, 'qanda'.$forumid.'_');
                 $params = array_merge($params, $discussionid_params);
                 $select[] = "(d.id $discussionid_sql OR p.parent = 0)";
             } else {
@@ -1948,7 +1957,7 @@ function forum_search_posts($searchterms, $courseid=0, $limitfrom=0, $limitnum=5
         }
 
         if (!empty($forum->onlygroups)) {
-            list($groupid_sql, $groupid_params) = $DB->get_in_or_equal($forum->onlygroups, SQL_PARAMS_NAMED, 'grps'.$forumid.'_0000');
+            list($groupid_sql, $groupid_params) = $DB->get_in_or_equal($forum->onlygroups, SQL_PARAMS_NAMED, 'grps'.$forumid.'_');
             $params = array_merge($params, $groupid_params);
             $select[] = "d.groupid $groupid_sql";
         }
@@ -1963,7 +1972,7 @@ function forum_search_posts($searchterms, $courseid=0, $limitfrom=0, $limitnum=5
     }
 
     if ($fullaccess) {
-        list($fullid_sql, $fullid_params) = $DB->get_in_or_equal($fullaccess, SQL_PARAMS_NAMED, 'fula0');
+        list($fullid_sql, $fullid_params) = $DB->get_in_or_equal($fullaccess, SQL_PARAMS_NAMED, 'fula');
         $params = array_merge($params, $fullid_params);
         $where[] = "(d.forum $fullid_sql)";
     }
@@ -3457,11 +3466,130 @@ function forum_rating_permissions($contextid) {
 }
 
 /**
- * Returns the names of the table and columns necessary to check items for ratings
- * @return array an array containing the item table, item id and user id columns
+ * Validates a submitted rating
+ * @param array $params submitted data
+ *            context => object the context in which the rated items exists [required]
+ *            itemid => int the ID of the object being rated [required]
+ *            scaleid => int the scale from which the user can select a rating. Used for bounds checking. [required]
+ *            rating => int the submitted rating [required]
+ *            rateduserid => int the id of the user whose items have been rated. NOT the user who submitted the ratings. 0 to update all. [required]
+ *            aggregation => int the aggregation method to apply when calculating grades ie RATING_AGGREGATE_AVERAGE [required]
+ * @return boolean true if the rating is valid. Will throw rating_exception if not
  */
-function forum_rating_item_check_info() {
-    return array('forum_posts','id','userid');
+function forum_rating_validate($params) {
+    global $DB, $USER;
+
+    if (!array_key_exists('itemid', $params)
+            || !array_key_exists('context', $params)
+            || !array_key_exists('rateduserid', $params)
+            || !array_key_exists('scaleid', $params)) {
+        throw new rating_exception('missingparameter');
+    }
+
+    $forumsql = "SELECT f.id as fid, f.course, f.scale, d.id as did, p.userid as userid, p.created, f.assesstimestart, f.assesstimefinish, d.groupid
+                   FROM {forum_posts} p
+                   JOIN {forum_discussions} d ON p.discussion = d.id
+                   JOIN {forum} f ON d.forum = f.id
+                  WHERE p.id = :itemid";
+    $forumparams = array('itemid'=>$params['itemid']);
+    if (!$info = $DB->get_record_sql($forumsql, $forumparams)) {
+        //item doesn't exist
+        throw new rating_exception('invaliditemid');
+    }
+
+    if ($info->scale != $params['scaleid']) {
+        //the scale being submitted doesnt match the one in the database
+        throw new rating_exception('invalidscaleid');
+    }
+
+    if ($info->userid == $USER->id) {
+        //user is attempting to rate their own post
+        throw new rating_exception('nopermissiontorate');
+    }
+
+    if ($info->userid != $params['rateduserid']) {
+        //supplied user ID doesnt match the user ID from the database
+        throw new rating_exception('invaliduserid');
+    }
+
+    //check that the submitted rating is valid for the scale
+
+    // lower limit
+    if ($params['rating'] < 0  && $params['rating'] != RATING_UNSET_RATING) {
+        throw new rating_exception('invalidnum');
+    }
+
+    // upper limit
+    if ($info->scale < 0) {
+        //its a custom scale
+        $scalerecord = $DB->get_record('scale', array('id' => -$params['scaleid']));
+        if ($scalerecord) {
+            $scalearray = explode(',', $scalerecord->scale);
+            if ($params['rating'] > count($scalearray)) {
+                throw new rating_exception('invalidnum');
+            }
+        } else {
+            throw new rating_exception('invalidscaleid');
+        }
+    } else if ($params['rating'] > $info->scale) {
+        //if its numeric and submitted rating is above maximum
+        throw new rating_exception('invalidnum');
+    }
+
+    //check the item we're rating was created in the assessable time window
+    if (!empty($info->assesstimestart) && !empty($info->assesstimefinish)) {
+        if ($info->timecreated < $info->assesstimestart || $info->timecreated > $info->assesstimefinish) {
+            throw new rating_exception('notavailable');
+        }
+    }
+
+    $forumid = $info->fid;
+    $discussionid = $info->did;
+    $groupid = $info->groupid;
+    $courseid = $info->course;
+
+    $cm = get_coursemodule_from_instance('forum', $forumid);
+    if (empty($cm)) {
+        throw new rating_exception('unknowncontext');
+    }
+    $context = get_context_instance(CONTEXT_MODULE, $cm->id);
+
+    //if the supplied context doesnt match the item's context
+    if (empty($context) || $context->id != $params['context']->id) {
+        throw new rating_exception('invalidcontext');
+    }
+
+    // Make sure groups allow this user to see the item they're rating
+    $course = $DB->get_record('course', array('id'=>$courseid), '*', MUST_EXIST);
+    if ($groupid > 0 and $groupmode = groups_get_activity_groupmode($cm, $course)) {   // Groups are being used
+        if (!groups_group_exists($groupid)) { // Can't find group
+            throw new rating_exception('cannotfindgroup');//something is wrong
+        }
+
+        if (!groups_is_member($groupid) and !has_capability('moodle/site:accessallgroups', $context)) {
+            // do not allow rating of posts from other groups when in SEPARATEGROUPS or VISIBLEGROUPS
+            throw new rating_exception('notmemberofgroup');
+        }
+    }
+
+    //need to load the full objects here as ajax scripts don't like
+    //the debugging messages produced by forum_user_can_see_post() if you just supply IDs
+    if (!$forum = $DB->get_record('forum',array('id'=>$forumid))) {
+        throw new rating_exception('invalidrecordunknown');
+    }
+    if (!$post = $DB->get_record('forum_posts',array('id'=>$params['itemid']))) {
+        throw new rating_exception('invalidrecordunknown');
+    }
+    if (!$discussion = $DB->get_record('forum_discussions',array('id'=>$discussionid))) {
+        throw new rating_exception('invalidrecordunknown');
+    }
+
+    //perform some final capability checks
+    if( !forum_user_can_see_post($forum, $discussion, $post, $USER, $cm)) {
+        throw new rating_exception('nopermissiontorate');
+    }
+
+    return true;
 }
 
 
@@ -5333,6 +5461,7 @@ function forum_print_discussion($course, $cm, $forum, $discussion, $post, $mode,
     if ($forum->assessed!=RATING_AGGREGATE_NONE) {
         $ratingoptions = new stdclass();
         $ratingoptions->context = $modcontext;
+        $ratingoptions->component = 'mod_forum';
         $ratingoptions->items = $posts;
         $ratingoptions->aggregate = $forum->assessed;//the aggregation method
         $ratingoptions->scaleid = $forum->scale;
@@ -5344,8 +5473,6 @@ function forum_print_discussion($course, $cm, $forum, $discussion, $post, $mode,
         }
         $ratingoptions->assesstimestart = $forum->assesstimestart;
         $ratingoptions->assesstimefinish = $forum->assesstimefinish;
-        $ratingoptions->plugintype = 'mod';
-        $ratingoptions->pluginname = 'forum';
 
         $rm = new rating_manager();
         $posts = $rm->get_ratings($ratingoptions);

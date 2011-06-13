@@ -1307,6 +1307,15 @@ class table_sql extends flexible_table {
     }
 
     /**
+     * Get any extra classes names to add to this row in the HTML.
+     * @param $row array the data for this row.
+     * @return string added to the class="" attribute of the tr.
+     */
+    function get_row_class($row) {
+        return '';
+    }
+
+    /**
      * This is only needed if you want to use different sql to count rows.
      * Used for example when perhaps all db JOINS are not needed when counting
      * records. You don't need to call this function the count_sql
@@ -1348,9 +1357,9 @@ class table_sql extends flexible_table {
                 $this->countsql = 'SELECT COUNT(1) FROM '.$this->sql->from.' WHERE '.$this->sql->where;
                 $this->countparams = $this->sql->params;
             }
+            $grandtotal = $DB->count_records_sql($this->countsql, $this->countparams);
             if ($useinitialsbar && !$this->is_downloading()) {
-                $totalinitials = $DB->count_records_sql($this->countsql, $this->countparams);
-                $this->initialbars($totalinitials>$pagesize);
+                $this->initialbars($grandtotal > $pagesize);
             }
 
             list($wsql, $wparams) = $this->get_sql_where();
@@ -1363,7 +1372,7 @@ class table_sql extends flexible_table {
 
                 $total  = $DB->count_records_sql($this->countsql, $this->countparams);
             } else {
-                $total = $totalinitials;
+                $total = $grandtotal;
             }
 
             $this->pagesize($pagesize, $total);

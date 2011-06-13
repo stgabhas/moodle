@@ -829,6 +829,8 @@ class global_navigation extends navigation_node {
     protected $addedcourses = array();
     /** @var int */
     protected $expansionlimit = 0;
+    /** @var int */
+    protected $useridtouseforparentchecks = 0;
 
     /**
      * Constructs a new global navigation
@@ -874,6 +876,19 @@ class global_navigation extends navigation_node {
             $this->cache->clear();
         }
     }
+
+    /**
+     * Mutator to set userid to allow parent to see child's profile
+     * page navigation. See MDL-25805 for initial issue. Linked to it
+     * is an issue explaining why this is a REALLY UGLY HACK thats not
+     * for you to use!
+     *
+     * @param int $userid userid of profile page that parent wants to navigate around. 
+     */
+    public function set_userid_for_parent_checks($userid) {
+        $this->useridtouseforparentchecks = $userid;
+    }
+
 
     /**
      * Initialises the navigation object.
@@ -986,12 +1001,28 @@ class global_navigation extends navigation_node {
                 // If the user is not enrolled then we only want to show the
                 // course node and not populate it.
                 $coursecontext = get_context_instance(CONTEXT_COURSE, $course->id);
-                // Not enrolled, can't view, and hasn't switched roles
 
+                // Not enrolled, can't view, and hasn't switched roles
                 if (!can_access_course($coursecontext)) {
-                    $coursenode->make_active();
-                    $canviewcourseprofile = false;
-                    break;
+                    // TODO: very ugly hack - do not force "parents" to enrol into course their child is enrolled in,
+                    // this hack has been propagated from user/view.php to display the navigation node. (MDL-25805)
+                    $isparent = false;
+                    if ($this->useridtouseforparentchecks) {
+                        $currentuser = ($this->useridtouseforparentchecks == $USER->id);
+                        if (!$currentuser) {
+                            $usercontext   = get_context_instance(CONTEXT_USER, $this->useridtouseforparentchecks, MUST_EXIST);
+                            if ($DB->record_exists('role_assignments', array('userid'=>$USER->id, 'contextid'=>$usercontext->id))
+                                    and has_capability('moodle/user:viewdetails', $usercontext)) {
+                                $isparent = true;
+                            }
+                        }
+                    }
+
+                    if (!$isparent) {
+                        $coursenode->make_active();
+                        $canviewcourseprofile = false;
+                        break;
+                    }
                 }
                 // Add the essentials such as reports etc...
                 $this->add_course_essentials($coursenode, $course);
@@ -1669,9 +1700,16 @@ class global_navigation extends navigation_node {
         }
 
         // Add a reports tab and then add reports the the user has permission to see.
-        $anyreport  = has_capability('moodle/user:viewuseractivitiesreport', $usercontext);
+        $anyreport      = has_capability('moodle/user:viewuseractivitiesreport', $usercontext);
 
-        $viewreports = ($anyreport || ($course->showreports && $iscurrentuser && $forceforcontext));
+        $outlinetreport = ($anyreport || has_capability('coursereport/outline:view', $coursecontext));
+        $logtodayreport = ($anyreport || has_capability('coursereport/log:viewtoday', $coursecontext));
+        $logreport      = ($anyreport || has_capability('coursereport/log:view', $coursecontext));
+        $statsreport    = ($anyreport || has_capability('coursereport/stats:view', $coursecontext));
+
+        $somereport     = $outlinetreport || $logtodayreport || $logreport || $statsreport;
+
+        $viewreports = ($anyreport || $somereport || ($course->showreports && $iscurrentuser && $forceforcontext));
         if ($viewreports) {
             $reporttab = $usernode->add(get_string('activityreports'));
             $reportargs = array('user'=>$user->id);
@@ -1680,21 +1718,21 @@ class global_navigation extends navigation_node {
             } else {
                 $reportargs['id'] = SITEID;
             }
-            if ($viewreports || has_capability('coursereport/outline:view', $coursecontext)) {
+            if ($viewreports || $outlinetreport) {
                 $reporttab->add(get_string('outlinereport'), new moodle_url('/course/user.php', array_merge($reportargs, array('mode'=>'outline'))));
                 $reporttab->add(get_string('completereport'), new moodle_url('/course/user.php', array_merge($reportargs, array('mode'=>'complete'))));
             }
 
-            if ($viewreports || has_capability('coursereport/log:viewtoday', $coursecontext)) {
+            if ($viewreports || $logtodayreport) {
                 $reporttab->add(get_string('todaylogs'), new moodle_url('/course/user.php', array_merge($reportargs, array('mode'=>'todaylogs'))));
             }
 
-            if ($viewreports || has_capability('coursereport/log:view', $coursecontext)) {
+            if ($viewreports || $logreport ) {
                 $reporttab->add(get_string('alllogs'), new moodle_url('/course/user.php', array_merge($reportargs, array('mode'=>'alllogs'))));
             }
 
             if (!empty($CFG->enablestats)) {
-                if ($viewreports || has_capability('coursereport/stats:view', $coursecontext)) {
+                if ($viewreports || $statsreport) {
                     $reporttab->add(get_string('stats'), new moodle_url('/course/user.php', array_merge($reportargs, array('mode'=>'stats'))));
                 }
             }

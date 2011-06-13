@@ -178,55 +178,67 @@ class dml_test extends UnitTestCase {
 
         // Correct usage of multiple values
         $in_values = array('value1', 'value2', 'value3', 'value4');
-        list($usql, $params) = $DB->get_in_or_equal($in_values, SQL_PARAMS_NAMED, 'param01', true);
-        $this->assertEqual("IN (:param01,:param02,:param03,:param04)", $usql);
+        list($usql, $params) = $DB->get_in_or_equal($in_values, SQL_PARAMS_NAMED, 'param', true);
         $this->assertEqual(4, count($params));
         reset($in_values);
+        $ps = array();
         foreach ($params as $key => $value) {
             $this->assertEqual(current($in_values), $value);
             next($in_values);
+            $ps[] = ':'.$key;
         }
+        $this->assertEqual("IN (".implode(',', $ps).")", $usql);
 
         // Correct usage of single values (in array)
         $in_values = array('value1');
-        list($usql, $params) = $DB->get_in_or_equal($in_values, SQL_PARAMS_NAMED, 'param01', true);
-        $this->assertEqual("= :param01", $usql);
+        list($usql, $params) = $DB->get_in_or_equal($in_values, SQL_PARAMS_NAMED, 'param', true);
         $this->assertEqual(1, count($params));
-        $this->assertEqual($in_values[0], $params['param01']);
+        $value = reset($params);
+        $key = key($params);
+        $this->assertEqual("= :$key", $usql);
+        $this->assertEqual($in_value, $value);
 
         // Correct usage of single value
         $in_value = 'value1';
-        list($usql, $params) = $DB->get_in_or_equal($in_values, SQL_PARAMS_NAMED, 'param01', true);
-        $this->assertEqual("= :param01", $usql);
+        list($usql, $params) = $DB->get_in_or_equal($in_values, SQL_PARAMS_NAMED, 'param', true);
         $this->assertEqual(1, count($params));
-        $this->assertEqual($in_value, $params['param01']);
+        $value = reset($params);
+        $key = key($params);
+        $this->assertEqual("= :$key", $usql);
+        $this->assertEqual($in_value, $value);
 
         // SQL_PARAMS_NAMED - NOT IN or <>
 
         // Correct usage of multiple values
         $in_values = array('value1', 'value2', 'value3', 'value4');
-        list($usql, $params) = $DB->get_in_or_equal($in_values, SQL_PARAMS_NAMED, 'param01', false);
-        $this->assertEqual("NOT IN (:param01,:param02,:param03,:param04)", $usql);
+        list($usql, $params) = $DB->get_in_or_equal($in_values, SQL_PARAMS_NAMED, 'param', false);
         $this->assertEqual(4, count($params));
         reset($in_values);
+        $ps = array();
         foreach ($params as $key => $value) {
             $this->assertEqual(current($in_values), $value);
             next($in_values);
+            $ps[] = ':'.$key;
         }
+        $this->assertEqual("NOT IN (".implode(',', $ps).")", $usql);
 
         // Correct usage of single values (in array)
         $in_values = array('value1');
-        list($usql, $params) = $DB->get_in_or_equal($in_values, SQL_PARAMS_NAMED, 'param01', false);
-        $this->assertEqual("<> :param01", $usql);
+        list($usql, $params) = $DB->get_in_or_equal($in_values, SQL_PARAMS_NAMED, 'param', false);
         $this->assertEqual(1, count($params));
-        $this->assertEqual($in_values[0], $params['param01']);
+        $value = reset($params);
+        $key = key($params);
+        $this->assertEqual("<> :$key", $usql);
+        $this->assertEqual($in_value, $value);
 
         // Correct usage of single value
         $in_value = 'value1';
-        list($usql, $params) = $DB->get_in_or_equal($in_value, SQL_PARAMS_NAMED, 'param01', false);
-        $this->assertEqual("<> :param01", $usql);
+        list($usql, $params) = $DB->get_in_or_equal($in_values, SQL_PARAMS_NAMED, 'param', false);
         $this->assertEqual(1, count($params));
-        $this->assertEqual($in_value, $params['param01']);
+        $value = reset($params);
+        $key = key($params);
+        $this->assertEqual("<> :$key", $usql);
+        $this->assertEqual($in_value, $value);
 
         // Some incorrect tests
 
@@ -298,6 +310,15 @@ class dml_test extends UnitTestCase {
         list($usql, $params) = $DB->get_in_or_equal($in_values, SQL_PARAMS_NAMED, 'param01', false, 'onevalue');
         $this->assertEqual('<> :param01', $usql);
         $this->assertIdentical(array('param01' => 'onevalue'), $params);
+=======
+        // make sure the param names are unique
+        list($usql1, $params1) = $DB->get_in_or_equal(array(1,2,3), SQL_PARAMS_NAMED, 'param');
+        list($usql2, $params2) = $DB->get_in_or_equal(array(1,2,3), SQL_PARAMS_NAMED, 'param');
+        $params1 = array_keys($params1);
+        $params2 = array_keys($params2);
+        $common = array_intersect($params1, $params2);
+        $this->assertEqual(count($common), 0);
+>>>>>>> origin/MOODLE_20_STABLE:lib/dml/simpletest/testdml.php
     }
 
     public function test_fix_table_names() {
@@ -1777,6 +1798,34 @@ class dml_test extends UnitTestCase {
         $DB->delete_records($tablename, array());
         $id4 = $DB->insert_record($tablename, array('course' => 3));
         $this->assertTrue($id3 < $id4);
+
+        // Test saving a float in a CHAR column, and reading it back.
+        $id = $DB->insert_record($tablename, array('onechar' => 1.0));
+        $this->assertEqual(1.0, $DB->get_field($tablename, 'onechar', array('id' => $id)));
+        $id = $DB->insert_record($tablename, array('onechar' => 1e20));
+        $this->assertEqual(1e20, $DB->get_field($tablename, 'onechar', array('id' => $id)));
+        $id = $DB->insert_record($tablename, array('onechar' => 1e-4));
+        $this->assertEqual(1e-4, $DB->get_field($tablename, 'onechar', array('id' => $id)));
+        $id = $DB->insert_record($tablename, array('onechar' => 1e-5));
+        $this->assertEqual(1e-5, $DB->get_field($tablename, 'onechar', array('id' => $id)));
+        $id = $DB->insert_record($tablename, array('onechar' => 1e-300));
+        $this->assertEqual(1e-300, $DB->get_field($tablename, 'onechar', array('id' => $id)));
+        $id = $DB->insert_record($tablename, array('onechar' => 1e300));
+        $this->assertEqual(1e300, $DB->get_field($tablename, 'onechar', array('id' => $id)));
+
+        // Test saving a float in a TEXT column, and reading it back.
+        $id = $DB->insert_record($tablename, array('onetext' => 1.0));
+        $this->assertEqual(1.0, $DB->get_field($tablename, 'onetext', array('id' => $id)));
+        $id = $DB->insert_record($tablename, array('onetext' => 1e20));
+        $this->assertEqual(1e20, $DB->get_field($tablename, 'onetext', array('id' => $id)));
+        $id = $DB->insert_record($tablename, array('onetext' => 1e-4));
+        $this->assertEqual(1e-4, $DB->get_field($tablename, 'onetext', array('id' => $id)));
+        $id = $DB->insert_record($tablename, array('onetext' => 1e-5));
+        $this->assertEqual(1e-5, $DB->get_field($tablename, 'onetext', array('id' => $id)));
+        $id = $DB->insert_record($tablename, array('onetext' => 1e-300));
+        $this->assertEqual(1e-300, $DB->get_field($tablename, 'onetext', array('id' => $id)));
+        $id = $DB->insert_record($tablename, array('onetext' => 1e300));
+        $this->assertEqual(1e300, $DB->get_field($tablename, 'onetext', array('id' => $id)));
     }
 
     public function test_import_record() {
@@ -2149,6 +2198,35 @@ class dml_test extends UnitTestCase {
         $this->assertEqual($newclob, $record->onetext, 'Test "small" CLOB update (full contents output disabled)');
         $this->assertEqual($newblob, $record->onebinary, 'Test "small" BLOB update (full contents output disabled)');
 
+        // Test saving a float in a CHAR column, and reading it back.
+        $id = $DB->insert_record($tablename, array('onechar' => 'X'));
+        $DB->update_record($tablename, array('id' => $id, 'onechar' => 1.0));
+        $this->assertEqual(1.0, $DB->get_field($tablename, 'onechar', array('id' => $id)));
+        $DB->update_record($tablename, array('id' => $id, 'onechar' => 1e20));
+        $this->assertEqual(1e20, $DB->get_field($tablename, 'onechar', array('id' => $id)));
+        $DB->update_record($tablename, array('id' => $id, 'onechar' => 1e-4));
+        $this->assertEqual(1e-4, $DB->get_field($tablename, 'onechar', array('id' => $id)));
+        $DB->update_record($tablename, array('id' => $id, 'onechar' => 1e-5));
+        $this->assertEqual(1e-5, $DB->get_field($tablename, 'onechar', array('id' => $id)));
+        $DB->update_record($tablename, array('id' => $id, 'onechar' => 1e-300));
+        $this->assertEqual(1e-300, $DB->get_field($tablename, 'onechar', array('id' => $id)));
+        $DB->update_record($tablename, array('id' => $id, 'onechar' => 1e300));
+        $this->assertEqual(1e300, $DB->get_field($tablename, 'onechar', array('id' => $id)));
+
+        // Test saving a float in a TEXT column, and reading it back.
+        $id = $DB->insert_record($tablename, array('onetext' => 'X'));
+        $DB->update_record($tablename, array('id' => $id, 'onetext' => 1.0));
+        $this->assertEqual(1.0, $DB->get_field($tablename, 'onetext', array('id' => $id)));
+        $DB->update_record($tablename, array('id' => $id, 'onetext' => 1e20));
+        $this->assertEqual(1e20, $DB->get_field($tablename, 'onetext', array('id' => $id)));
+        $DB->update_record($tablename, array('id' => $id, 'onetext' => 1e-4));
+        $this->assertEqual(1e-4, $DB->get_field($tablename, 'onetext', array('id' => $id)));
+        $DB->update_record($tablename, array('id' => $id, 'onetext' => 1e-5));
+        $this->assertEqual(1e-5, $DB->get_field($tablename, 'onetext', array('id' => $id)));
+        $DB->update_record($tablename, array('id' => $id, 'onetext' => 1e-300));
+        $this->assertEqual(1e-300, $DB->get_field($tablename, 'onetext', array('id' => $id)));
+        $DB->update_record($tablename, array('id' => $id, 'onetext' => 1e300));
+        $this->assertEqual(1e300, $DB->get_field($tablename, 'onetext', array('id' => $id)));
     }
 
     public function test_set_field() {
@@ -2213,6 +2291,36 @@ class dml_test extends UnitTestCase {
             $this->assertTrue($e instanceof dml_exception);
             $this->assertEqual($e->errorcode, 'textconditionsnotallowed');
         }
+
+        // Test saving a float in a CHAR column, and reading it back.
+        $id = $DB->insert_record($tablename, array('onechar' => 'X'));
+        $DB->set_field($tablename, 'onechar', 1.0, array('id' => $id));
+        $this->assertEqual(1.0, $DB->get_field($tablename, 'onechar', array('id' => $id)));
+        $DB->set_field($tablename, 'onechar', 1e20, array('id' => $id));
+        $this->assertEqual(1e20, $DB->get_field($tablename, 'onechar', array('id' => $id)));
+        $DB->set_field($tablename, 'onechar', 1e-4, array('id' => $id));
+        $this->assertEqual(1e-4, $DB->get_field($tablename, 'onechar', array('id' => $id)));
+        $DB->set_field($tablename, 'onechar', 1e-5, array('id' => $id));
+        $this->assertEqual(1e-5, $DB->get_field($tablename, 'onechar', array('id' => $id)));
+        $DB->set_field($tablename, 'onechar', 1e-300, array('id' => $id));
+        $this->assertEqual(1e-300, $DB->get_field($tablename, 'onechar', array('id' => $id)));
+        $DB->set_field($tablename, 'onechar', 1e300, array('id' => $id));
+        $this->assertEqual(1e300, $DB->get_field($tablename, 'onechar', array('id' => $id)));
+
+        // Test saving a float in a TEXT column, and reading it back.
+        $id = $DB->insert_record($tablename, array('onetext' => 'X'));
+        $DB->set_field($tablename, 'onetext', 1.0, array('id' => $id));
+        $this->assertEqual(1.0, $DB->get_field($tablename, 'onetext', array('id' => $id)));
+        $DB->set_field($tablename, 'onetext', 1e20, array('id' => $id));
+        $this->assertEqual(1e20, $DB->get_field($tablename, 'onetext', array('id' => $id)));
+        $DB->set_field($tablename, 'onetext', 1e-4, array('id' => $id));
+        $this->assertEqual(1e-4, $DB->get_field($tablename, 'onetext', array('id' => $id)));
+        $DB->set_field($tablename, 'onetext', 1e-5, array('id' => $id));
+        $this->assertEqual(1e-5, $DB->get_field($tablename, 'onetext', array('id' => $id)));
+        $DB->set_field($tablename, 'onetext', 1e-300, array('id' => $id));
+        $this->assertEqual(1e-300, $DB->get_field($tablename, 'onetext', array('id' => $id)));
+        $DB->set_field($tablename, 'onetext', 1e300, array('id' => $id));
+        $this->assertEqual(1e300, $DB->get_field($tablename, 'onetext', array('id' => $id)));
 
         // Note: All the nulls, booleans, empties, quoted and backslashes tests
         // go to set_field_select() because set_field() is just one wrapper over it
