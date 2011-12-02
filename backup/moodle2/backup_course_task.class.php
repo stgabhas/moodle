@@ -141,8 +141,28 @@ class backup_course_task extends backup_task {
      * Define the common setting that any backup section will have
      */
     protected function define_settings() {
+        global $DB;
+        global $CFG;
+        $groups = $DB->get_records('groups', array('courseid' => $this->courseid));
 
-        // Nothing to add, sections doesn't have common settings (for now)
+        // Define section_included (to decide if the whole task must be really executed)
+        $groups_setting = $this->plan->get_setting('groups');
+        foreach ($groups as $g) {
+            $settingname = 'group_'.$g->id.'_included';
+            $group_included = new backup_group_included_setting($settingname, base_setting::IS_BOOLEAN, true);
+            $group_included->get_ui()->set_label($g->name);
+            $this->add_setting($group_included);
+            $groups_setting->add_dependency($group_included);
 
+            $settingname = 'group_'.$g->id.'_userinfo';
+            $group_userinfo = new backup_group_userinfo_setting($settingname, base_setting::IS_BOOLEAN, true);
+            $group_userinfo->get_ui()->set_label('-');
+            $this->add_setting($group_userinfo);
+            // Look for "users" root setting
+            $users = $this->plan->get_setting('users');
+            $users->add_dependency($group_userinfo);
+
+            $group_included->add_dependency($group_userinfo);
+        }
     }
 }

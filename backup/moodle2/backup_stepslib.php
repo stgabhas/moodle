@@ -970,7 +970,13 @@ class backup_groups_structure_step extends backup_structure_step {
 
         // This only happens if we are including users
         if ($users) {
-            $member->set_source_table('groups_members', array('groupid' => backup::VAR_PARENTID));
+            $bid = $this->get_backupid();
+            $member->set_source_sql("
+                SELECT gm.*
+                  FROM {groups_members} gm
+                  JOIN {backup_ids_temp} bi ON gm.id = bi.itemid
+                 WHERE bi.backupid = ?
+                   AND bi.itemname = 'memberfinal'", array(backup::VAR_BACKUPID));
         }
 
         $grouping->set_source_sql("
@@ -1575,10 +1581,34 @@ class backup_annotate_course_groups_and_groupings extends backup_execution_step 
         global $DB;
 
         // Get all the course groups
-        if ($groups = $DB->get_records('groups', array(
-                'courseid' => $this->task->get_courseid()))) {
-            foreach ($groups as $group) {
-                backup_structure_dbops::insert_backup_ids_record($this->get_backupid(), 'group', $group->id);
+        $groups = array();
+        $groups_members = array();
+        foreach ($this->task->get_settings() as $s) {
+            if (($s instanceof backup_group_included_setting) &&
+                ($s->get_value() == 1)) {
+                $tmp = explode('_', $s->get_name());
+                $groups[] = $tmp[1];
+            } else if (($s instanceof backup_group_userinfo_setting) &&
+                       ($s->get_value() == 1)) {
+                $tmp = explode('_', $s->get_name());
+                $groups_members[] = $tmp[1];
+            }
+        }
+        $groups = implode(',', $groups);
+        if (!empty($groups)) {
+            if ($groups = $DB->get_records_select('groups', 'courseid = '.$this->task->get_courseid()." AND id IN ({$groups})")) {
+                foreach ($groups as $group) {
+                    backup_structure_dbops::insert_backup_ids_record($this->get_backupid(), 'group', $group->id);
+                }
+            }
+        }
+
+        $groups_members = implode(',', $groups_members);
+        if (!empty($groups_members)) {
+            if ($members = $DB->get_records_select('groups_members', "groupid IN ({$groups_members})")) {
+                foreach ($members as $member) {
+                    backup_structure_dbops::insert_backup_ids_record($this->get_backupid(), 'member', $member->id);
+                }
             }
         }
 

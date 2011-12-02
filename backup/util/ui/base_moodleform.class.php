@@ -61,6 +61,11 @@ abstract class base_moodleform extends moodleform {
      */
     protected $activitydiv = false;
     /**
+     * True if we have an group div open, false otherwise
+     * @var bool
+     */
+    protected $groupdiv = false;
+    /**
      * Creates the form
      *
      * @param backup_ui_stage $uistage
@@ -129,6 +134,10 @@ abstract class base_moodleform extends moodleform {
             $this->_form->addElement('html', html_writer::end_tag('div'));
             $this->coursediv = false;
         }
+        if ($this->groupdiv) {
+            $this->_form->addElement('html', html_writer::end_tag('div'));
+            $this->groupdiv = false;
+        }
     }
     /**
      * Adds the backup_setting as a element to the form
@@ -175,6 +184,10 @@ abstract class base_moodleform extends moodleform {
         if ($isincludesetting && $setting->get_level() != backup_setting::ROOT_LEVEL)  {
             switch ($setting->get_level()) {
                 case backup_setting::COURSE_LEVEL:
+                    if ($this->groupdiv) {
+                        $this->_form->addElement('html', html_writer::end_tag('div'));
+                        $this->groupdiv = false;
+                    }
                     if ($this->activitydiv) {
                         $this->_form->addElement('html', html_writer::end_tag('div'));
                         $this->activitydiv = false;
@@ -209,6 +222,14 @@ abstract class base_moodleform extends moodleform {
                     $mform->addElement('html', html_writer::start_tag('div', array('class'=>'grouped_settings activity_level')));
                     $mform->addElement('html', html_writer::start_tag('div', array('class'=>'include_setting activity_level')));
                     $this->activitydiv = true;
+                    break;
+                case backup_setting::GROUP_LEVEL:
+                    if ($this->groupdiv) {
+                        $this->_form->addElement('html', html_writer::end_tag('div'));
+                    }
+                    $mform->addElement('html', html_writer::start_tag('div', array('class'=>'grouped_settings group_level')));
+                    $mform->addElement('html', html_writer::start_tag('div', array('class'=>'include_setting group_level')));
+                    $this->groupdiv = true;
                     break;
                 default:
                     $mform->addElement('html', html_writer::start_tag('div', array('class'=>'normal_setting')));

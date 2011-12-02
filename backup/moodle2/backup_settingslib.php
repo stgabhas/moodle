@@ -116,6 +116,8 @@ class backup_section_generic_setting extends section_backup_setting {}
  */
 class backup_section_included_setting extends section_backup_setting {}
 
+class backup_group_included_setting extends group_backup_setting {}
+
 /**
  * section backup setting to control if section will include
  * user information or no, depends of @backup_users_setting
@@ -142,3 +144,5 @@ class backup_activity_included_setting extends activity_backup_setting {}
  * user information or no, depends of @backup_users_setting
  */
 class backup_activity_userinfo_setting extends activity_backup_setting {}
+
+class backup_group_userinfo_setting extends group_backup_setting {}

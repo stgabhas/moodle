@@ -34,3 +34,10 @@ abstract class section_backup_setting extends backup_setting {
         parent::__construct($name, $vtype, $value, $visibility, $status);
     }
 }
+abstract class group_backup_setting extends backup_setting {
+
+    public function __construct($name, $vtype, $value = null, $visibility = self::VISIBLE, $status = self::NOT_LOCKED) {
+        $this->level = self::GROUP_LEVEL;
+        parent::__construct($name, $vtype, $value, $visibility, $status);
+    }
+}

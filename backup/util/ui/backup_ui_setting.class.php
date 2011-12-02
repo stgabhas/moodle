@@ -197,6 +197,9 @@ abstract class backup_setting_ui extends base_setting_ui {
             case backup_setting::SECTION_LEVEL :
                 $this->name = 'section_'.$setting->get_name();
                 break;
+            case backup_setting::GROUP_LEVEL :
+                $this->name = 'group_'.$setting->get_name();
+                break;
             case backup_setting::ACTIVITY_LEVEL :
                 $this->name = 'activity_'.$setting->get_name();
                 break;
@@ -267,6 +270,8 @@ abstract class backup_setting_ui extends base_setting_ui {
                 $this->label = get_string('includesection', 'backup', $task->get_name());
             } else if ($this->setting->get_level() == backup_setting::ACTIVITY_LEVEL) {
                 $this->label = $task->get_name();
+            } else if ($this->setting->get_level() == backup_setting::GROUP_LEVEL) {
+                $this->label = get_string('includegroups', 'backup', $task->get_name());
             }
         }
         return $this->label;

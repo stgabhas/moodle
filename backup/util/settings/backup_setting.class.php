@@ -33,6 +33,7 @@ abstract class backup_setting extends base_setting implements checksumable {
     const ROOT_LEVEL     = 1;
     const COURSE_LEVEL   = 5;
     const SECTION_LEVEL  = 9;
+    const GROUP_LEVEL    = 12;
     const ACTIVITY_LEVEL = 13;
 
     /**

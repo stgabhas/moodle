@@ -138,5 +138,10 @@ class backup_root_task extends backup_task {
         $gradehistories->set_ui(new backup_setting_ui_checkbox($gradehistories, get_string('rootsettinggradehistories', 'backup')));
         $this->add_setting($gradehistories);
         $users->add_dependency($gradehistories);
+
+        //  Define Groups
+        $groups = new backup_generic_setting('groups', base_setting::IS_BOOLEAN, true);
+        $groups->set_ui(new backup_setting_ui_checkbox($groups, get_string('rootsettinggroups', 'backup')));
+        $this->add_setting($groups);
     }
 }
