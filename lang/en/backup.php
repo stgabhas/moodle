@@ -195,6 +195,7 @@ $string['restoringcourse'] = 'Course restoration in progress';
 $string['restoringcourseshortname'] = 'restoring';
 $string['restorerolemappings'] = 'Restore role mappings';
 $string['rootsettings'] = 'Backup settings';
+$string['rootsettinggroups'] = 'Include groups';
 $string['rootsettingusers'] = 'Include enrolled users';
 $string['rootsettinganonymize'] = 'Anonymize user information';
 $string['rootsettingroleassignments'] = 'Include user role assignments';
