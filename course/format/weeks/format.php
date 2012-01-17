@@ -44,6 +44,7 @@ defined('MOODLE_INTERNAL') || die();
     $strweek         = get_string('week');
     $strgroups       = get_string('groups');
     $strgroupmy      = get_string('groupmy');
+    $strdeletesection = get_string('deletesection');
     $editing         = $PAGE->user_is_editing();
 
     if ($editing) {
@@ -199,6 +200,12 @@ defined('MOODLE_INTERNAL') || die();
                 } else {
                     echo '<a href="view.php?id='.$course->id.'&amp;show='.$section.'&amp;sesskey='.sesskey().'#section-'.$section.'" title="'.$strweekshow.'">'.
                          '<img src="'.$OUTPUT->pix_url('i/show') . '" class="icon hide" alt="'.$strweekshow.'" /></a><br />';
+                }
+
+                if ($section > 0) {
+                    echo '<a class="delete_section" href="deletesection.php?id='.$thissection->id.
+                         '&amp;sesskey='.$USER->sesskey.'#section-'.$section.'" title="'.$strdeletesection.'">'.
+                         '<img src="'.$OUTPUT->pix_url('/t/delete').'" alt="'.$strdeletesection.'" /></a><br />';
                 }
                 if ($section > 1) {                       // Add a arrow to move section up
                     echo '<a href="view.php?id='.$course->id.'&amp;random='.rand(1,10000).'&amp;section='.$section.'&amp;move=-1&amp;sesskey='.sesskey().'#section-'.($section-1).'" title="'.$strmoveup.'">'.

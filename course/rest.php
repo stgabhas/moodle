@@ -80,6 +80,7 @@ switch($requestmethod) {
                 $coursecontext = get_context_instance(CONTEXT_COURSE, $course->id);
                 require_capability('moodle/course:update', $coursecontext);
 
+
                 if (!$DB->record_exists('course_sections', array('course'=>$course->id, 'section'=>$id))) {
                     error_log('AJAX commands.php: Bad Section ID '.$id);
                     die;
@@ -93,6 +94,7 @@ switch($requestmethod) {
                     case 'move':
                         move_section_to($course, $id, $value);
                         break;
+
                 }
                 rebuild_course_cache($course->id);
                 break;
@@ -221,6 +223,9 @@ switch($requestmethod) {
                 add_to_log($courseid, "course", "delete mod",
                            "view.php?id=$courseid",
                            "$cm->modname $cm->instance", $cm->id);
+                break;
+            case 'section':
+                delete_section($course->id, $sectionid);
                 break;
         }
         break;
