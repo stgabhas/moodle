@@ -1,0 +1,34 @@
+<?php
+    // set to defaults if undefined
+    if (!isset($config->enable_specific_message)) {
+        $config->enable_specific_message = false;
+    }
+
+    if( !isset($config->specific_message_text)){
+        $config->specific_message_text = get_string('invalidlogin');
+    }
+
+    $yesno = array( get_string('no'), get_string('yes') );
+?>
+
+<table cellspacing="0" cellpadding="5" border="0">
+<tr>
+    <td align="right">
+        <label for="menuenable_specific_message"><?php print_string('auth_nologin_specificmessage_select_key', 'auth_nologin') ?></label>
+    </td>
+    <td><?php
+        global $OUTPUT;
+        echo html_writer::select($yesno, 'enable_specific_message', $config->enable_specific_message, false);
+        ?></td>
+    <td><?php print_string('auth_nologin_specificmessage_description', 'auth_nologin') ?></td>
+</tr>
+<tr>
+    <td align="right">
+        <label for="specific_message_text"><?php print_string('auth_nologin_specificmessage_text_key', 'auth_nologin') ?></label>
+    </td>
+    <td>
+        <input id="specific_message_text" name="specific_message_text" type="text" size="50" maxlength="200" value="<?php echo $config->specific_message_text ?>" />
+    </td>
+    <td><?php print_string('auth_nologin_specificmessage_text_description', 'auth_nologin') ?></td>
+</tr>
+</table>
