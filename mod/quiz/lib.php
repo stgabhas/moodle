@@ -440,13 +440,14 @@ function quiz_user_complete($course, $user, $mod, $quiz) {
  * as sending out mail, toggling flags etc ...
  */
 function quiz_cron() {
-    global $DB;
+    global $DB, $CFG;
 
     // First handle standard plugins.
     cron_execute_plugin_type('quiz', 'quiz reports');
 
     // The deal with any plugins that do it the legacy way.
     mtrace("Starting legacy quiz reports");
+    $timenow = time();
     if ($reports = $DB->get_records_select('quiz_reports', "cron > 0 AND ((? - lastcron) > cron)", array($timenow))) {
         foreach ($reports as $report) {
             $cronfile = "$CFG->dirroot/mod/quiz/report/$report->name/cron.php";
@@ -1474,6 +1475,7 @@ function quiz_num_attempt_summary($quiz, $cm, $returnzero = false, $currentgroup
     $numattempts = $DB->count_records('quiz_attempts', array('quiz'=> $quiz->id, 'preview'=>0));
     if ($numattempts || $returnzero) {
         if (groups_get_activity_groupmode($cm)) {
+            $a = new stdClass();
             $a->total = $numattempts;
             if ($currentgroup) {
                 $a->group = $DB->count_records_sql('SELECT COUNT(DISTINCT qa.id) FROM ' .
@@ -1718,7 +1720,7 @@ function quiz_pluginfile($course, $cm, $context, $filearea, $args, $forcedownloa
  */
 function mod_quiz_question_pluginfile($course, $context, $component,
         $filearea, $qubaid, $slot, $args, $forcedownload) {
-    global $USER, $CFG;
+    global $CFG;
     require_once($CFG->dirroot . '/mod/quiz/locallib.php');
 
     $attemptobj = quiz_attempt::create_from_usage_id($qubaid);
