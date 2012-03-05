@@ -7,18 +7,16 @@
     if( !isset($config->specific_message_text)){
         $config->specific_message_text = get_string('invalidlogin');
     }
-
-    $yesno = array( get_string('no'), get_string('yes') );
 ?>
 
 <table cellspacing="0" cellpadding="5" border="0">
 <tr>
     <td align="right">
-        <label for="menuenable_specific_message"><?php print_string('auth_nologin_specificmessage_select_key', 'auth_nologin') ?></label>
+        <label for=checkbox_enable_specific_message"><?php print_string('auth_nologin_specificmessage_select_key', 'auth_nologin') ?></label>
     </td>
     <td><?php
         global $OUTPUT;
-        echo html_writer::select($yesno, 'enable_specific_message', $config->enable_specific_message, false);
+        echo html_writer::checkbox('enable_specific_message', 1, $config->enable_specific_message,'',array(id => checkbox_enable_specific_message));
         ?></td>
     <td><?php print_string('auth_nologin_specificmessage_description', 'auth_nologin') ?></td>
 </tr>
