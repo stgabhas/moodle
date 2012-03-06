@@ -11,8 +11,9 @@
 
 <table cellspacing="0" cellpadding="5" border="0">
 <tr>
-    <td align="right">
+    <td align="right" class="form-label">
         <label for=checkbox_enable_specific_message"><?php print_string('auth_nologin_specificmessage_select_key', 'auth_nologin') ?></label>
+        <br/><span class="form-shortname">enable_specific_message</span>
     </td>
     <td><?php
         global $OUTPUT;
@@ -21,8 +22,9 @@
     <td><?php print_string('auth_nologin_specificmessage_description', 'auth_nologin') ?></td>
 </tr>
 <tr>
-    <td align="right">
+    <td align="right" class="form-label">
         <label for="specific_message_text"><?php print_string('auth_nologin_specificmessage_text_key', 'auth_nologin') ?></label>
+        <br/><span class="form-shortname">specific_message_text</span>
     </td>
     <td>
         <input id="specific_message_text" name="specific_message_text" type="text" size="50" maxlength="200" value="<?php echo $config->specific_message_text ?>" />
