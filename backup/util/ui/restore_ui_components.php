@@ -39,7 +39,7 @@ abstract class restore_search_base implements renderable {
      */
     static $VAR_SEARCH = 'search';
 
-    static $MAXRESULTS = 10;
+    static $MAXRESULTS = 20;
     /**
      * The current search string
      * @var string|null
