@@ -55,7 +55,7 @@ class login_forgot_password_form extends moodleform {
 
         $errors = parent::validation($data, $files);
 
-        if ((!empty($data['username']) and !empty($data['email'])) or (empty($data['username']) and empty($data['email']))) {
+        if (empty($data['username']) and empty($data['email'])) {
             $errors['username'] = get_string('usernameoremail');
             $errors['email']    = get_string('usernameoremail');
 
