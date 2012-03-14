@@ -59,7 +59,17 @@ class login_forgot_password_form extends moodleform {
             $errors['username'] = get_string('usernameoremail');
             $errors['email']    = get_string('usernameoremail');
 
-        } else if (!empty($data['email'])) {
+        } else if (!empty($data['username'])) {
+            if ($user = get_complete_user_data('username', $data['username'])) {
+                if (empty($user->confirmed)) {
+                    $errors['email'] = get_string('confirmednot');
+                }
+            }
+            if (!$user and empty($CFG->protectusernames)) {
+                $errors['username'] = get_string('usernamenotfound');
+            }
+
+        } else {
             if (!validate_email($data['email'])) {
                 $errors['email'] = get_string('invalidemail');
 
@@ -75,16 +85,6 @@ class login_forgot_password_form extends moodleform {
                 if (!$user and empty($CFG->protectusernames)) {
                     $errors['email'] = get_string('emailnotfound');
                 }
-            }
-
-        } else {
-            if ($user = get_complete_user_data('username', $data['username'])) {
-                if (empty($user->confirmed)) {
-                    $errors['email'] = get_string('confirmednot');
-                }
-            }
-            if (!$user and empty($CFG->protectusernames)) {
-                $errors['username'] = get_string('usernamenotfound');
             }
         }
 
