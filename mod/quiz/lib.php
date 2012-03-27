@@ -58,13 +58,6 @@ define('QUIZ_ATTEMPTLAST',  '4');
  */
 define('QUIZ_MAX_EVENT_LENGTH', 5*24*60*60); // 5 days
 
-/**#@+
- * Options for navigation method within quizzes.
- */
-define('QUIZ_NAVMETHOD_FREE', 'free');
-define('QUIZ_NAVMETHOD_SEQ',  'sequential');
-/**#@-*/
-
 /**
  * Given an object containing all the necessary data,
  * (defined by the form in mod_form.php) this function
@@ -442,13 +435,44 @@ function quiz_user_complete($course, $user, $mod, $quiz) {
 }
 
 /**
- * Quiz periodic clean-up tasks.
+ * Function to be run periodically according to the moodle cron
+ * This function searches for things that need to be done, such
+ * as sending out mail, toggling flags etc ...
  */
 function quiz_cron() {
+    global $DB, $CFG;
 
-    // Run cron for our sub-plugin types.
+    // First handle standard plugins.
     cron_execute_plugin_type('quiz', 'quiz reports');
-    cron_execute_plugin_type('quizaccess', 'quiz access rules');
+
+    // The deal with any plugins that do it the legacy way.
+    mtrace("Starting legacy quiz reports");
+    $timenow = time();
+    if ($reports = $DB->get_records_select('quiz_reports', "cron > 0 AND ((? - lastcron) > cron)", array($timenow))) {
+        foreach ($reports as $report) {
+            $cronfile = "$CFG->dirroot/mod/quiz/report/$report->name/cron.php";
+            if (file_exists($cronfile)) {
+                include_once($cronfile);
+                $cron_function = 'quiz_report_'.$report->name."_cron";
+                if (function_exists($cron_function)) {
+                    mtrace("Processing quiz report cron function $cron_function ...", '');
+                    $pre_dbqueries = null;
+                    $pre_dbqueries = $DB->perf_get_queries();
+                    $pre_time      = microtime(1);
+                    if ($cron_function()) {
+                        $DB->set_field('quiz_reports', "lastcron", $timenow, array("id"=>$report->id));
+                    }
+                    if (isset($pre_dbqueries)) {
+                        mtrace("... used " . ($DB->perf_get_queries() - $pre_dbqueries) . " dbqueries");
+                        mtrace("... used " . (microtime(1) - $pre_time) . " seconds");
+                    }
+                    @set_time_limit(0);
+                    mtrace("done.");
+                }
+            }
+        }
+    }
+    mtrace("Finished legacy quiz reports");
 }
 
 /**
@@ -544,10 +568,8 @@ function quiz_format_question_grade($quiz, $grade) {
 /**
  * Update grades in central gradebook
  *
- * @category grade
  * @param object $quiz the quiz settings.
  * @param int $userid specific user only, 0 means all users.
- * @param bool $nullifnone If a single user is specified and $nullifnone is true a grade item with a null rawgrade will be inserted
  */
 function quiz_update_grades($quiz, $userid = 0, $nullifnone = true) {
     global $CFG, $DB;
@@ -599,9 +621,8 @@ function quiz_upgrade_grades() {
 }
 
 /**
- * Create or update the grade item for given quiz
+ * Create grade item for given quiz
  *
- * @category grade
  * @param object $quiz object with extra cmidnumber
  * @param mixed $grades optional array/object of grade(s); 'reset' means reset grades in gradebook
  * @return int 0 if ok, error code otherwise
@@ -690,7 +711,6 @@ function quiz_grade_item_update($quiz, $grades = null) {
 /**
  * Delete grade item for given quiz
  *
- * @category grade
  * @param object $quiz object
  * @return object quiz
  */
@@ -763,7 +783,7 @@ function quiz_get_recent_mod_activity(&$activities, &$index, $timestart,
         $course = $DB->get_record('course', array('id' => $courseid));
     }
 
-    $modinfo = get_fast_modinfo($course);
+    $modinfo =& get_fast_modinfo($course);
 
     $cm = $modinfo->cms[$cmid];
     $quiz = $DB->get_record('quiz', array('id' => $cm->instance));
@@ -1645,14 +1665,12 @@ function quiz_extend_settings_navigation($settings, $quiznode) {
 /**
  * Serves the quiz files.
  *
- * @package  mod_quiz
- * @category files
- * @param stdClass $course course object
- * @param stdClass $cm course module object
- * @param stdClass $context context object
- * @param string $filearea file area
- * @param array $args extra arguments
- * @param bool $forcedownload whether or not force download
+ * @param object $course
+ * @param object $cm
+ * @param object $context
+ * @param string $filearea
+ * @param array $args
+ * @param bool $forcedownload
  * @return bool false if file not found, does not return if found - justsend the file
  */
 function quiz_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload) {
@@ -1692,14 +1710,10 @@ function quiz_pluginfile($course, $cm, $context, $filearea, $args, $forcedownloa
  * Called via pluginfile.php -> question_pluginfile to serve files belonging to
  * a question in a question_attempt when that attempt is a quiz attempt.
  *
- * @package  mod_quiz
- * @category files
- * @param stdClass $course course settings object
- * @param stdClass $context context object
+ * @param object $course course settings object
+ * @param object $context context object
  * @param string $component the name of the component we are serving files for.
  * @param string $filearea the name of the file area.
- * @param int $qubaid the attempt usage id.
- * @param int $slot the id of a question in this quiz attempt.
  * @param array $args the remaining bits of the file path.
  * @param bool $forcedownload whether the user must be forced to download the file.
  * @return bool false if file not found, does not return if found - justsend the file
@@ -1751,14 +1765,4 @@ function quiz_page_type_list($pagetype, $parentcontext, $currentcontext) {
         'mod-quiz-*'=>get_string('page-mod-quiz-x', 'quiz'),
         'mod-quiz-edit'=>get_string('page-mod-quiz-edit', 'quiz'));
     return $module_pagetype;
-}
-
-/**
- * @return the options for quiz navigation.
- */
-function quiz_get_navigation_options() {
-    return array(
-        QUIZ_NAVMETHOD_FREE => get_string('navmethod_free', 'quiz'),
-        QUIZ_NAVMETHOD_SEQ  => get_string('navmethod_seq', 'quiz')
-    );
 }

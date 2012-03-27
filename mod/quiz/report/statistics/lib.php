@@ -29,10 +29,7 @@ defined('MOODLE_INTERNAL') || die();
 
 /**
  * Serve questiontext files in the question text when they are displayed in this report.
- *
- * @package  mod_quiz
- * @category files
- * @param stdClass $context the context
+ * @param context $context the context
  * @param int $questionid the question id
  * @param array $args remaining file args
  * @param bool $forcedownload

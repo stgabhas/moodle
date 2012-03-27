@@ -1036,7 +1036,8 @@ function data_get_user_grades($data, $userid=0) {
 /**
  * Update activity grades
  *
- * @category grade
+ * @global object
+ * @global object
  * @param object $data
  * @param int $userid specific user only, 0 means all
  * @param bool $nullifnone
@@ -1096,9 +1097,9 @@ function data_upgrade_grades() {
 /**
  * Update/create grade item for given data
  *
- * @category grade
- * @param stdClass $data A database instance with extra cmidnumber property
- * @param mixed $grades Optional array/object of grade(s); 'reset' means reset grades in gradebook
+ * @global object
+ * @param object $data object with extra cmidnumber
+ * @param mixed optional array/object of grade(s); 'reset' means reset grades in gradebook
  * @return object grade_item
  */
 function data_grade_item_update($data, $grades=NULL) {
@@ -1131,7 +1132,7 @@ function data_grade_item_update($data, $grades=NULL) {
 /**
  * Delete grade item for given data
  *
- * @category grade
+ * @global object
  * @param object $data object
  * @return object grade_item
  */
@@ -2868,11 +2869,9 @@ function data_get_exportdata($dataid, $fields, $selectedfields, $currentgroup=0)
 /**
  * Lists all browsable file areas
  *
- * @package  mod_data
- * @category files
- * @param stdClass $course course object
- * @param stdClass $cm course module object
- * @param stdClass $context context object
+ * @param object $course
+ * @param object $cm
+ * @param object $context
  * @return array
  */
 function data_get_file_areas($course, $cm, $context) {
@@ -2955,14 +2954,12 @@ function mod_data_get_file_info($browser, $areas, $course, $cm, $context, $filea
 /**
  * Serves the data attachments. Implements needed access control ;-)
  *
- * @package  mod_data
- * @category files
- * @param stdClass $course course object
- * @param stdClass $cm course module object
- * @param stdClass $context context object
- * @param string $filearea file area
- * @param array $args extra arguments
- * @param bool $forcedownload whether or not force download
+ * @param object $course
+ * @param object $cm
+ * @param object $context
+ * @param string $filearea
+ * @param array $args
+ * @param bool $forcedownload
  * @return bool false if file not found, does not return if found - justsend the file
  */
 function data_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload) {
@@ -3344,9 +3341,6 @@ function data_presets_export($course, $cm, $data, $tostorage=false) {
  * Capability check has been done in comment->check_permissions(), we
  * don't need to do it again here.
  *
- * @package  mod_data
- * @category comment
- *
  * @param stdClass $comment_param {
  *              context  => context the context object
  *              courseid => int course id
@@ -3373,9 +3367,6 @@ function data_comment_permissions($comment_param) {
 
 /**
  * Validate comment parameter before perform other comments actions
- *
- * @package  mod_data
- * @category comment
  *
  * @param stdClass $comment_param {
  *              context  => context the context object

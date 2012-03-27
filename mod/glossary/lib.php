@@ -323,12 +323,13 @@ function glossary_user_complete($course, $user, $mod, $glossary) {
  * @return bool
  */
 function glossary_print_recent_activity($course, $viewfullnames, $timestart) {
-    global $CFG, $USER, $DB, $OUTPUT, $PAGE;
+    global $CFG, $USER, $DB, $OUTPUT;
 
     //TODO: use timestamp in approved field instead of changing timemodified when approving in 2.0
     if (!defined('GLOSSARY_RECENT_ACTIVITY_LIMIT')) {
         define('GLOSSARY_RECENT_ACTIVITY_LIMIT', 50);
     }
+
     $modinfo = get_fast_modinfo($course);
     $ids = array();
 
@@ -350,20 +351,15 @@ function glossary_print_recent_activity($course, $viewfullnames, $timestart) {
     $approvals = array();
     foreach ($ids as $glinstanceid => $glcmid) {
         $context = get_context_instance(CONTEXT_MODULE, $glcmid);
-        if (has_capability('mod/glossary:view', $context)) {
-            // get records glossary entries that are approved if user has no capability to approve entries.
-            if (has_capability('mod/glossary:approve', $context)) {
-                $approvals[] = ' ge.glossaryid = :glsid'.$glinstanceid.' ';
-            } else {
-                $approvals[] = ' (ge.approved = 1 AND ge.glossaryid = :glsid'.$glinstanceid.') ';
-            }
-            $params['glsid'.$glinstanceid] = $glinstanceid;
+        // get records glossary entries that are approved if user has no capability to approve entries.
+        if (has_capability('mod/glossary:approve', $context)) {
+            $approvals[] = ' ge.glossaryid = :glsid'.$glinstanceid.' ';
+        } else {
+            $approvals[] = ' (ge.approved = 1 AND ge.glossaryid = :glsid'.$glinstanceid.') ';
         }
+        $params['glsid'.$glinstanceid] = $glinstanceid;
     }
 
-    if (count($approvals) == 0) {
-        return false;
-    }
     $selectsql = 'SELECT ge.id, ge.concept, ge.approved, ge.timemodified, ge.glossaryid,
                                         '.user_picture::fields('u',null,'userid');
     $countsql = 'SELECT COUNT(*)';
@@ -373,14 +369,11 @@ function glossary_print_recent_activity($course, $viewfullnames, $timestart) {
     $fromsql = implode($joins, "\n");
 
     $params['timestart'] = $timestart;
-    $clausesql = ' WHERE ge.timemodified > :timestart ';
+    $clausesql = ' WHERE ge.timemodified > :timestart AND (';
+    $approvalsql = implode($approvals, ' OR ');
 
-    if (count($approvals) > 0) {
-        $approvalsql = 'AND ('. implode($approvals, ' OR ') .') ';
-    } else {
-        $approvalsql = '';
-    }
-    $ordersql = 'ORDER BY ge.timemodified ASC';
+    $ordersql = ') ORDER BY ge.timemodified ASC';
+
     $entries = $DB->get_records_sql($selectsql.$fromsql.$clausesql.$approvalsql.$ordersql, $params, 0, (GLOSSARY_RECENT_ACTIVITY_LIMIT+1));
 
     if (empty($entries)) {
@@ -388,6 +381,7 @@ function glossary_print_recent_activity($course, $viewfullnames, $timestart) {
     }
 
     echo $OUTPUT->heading(get_string('newentries', 'glossary').':');
+
     $strftimerecent = get_string('strftimerecent');
     $entrycount = 0;
     foreach ($entries as $entry) {
@@ -441,9 +435,10 @@ function glossary_cron () {
 /**
  * Return grade for given user or all users.
  *
- * @param stdClass $glossary A glossary instance
- * @param int $userid Optional user id, 0 means all users
- * @return array An array of grades, false if none
+ * @global object
+ * @param int $glossaryid id of glossary
+ * @param int $userid optional user id, 0 means all users
+ * @return array array of grades, false if none
  */
 function glossary_get_user_grades($glossary, $userid=0) {
     global $CFG;
@@ -588,10 +583,10 @@ function glossary_rating_validate($params) {
 /**
  * Update activity grades
  *
- * @category grade
- * @param stdClass $glossary Null means all glossaries (with extra cmidnumber property)
+ * @global object
+ * @global object
+ * @param object $glossary null means all glossaries (with extra cmidnumber property)
  * @param int $userid specific user only, 0 means all
- * @param bool $nullifnone If true and the user has no grade then a grade item with rawgrade == null will be inserted
  */
 function glossary_update_grades($glossary=null, $userid=0, $nullifnone=true) {
     global $CFG, $DB;
@@ -647,9 +642,9 @@ function glossary_upgrade_grades() {
 /**
  * Create/update grade item for given glossary
  *
- * @category grade
- * @param stdClass $glossary object with extra cmidnumber
- * @param mixed $grades Optional array/object of grade(s); 'reset' means reset grades in gradebook
+ * @global object
+ * @param object $glossary object with extra cmidnumber
+ * @param mixed optional array/object of grade(s); 'reset' means reset grades in gradebook
  * @return int, 0 if ok, error code otherwise
  */
 function glossary_grade_item_update($glossary, $grades=NULL) {
@@ -682,7 +677,7 @@ function glossary_grade_item_update($glossary, $grades=NULL) {
 /**
  * Delete grade item for given glossary
  *
- * @category grade
+ * @global object
  * @param object $glossary object
  */
 function glossary_grade_item_delete($glossary) {
@@ -877,7 +872,7 @@ function glossary_get_entries_search($concept, $courseid) {
         $bypassteacher = 0; //This means YES
     }
 
-    $conceptlower = textlib::strtolower(trim($concept));
+    $conceptlower = moodle_strtolower(trim($concept));
 
     $params = array('courseid1'=>$courseid, 'courseid2'=>$courseid, 'conceptlower'=>$conceptlower, 'concept'=>$concept);
 
@@ -1456,11 +1451,9 @@ function glossary_print_attachments($entry, $cm, $type=NULL, $align="left") {
 /**
  * Lists all browsable file areas
  *
- * @package  mod_glossary
- * @category files
- * @param stdClass $course course object
- * @param stdClass $cm course module object
- * @param stdClass $context context object
+ * @param object $course
+ * @param object $cm
+ * @param object $context
  * @return array
  */
 function glossary_get_file_areas($course, $cm, $context) {
@@ -1530,14 +1523,12 @@ function mod_glossary_get_file_info($browser, $areas, $course, $cm, $context, $f
 /**
  * Serves the glossary attachments. Implements needed access control ;-)
  *
- * @package  mod_glossary
- * @category files
- * @param stdClass $course course object
- * @param stdClass $cm course module object
- * @param stdClsss $context context object
- * @param string $filearea file area
- * @param array $args extra arguments
- * @param bool $forcedownload whether or not force download
+ * @param object $course
+ * @param object $cm
+ * @param object $context
+ * @param string $filearea
+ * @param array $args
+ * @param bool $forcedownload
  * @return bool false if file not found, does not return if found - justsend the file
  */
 function glossary_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload) {
@@ -1953,9 +1944,9 @@ function glossary_print_sorting_links($cm, $mode, $sortkey = '',$sortorder = '')
  */
 function glossary_sort_entries ( $entry0, $entry1 ) {
 
-    if ( textlib::strtolower(ltrim($entry0->concept)) < textlib::strtolower(ltrim($entry1->concept)) ) {
+    if ( moodle_strtolower(ltrim($entry0->concept)) < moodle_strtolower(ltrim($entry1->concept)) ) {
         return -1;
-    } elseif ( textlib::strtolower(ltrim($entry0->concept)) > textlib::strtolower(ltrim($entry1->concept)) ) {
+    } elseif ( moodle_strtolower(ltrim($entry0->concept)) > moodle_strtolower(ltrim($entry1->concept)) ) {
         return 1;
     } else {
         return 0;
@@ -2511,8 +2502,9 @@ function glossary_reset_course_form_defaults($course) {
 /**
  * Removes all grades from gradebook
  *
- * @param int $courseid The ID of the course to reset
- * @param string $type The optional type of glossary. 'main', 'secondary' or ''
+ * @global object
+ * @param int $courseid
+ * @param string optional type
  */
 function glossary_reset_gradebook($courseid, $type='') {
     global $DB;
@@ -2838,7 +2830,7 @@ function glossary_extend_settings_navigation(settings_navigation $settings, navi
 
     $glossary = $DB->get_record('glossary', array("id" => $PAGE->cm->instance));
 
-    if (!empty($CFG->enablerssfeeds) && !empty($CFG->glossary_enablerssfeeds) && $glossary->rsstype && $glossary->rssarticles && has_capability('mod/glossary:view', $PAGE->cm->context)) {
+    if (!empty($CFG->enablerssfeeds) && !empty($CFG->glossary_enablerssfeeds) && $glossary->rsstype && $glossary->rssarticles  && can_access_course($PAGE->course, $USER)) {
         require_once("$CFG->libdir/rsslib.php");
 
         $string = get_string('rsstype','forum');
@@ -2856,9 +2848,6 @@ function glossary_extend_settings_navigation(settings_navigation $settings, navi
  * Capability check has been done in comment->check_permissions(), we
  * don't need to do it again here.
  *
- * @package  mod_glossary
- * @category comment
- *
  * @param stdClass $comment_param {
  *              context  => context the context object
  *              courseid => int course id
@@ -2874,9 +2863,6 @@ function glossary_comment_permissions($comment_param) {
 
 /**
  * Validate comment parameter before perform other comments actions
- *
- * @package  mod_glossary
- * @category comment
  *
  * @param stdClass $comment_param {
  *              context  => context the context object

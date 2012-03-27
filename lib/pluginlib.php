@@ -303,7 +303,8 @@ class plugin_manager {
      */
     public static function is_deleted_standard_plugin($type, $name) {
         static $plugins = array(
-            // do not add 1.9-2.2 plugin removals here
+            'block' => array('admin', 'admin_tree', 'loancalc', 'search'),
+            'filter' => array('mod_data', 'mod_glossary'),
         );
 
         if (!isset($plugins[$type])) {
@@ -465,8 +466,7 @@ class plugin_manager {
 
             'scormreport' => array(
                 'basic',
-                'interactions',
-                'graphs'
+                'interactions'
             ),
 
             'theme' => array(

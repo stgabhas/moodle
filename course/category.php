@@ -251,25 +251,23 @@ if (has_capability('moodle/category:viewhiddencategories', $context)) {
 }
 // We're going to preload the context for the subcategory as we know that we
 // need it later on for formatting.
-
-$ctxselect = context_helper::get_preload_record_columns_sql('ctx');
-$sql = "SELECT cc.*, $ctxselect
+list($ctxselect, $ctxjoin) = context_instance_preload_sql('cc.id', CONTEXT_COURSECAT, 'ctx');
+$sql = "SELECT cc.* $ctxselect
           FROM {course_categories} cc
-          JOIN {context} ctx ON cc.id = ctx.instanceid
-         WHERE cc.parent = :parentid AND
-               ctx.contextlevel = :contextlevel
+               $ctxjoin
+         WHERE cc.parent = :parentid
                $categorywhere
       ORDER BY cc.sortorder ASC";
-$subcategories = $DB->get_recordset_sql($sql, array('parentid' => $category->id, 'contextlevel' => CONTEXT_COURSECAT));
+$subcategories = $DB->get_recordset_sql($sql, array('parentid' => $category->id));
 // Prepare a table to display the sub categories.
 $table = new html_table;
 $table->attributes = array('border' => '0', 'cellspacing' => '2', 'cellpadding' => '4', 'class' => 'generalbox boxaligncenter category_subcategories');
-$table->head = array(new lang_string('subcategories'));
+$table->head = array(get_string('subcategories'));
 $table->data = array();
 $baseurl = new moodle_url('/course/category.php');
 foreach ($subcategories as $subcategory) {
     // Preload the context we will need it to format the category name shortly.
-    context_helper::preload_from_record($subcategory);
+    context_instance_preload($subcategory);
     $context = get_context_instance(CONTEXT_COURSECAT, $subcategory->id);
     // Prepare the things we need to create a link to the subcategory
     $attributes = $subcategory->visible ? array() : array('class' => 'dimmed');

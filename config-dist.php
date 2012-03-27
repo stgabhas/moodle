@@ -385,32 +385,6 @@ $CFG->admin = 'admin';
 //
 //     $CFG->extramemorylimit = '1G';
 //
-// The CSS files the Moodle produces can be extremely large and complex, especially
-// if you are using a custom theme that builds upon several other themes.
-// In Moodle 2.3 a CSS optimiser was added as an experimental feature for advanced
-// users. The CSS optimiser organises the CSS in order to reduce the overall number
-// of rules and styles being sent to the client. It does this by collating the
-// CSS before it is cached removing excess styles and rules and stripping out any
-// extraneous content such as comments and empty rules.
-// The following settings are used to enable and control the optimisation.
-//
-// Enable the CSS optimiser. This will only optimise the CSS if themedesignermode
-// is not enabled. This can be set through the UI however it is noted here as well
-// because the other CSS optimiser settings can not be set through the UI.
-//
-//      $CFG->enablecssoptimiser = true;
-//
-// If set the CSS optimiser will add stats about the optimisation to the top of
-// the optimised CSS file. You can then inspect the CSS to see the affect the CSS
-// optimiser is having.
-//
-//      $CFG->cssoptimiserstats = true;
-//
-// If set the CSS that is optimised will still retain a minimalistic formatting
-// so that anyone wanting to can still clearly read it.
-//
-//      $CFG->cssoptimiserpretty = true;
-//
 //=========================================================================
 // 8. SETTINGS FOR DEVELOPMENT SERVERS - not intended for production use!!!
 //=========================================================================
@@ -479,13 +453,7 @@ $CFG->admin = 'admin';
 // Example:
 //   $CFG->forced_plugin_settings = array('pluginname'  => array('settingname' => 'value', 'secondsetting' => 'othervalue'),
 //                                        'otherplugin' => array('mysetting' => 'myvalue', 'thesetting' => 'thevalue'));
-//
-//=========================================================================
-// 9. PHPUNIT SUPPORT
-//=========================================================================
-// $CFG->phpunit_prefix = 'phpu_';
-// $CFG->phpunit_dataroot = '/home/example/phpu_moodledata';
-// $CFG->phpunit_directorypermissions = 02777; // optional
+
 
 //=========================================================================
 // ALL DONE!  To continue installation, visit your main page with a browser
