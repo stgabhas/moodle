@@ -230,5 +230,3 @@ switch($requestmethod) {
         }
         break;
 }
-
-

@@ -142,6 +142,7 @@ class jsportal {
         $output .= "    main.portal.lastsection = ".$DB->get_field_sql("SELECT MAX(section) FROM {course_sections} WHERE course = ?", array($courseid)).";\n"; // needed for orphaned activities in unavailable sections
         $output .= "    main.portal.strings['hide']='".addslashes_js(get_string('hide'))."';\n";
         $output .= "    main.portal.strings['hidesection']='".addslashes_js(get_string('hidesection', '', '_var_'))."';\n";
+        $output .= "    main.portal.strings['deletesectioncheck']='".addslashes_js(get_string('deletesectioncheck', '', '_var_'))."';\n";
         $output .= "    main.portal.strings['show']='".addslashes_js(get_string('show'))."';\n";
         $output .= "    main.portal.strings['delete']='".addslashes_js(get_string('delete'))."';\n";
         $output .= "    main.portal.strings['move']='".addslashes_js(get_string('move'))."';\n";
