@@ -193,7 +193,7 @@ Ele serve tanto para obter sua senha inicial (primeiro acesso) como para obter u
 <p>O procedimento é composto de duas etapas:</p>
 
 <ol>
-<li>Após preencher sua identificação abaixo, o Moodle encaminhará para seu email um pedido de confirmação de forma a garantir que foi você mesmo que fez a solicitação;</li>
+<li>Após preencher seu usuário abaixo, o Moodle encaminhará para seu email um pedido de confirmação de forma a garantir que foi você mesmo que fez a solicitação;</li>
 <li>Confirmada a solicitação, o Moodle lhe encaminhará uma segunda mensagem com a nova senha.</li>
 </ol>
 
