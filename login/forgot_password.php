@@ -197,7 +197,7 @@ Ele serve tanto para obter sua senha inicial (primeiro acesso) como para obter u
 <li>Confirmada a solicitação, o Moodle lhe encaminhará uma segunda mensagem com a nova senha.</li>
 </ol>
 
-<p>Insira abaixo sua identificação:</p>
+<p>Insira abaixo seu usuário:</p>
 
 <ul>
 <li>Estudantes - número de matrícula (ex: 08299012, 200501234, 912345, conforme o caso);</li>
