@@ -40,14 +40,6 @@ class login_forgot_password_form extends moodleform {
 
         $submitlabel = get_string('search');
         $mform->addElement('submit', 'submitbuttonusername', $submitlabel);
-
-        $mform->addElement('header', '', get_string('searchbyemail'), '');
-
-        $mform->addElement('text', 'email', get_string('email'));
-        $mform->setType('email', PARAM_RAW);
-
-        $submitlabel = get_string('search');
-        $mform->addElement('submit', 'submitbuttonemail', $submitlabel);
     }
 
     function validation($data, $files) {
@@ -55,11 +47,10 @@ class login_forgot_password_form extends moodleform {
 
         $errors = parent::validation($data, $files);
 
-        if (empty($data['username']) and empty($data['email'])) {
-            $errors['username'] = get_string('usernameoremail');
-            $errors['email']    = get_string('usernameoremail');
+        if (empty($data['username'])) {
+            $errors['username'] = get_string('enterusername');
 
-        } else if (!empty($data['username'])) {
+        } else {
             if ($user = get_complete_user_data('username', $data['username'])) {
                 if (empty($user->confirmed)) {
                     $errors['email'] = get_string('confirmednot');
@@ -69,25 +60,7 @@ class login_forgot_password_form extends moodleform {
                 $errors['username'] = get_string('usernamenotfound');
             }
 
-        } else {
-            if (!validate_email($data['email'])) {
-                $errors['email'] = get_string('invalidemail');
-
-            } else if ($DB->count_records('user', array('email'=>$data['email'])) > 1) {
-                $errors['email'] = get_string('forgottenduplicate');
-
-            } else {
-                if ($user = get_complete_user_data('email', $data['email'])) {
-                    if (empty($user->confirmed)) {
-                        $errors['email'] = get_string('confirmednot');
-                    }
-                }
-                if (!$user and empty($CFG->protectusernames)) {
-                    $errors['email'] = get_string('emailnotfound');
-                }
-            }
         }
-
         return $errors;
     }
 
