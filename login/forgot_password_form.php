@@ -33,12 +33,12 @@ class login_forgot_password_form extends moodleform {
     function definition() {
         $mform    = $this->_form;
 
-        $mform->addElement('header', '', get_string('enterusername'), '');
+        $mform->addElement('header', '', get_string('getnewpassword'), '');
 
         $mform->addElement('text', 'username', get_string('username'));
         $mform->setType('username', PARAM_RAW);
 
-        $submitlabel = get_string('search');
+        $submitlabel = get_string('submit');
         $mform->addElement('submit', 'submitbuttonusername', $submitlabel);
     }
 

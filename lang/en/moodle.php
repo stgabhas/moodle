@@ -726,6 +726,7 @@ $string['gd1'] = 'GD 1.x is installed';
 $string['gd2'] = 'GD 2.x is installed';
 $string['general'] = 'General';
 $string['geolocation'] = 'latitude - longitude';
+$string['getnewpassword'] = 'Get new password';
 $string['gettheselogs'] = 'Get these logs';
 $string['go'] = 'Go';
 $string['gpl'] = 'Copyright (C) 1999 onwards  Martin Dougiamas  (http://moodle.com)
