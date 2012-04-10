@@ -55,6 +55,12 @@ class login_forgot_password_form extends moodleform {
                 if (empty($user->confirmed)) {
                     $errors['email'] = get_string('confirmednot');
                 }
+                if ($user->auth == 'nologin'){
+                    $nologin_cfgs = get_config('auth/nologin');
+                    if(!empty($nologin_cfgs->enable_specific_message)){
+                        $errors['username'] = $nologin_cfgs->specific_message_text;
+                    }
+                }
             }
             if (!$user and empty($CFG->protectusernames)) {
                 $errors['username'] = get_string('usernamenotfound');
