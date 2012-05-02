@@ -25,3 +25,12 @@ CVS
 /.project
 /.buildpath
 /.cache
+
+
+blocks/cagr/
+blocks/exaport/
+enrol/ufsc/
+local/onlinejudge/
+mod/book/
+mod/questionnaire/
+theme/ufsc/
