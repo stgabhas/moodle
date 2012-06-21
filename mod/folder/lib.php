@@ -53,7 +53,7 @@ function folder_supports($feature) {
  * @return array
  */
 function folder_get_extra_capabilities() {
-    return array('moodle/site:accessallgroups');
+    return array('moodle/site:accessallgroups', 'moodle/site:receiveuploadnotifications');
 }
 
 /**
