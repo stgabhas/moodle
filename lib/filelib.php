@@ -677,6 +677,7 @@ function file_save_draft_area_files($draftitemid, $contextid, $component, $filea
             }
             if (!$file->is_directory()) {
                 $filecount++;
+                file_notify_users_new_file($contextid, $file);
             }
             $fs->create_file_from_storedfile($file_record, $file);
         }
@@ -732,6 +733,9 @@ function file_save_draft_area_files($draftitemid, $contextid, $component, $filea
             }
             if (!$file->is_directory()) {
                 $filecount++;
+                if ($file->get_timecreated() == $file->get_timemodified()) {
+                    file_notify_users_new_file($contextid, $file);
+                }
             }
             $fs->create_file_from_storedfile($file_record, $file);
         }
@@ -745,6 +749,37 @@ function file_save_draft_area_files($draftitemid, $contextid, $component, $filea
         return null;
     } else {
         return file_rewrite_urls_to_pluginfile($text, $draftitemid, $forcehttps);
+    }
+}
+
+function file_notify_users_new_file($contextid, $file) {
+    global $SESSION;
+
+    // notify users via email that a file was uploaded...
+    $context = get_context_instance_by_id($contextid);
+    $site = get_site();
+    $supportuser = generate_email_supportuser();
+
+    $a = new stdclass();
+    $a->url = $context->get_url()->out();
+    $a->filename = $file->get_filename();
+    $a->context_name = $context->get_context_name();
+    $a->user_fullname = fullname($USER);
+    if ($course_context = $context->get_course_context()) {
+        $a->course_name = $course_context->get_context_name();
+        $a->course_url =  $course_context->get_url()->out();
+        $subject = format_string($site->fullname) .': '. get_string('newuploademailsubjectcourse', 'moodle', $a->course_name);
+        $message_string = 'newuploademailmessagecourse';
+    } else {
+        $subject = format_string($site->fullname) .': '. get_string('newuploademailsubject');
+        $message_string = 'newuploademailmessage';
+    }
+    $SESSION->newuploademailnotifications = array();
+    $users = get_enrolled_users($context, 'moodle/site:receiveuploadnotifications');
+    foreach ($users as $u) {
+        $message = get_string($message_string, 'moodle', $a);
+        email_to_user($u, $supportuser, $subject, '', $message);
+        $SESSION->newuploademailnotifications[] = array(fullname($u), $u->email);
     }
 }
 
