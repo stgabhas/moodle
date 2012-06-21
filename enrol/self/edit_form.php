@@ -111,6 +111,54 @@ class enrol_self_edit_form extends moodleform {
         $mform->addElement('hidden', 'courseid');
         $mform->setType('courseid', PARAM_INT);
 
+        // Conditions based on grades
+        $mform->addElement('header', '', get_string('courseavailabilityconditions', 'enrol_self'));
+        $courseoptions = array();
+        global $CFG, $DB;
+        $sql = "select c.id,c.fullname,cc.name
+                  from {$CFG->prefix}course  c
+             LEFT JOIN {$CFG->prefix}course_categories cc
+                    ON cc.id = c.category 
+                 WHERE c.id != 1
+                   AND c.id != {$context->instanceid}
+              ORDER BY cc.name,cc.id,c.fullname";
+        if ($courses = $DB->get_records_sql($sql)) {
+            foreach ( $courses as $course_id=>$course_and_cat ) {
+                $courseoptions[$course_id] = $course_and_cat->fullname;
+            }
+        }
+        asort($courseoptions);
+        $courseoptions = array(0=>get_string('none','enrol_self'))+$courseoptions;
+        $grouparray = array();
+        $grouparray[] =& $mform->addElement('select','courseconditioncourseid','',$courseoptions);
+        $grouparray[] =& $mform->addElement('static', '', '',' '.get_string('grade_atleast','enrol_self').' ');
+        $grouparray[] =& $mform->addElement('text', 'courseconditiongrademin','',array('size'=>3));
+        $grouparray[] =& $mform->addElement('static', '', '','% '.get_string('grade_upto','enrol_self').' ');
+        $grouparray[] =& $mform->addElement('text', 'courseconditiongrademax','',array('size'=>3));
+        $grouparray[] =& $mform->addElement('static', '', '','%');
+        $mform->setType('courseconditiongrademin',PARAM_FLOAT);
+        $mform->setType('courseconditiongrademax',PARAM_FLOAT);
+        $group = $mform->createElement('group','courseconditiongradegroup',
+                                       get_string('coursegradecondition', 'enrol_self'),$grouparray);
+        $count = 3; //@TODO set this value to current conditions count + 1
+        $mform->repeat_elements(array($group),$count,array(),
+                                'courseconditioncompletionrepeats','courseconditioncompletionadds',2,
+                                get_string('addcompletions','enrol_self'),true);
+
+        $sql = "select * FROM {$CFG->prefix}course_availability WHERE courseid='{$context->instanceid}'";
+        if ($course_availability_set = $DB->get_records_sql($sql)) {
+            $num=0;
+            foreach($course_availability_set as $caid=>$ca) {
+                $groupelements = $mform->getElement('courseconditiongradegroup['.$num.']')->getElements();
+                $groupelements[0]->setValue($ca->sourcecourseid);
+                // These numbers are always in the format 0.00000 - the rtrims remove any final zeros and,
+                // if it is a whole number, the decimal place.
+                $groupelements[2]->setValue(is_null($ca->grademin)?'':rtrim(rtrim($ca->grademin,'0'),'.'));
+                $groupelements[4]->setValue(is_null($ca->grademax)?'':rtrim(rtrim($ca->grademax,'0'),'.'));
+                $num++;
+            }
+        }
+
         $this->add_action_buttons(true, ($instance->id ? null : get_string('addinstance', 'enrol')));
 
         $this->set_data($instance);
