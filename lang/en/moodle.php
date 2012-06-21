@@ -1138,6 +1138,12 @@ $string['newsitem'] = 'news item';
 $string['newsitems'] = 'news items';
 $string['newsitemsnumber'] = 'News items to show';
 $string['newsitemsnumber_help'] = 'This setting determines how many recent items appear in the latest news block on the course page. If set to "0 news items" then the latest news block will not be displayed.';
+$string['newuploademailmessage'] = '<p>{$a->user_fullname} postou um novo arquivo em {$a->context_name}</p>
+<p>Para ver os arquivos acesse <a href="{$a->url}" target="_blank" >{$a->url}</a></p>';
+$string['newuploademailmessagecourse'] = '<p>{$a->user_fullname} postou um novo arquivo no curso <a href="{$a->course_url}">{$a->course_name}</a> em {$a->context_name}</p>
+<p>Para ver os arquivos acesse <a href="{$a->url}" target="_blank" >{$a->url}</a></p>';
+$string['newuploademailsubject'] = 'Novo arquivo enviado';
+$string['newuploademailsubjectcourse'] = 'Novo arquivo enviado em {$a}';
 $string['newuser'] = 'New user';
 $string['newusernewpasswordsubj'] = 'New user account';
 $string['newusernewpasswordtext'] = 'Hi {$a->firstname},

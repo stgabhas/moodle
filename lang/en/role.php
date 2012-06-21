@@ -333,6 +333,7 @@ $string['site:manageblocks'] = 'Manage blocks on a page';
 $string['site:mnetloginfromremote'] = 'Login from a remote application via MNet';
 $string['site:mnetlogintoremote'] = 'Roam to a remote application via MNet';
 $string['site:readallmessages'] = 'Read all messages on site';
+$string['site:receiveuploadnotifications'] = 'Receive notifications of uploaded files';
 $string['site:restore'] = 'Restore courses';
 $string['site:sendmessage'] = 'Send messages to any user';
 $string['site:trustcontent'] = 'Trust submitted content';

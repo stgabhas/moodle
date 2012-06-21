@@ -66,6 +66,14 @@ echo $output->header();
 
 echo $output->heading(format_string($folder->name), 2);
 
+if (isset($SESSION->newuploademailnotifications) && !empty($SESSION->newuploademailnotifications)) {
+    echo '<ul class="newuploademailnotifications">';
+    foreach ($SESSION->newuploademailnotifications as $n) {
+        echo '<li>Usuário notificado por email: ',$n[0], ' (', $n[1],')</li>';
+    }
+    echo '</ul>';
+    unset($SESSION->newuploademailnotifications);
+}
 if (trim(strip_tags($folder->intro))) {
     echo $output->box_start('mod_introbox', 'pageintro');
     echo format_module_intro('folder', $folder, $cm->id);
