@@ -191,10 +191,11 @@ class enrol_self_plugin extends enrol_plugin {
 
         $hasoutstanding      = false;
         $completionmessage   = '';
-        $completionmessages  = array();    
+        $completionmessages  = array();
+        $course = $DB->get_record('course', array('id' => $instance->courseid));
         $completion_elements = $DB->get_records("course_availability", array('courseid'=>$course->id));
 
-        if ($completion_elements && sizeof($completion_elements)>0) {
+        if (!empty($completion_elements)) {
             foreach ($completion_elements as $ce) {
                 $grade_item     = $DB->get_record("grade_items", array('courseid'=>$ce->sourcecourseid, 'itemtype'=>'course'));
                 $source_course  = $DB->get_record('course', array('id'=>$ce->sourcecourseid));
@@ -202,27 +203,27 @@ class enrol_self_plugin extends enrol_plugin {
 
                 if (!$grade_item) {
                     $hasoutstanding = true;
-                    if ($source_course) $completionmessages[] =  get_string('mustcompletecourse', 'core_coursecondition', "<a href=\"{$CFG->wwwroot}/course/view.php?id={$source_course->id}\">{$source_course->fullname}</a>") ." ". get_string('beforeyoucanenter', 'core_coursecondition', $course->fullname);
+                    if ($source_course) $completionmessages[] =  get_string('mustcompletecourse', 'enrol_self', "<a href=\"{$CFG->wwwroot}/course/view.php?id={$source_course->id}\">{$source_course->fullname}</a>") ." ". get_string('beforeyoucanenter', 'enrol_self', $course->fullname);
                     continue;
                 }
 
                 $grade = $DB->get_record('grade_grades', array('itemid'=>$grade_item->id, 'userid'=>$USER->id));
                 if (!$grade) {
                     $hasoutstanding = true;
-                    $completionmessages[] = get_string('mustcompletecourse', 'core_coursecondition', "<a href=\"{$CFG->wwwroot}/course/view.php?id={$source_course->id}\">{$source_course->fullname}</a>") ." ". get_string('beforeyoucanenter', 'core_coursecondition', $course->fullname);
+                    $completionmessages[] = get_string('mustcompletecourse', 'enrol_self', "<a href=\"{$CFG->wwwroot}/course/view.php?id={$source_course->id}\">{$source_course->fullname}</a>") ." ". get_string('beforeyoucanenter', 'enrol_self', $course->fullname);
                 }elseif (!empty($ce->grademin) && $grade->finalgrade < $ce->grademin) {
                     $hasoutstanding = true;
-                    $completionmessages[] = get_string('mustcompletecourse', 'core_coursecondition', "<a href=\"{$CFG->wwwroot}/course/view.php?id={$source_course->id}\">{$source_course->fullname}</a>")." "
-                        .get_string('grademorethan', 'core_coursecondition')." ".(int)$ce->grademin." ".
-                        get_string('beforeyoucanenter', 'core_coursecondition', $course->fullname).". ".
-                        get_string('currentlyyourgradeis', 'core_coursecondition', (int)$grade->finalgrade).".";
+                    $completionmessages[] = get_string('mustcompletecourse', 'enrol_self', "<a href=\"{$CFG->wwwroot}/course/view.php?id={$source_course->id}\">{$source_course->fullname}</a>")." "
+                        .get_string('grademorethan', 'enrol_self')." ".(int)$ce->grademin." ".
+                        get_string('beforeyoucanenter', 'enrol_self', $course->fullname).". ".
+                        get_string('currentlyyourgradeis', 'enrol_self', (int)$grade->finalgrade).".";
                 }elseif (!empty($ce->grademax) && $grade->finalgrade > $ce->grademax) {
                     $hasoutstanding = true;
-                    $completionmessages[] = get_string('mustcompletecourse', 'core_coursecondition', "<a href=\"{$CFG->wwwroot}/course/view.php?id={$source_course->id}\">{$source_course->fullname}</a>") . " "                                                                                                                                  
-                        .get_string('gradebetween', 'core_coursecondition')." ".(int)$ce->grademin." "  
-                        .get_string('and', 'core_coursecondition')." ".(int)$ce->grademax." "
-                        .get_string('beforeyoucanenter', 'core_coursecondition', $course->fullname).". "
-                        .get_string('currentlyyourgradeis', 'core_coursecondition', $grade->finalgrade).".";
+                    $completionmessages[] = get_string('mustcompletecourse', 'enrol_self', "<a href=\"{$CFG->wwwroot}/course/view.php?id={$source_course->id}\">{$source_course->fullname}</a>") . " "
+                        .get_string('gradebetween', 'enrol_self')." ".(int)$ce->grademin." "
+                        .get_string('and', 'enrol_self')." ".(int)$ce->grademax." "
+                        .get_string('beforeyoucanenter', 'enrol_self', $course->fullname).". "
+                        .get_string('currentlyyourgradeis', 'enrol_self', $grade->finalgrade).".";
                 }
             }
         }
