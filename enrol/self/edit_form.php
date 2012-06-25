@@ -129,33 +129,29 @@ class enrol_self_edit_form extends moodleform {
         }
         asort($courseoptions);
         $courseoptions = array(0=>get_string('none','enrol_self'))+$courseoptions;
-        $grouparray = array();
-        $grouparray[] =& $mform->addElement('select','courseconditioncourseid','',$courseoptions);
-        $grouparray[] =& $mform->addElement('static', '', '',' '.get_string('grade_atleast','enrol_self').' ');
-        $grouparray[] =& $mform->addElement('text', 'courseconditiongrademin','',array('size'=>3));
-        $grouparray[] =& $mform->addElement('static', '', '','% '.get_string('grade_upto','enrol_self').' ');
-        $grouparray[] =& $mform->addElement('text', 'courseconditiongrademax','',array('size'=>3));
-        $grouparray[] =& $mform->addElement('static', '', '','%');
-        $mform->setType('courseconditiongrademin',PARAM_FLOAT);
-        $mform->setType('courseconditiongrademax',PARAM_FLOAT);
-        $group = $mform->createElement('group','courseconditiongradegroup',
-                                       get_string('coursegradecondition', 'enrol_self'),$grouparray);
-        $count = 3; //@TODO set this value to current conditions count + 1
-        $mform->repeat_elements(array($group),$count,array(),
-                                'courseconditioncompletionrepeats','courseconditioncompletionadds',2,
-                                get_string('addcompletions','enrol_self'),true);
+        $mform->addElement('select','condition[0][sourcecourseid]','',$courseoptions);
+        $mform->addElement('static', '', '',' '.get_string('grade_atleast','enrol_self'));
+        $mform->addElement('text', 'condition[0][grademin]','',array('size'=>3));
+        $mform->addElement('static', '', '','% '.get_string('grade_upto','enrol_self'));
+        $mform->addElement('text', 'condition[0][grademax]','',array('size'=>3));
+        $mform->addElement('static', '', '','%');
+        $mform->setType('condition[0][grademin]',PARAM_FLOAT);
+        $mform->setType('condition[0][grademax]',PARAM_FLOAT);
 
-        $sql = "select * FROM {$CFG->prefix}course_availability WHERE courseid='{$context->instanceid}'";
+        $sql = "select sc.fullname,ca.* FROM {$CFG->prefix}course_availability ca join course sc on (sc.id = ca.sourcecourseid) WHERE courseid='{$context->instanceid}'";
         if ($course_availability_set = $DB->get_records_sql($sql)) {
-            $num=0;
             foreach($course_availability_set as $caid=>$ca) {
-                $groupelements = $mform->getElement('courseconditiongradegroup['.$num.']')->getElements();
-                $groupelements[0]->setValue($ca->sourcecourseid);
-                // These numbers are always in the format 0.00000 - the rtrims remove any final zeros and,
-                // if it is a whole number, the decimal place.
-                $groupelements[2]->setValue(is_null($ca->grademin)?'':rtrim(rtrim($ca->grademin,'0'),'.'));
-                $groupelements[4]->setValue(is_null($ca->grademax)?'':rtrim(rtrim($ca->grademax,'0'),'.'));
-                $num++;
+                $mform->addElement('select','condition['.$ca->sourcecourseid.'][sourcecourseid]',$ca->fullname,$courseoptions);
+                $mform->setDefault('condition['.$ca->sourcecourseid.'][sourcecourseid]', $ca->sourcecourseid);
+                $mform->addElement('static', '', '',' '.get_string('grade_atleast','enrol_self').' ');
+                $mform->addElement('text', 'condition['.$ca->sourcecourseid.'][grademin]','',array('size'=>3));
+                $mform->setDefault('condition['.$ca->sourcecourseid.'][grademin]', $ca->grademin);
+                $mform->addElement('static', '', '','% '.get_string('grade_upto','enrol_self').' ');
+                $mform->addElement('text', 'condition['.$ca->sourcecourseid.'][grademax]','',array('size'=>3));
+                $mform->setDefault('condition['.$ca->sourcecourseid.'][grademax]', $ca->grademax);
+                $mform->addElement('static', '', '','%');
+                $mform->setType('condition['.$ca->sourcecourseid.'][grademin]',PARAM_FLOAT);
+                $mform->setType('condition['.$ca->sourcecourseid.'][grademax]',PARAM_FLOAT);
             }
         }
 

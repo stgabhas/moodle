@@ -83,21 +83,24 @@ if ($mform->is_cancelled()) {
         $DB->update_record('enrol', $instance);
 
         $DB->delete_records("course_availability", array("courseid"=>$course->id));
-        $linked = array();
-        var_dump($data);
-        die();
-        foreach ($data as $condition_set) {
-            if (empty($condition_set['courseconditioncourseid'])) continue;
+        foreach ($data->condition as $k => $condition) {
+            if (empty($condition['sourcecourseid'])) {
+                continue;
+            }
             $insdata = new stdClass();
             $insdata->courseid = $course->id;
-            $insdata->sourcecourseid = $condition_set['courseconditioncourseid'];
-            $insdata->grademin = $condition_set['courseconditiongrademin'];
-            $insdata->grademax = $condition_set['courseconditiongrademax'];
-            if (!isset($linked[$insdata->sourcecourseid])) {
-                //we can have the same course linked twice, it would cause an error in the HTML form
-                $DB->insert_record("course_availability", $insdata);
+            $insdata->sourcecourseid = $condition['sourcecourseid'];
+            if (!empty($condition['grademin']) && $condition['grademin'] != '0') {
+                $insdata->grademin = $condition['grademin'];
+            } else {
+                $insdata->grademin = null;
             }
-            $linked[$insdata->sourcecourseid] = $insdata->sourcecourseid;
+            if (!empty($condition['grademax']) && $condition['grademax'] != '0') {
+                $insdata->grademax = $condition['grademax'];
+            } else {
+                $insdata->grademax = null;
+            }
+            $DB->insert_record("course_availability", $insdata);
         }
 
         if ($reset) {
