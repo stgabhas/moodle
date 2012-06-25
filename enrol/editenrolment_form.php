@@ -56,8 +56,6 @@ class enrol_user_enrolment_form extends moodleform {
         $mform->addElement('hidden', 'ifilter');
         $mform->setType('ifilter', PARAM_ALPHA);
 
-        $this->add_action_buttons();
-
         $this->set_data(array(
             'ue' => $ue->id,
             'status' => $ue->status,

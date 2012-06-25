@@ -147,6 +147,50 @@ class enrol_self_edit_form extends moodleform {
         $mform->addElement('hidden', 'courseid');
         $mform->setType('courseid', PARAM_INT);
 
+        // Conditions based on grades
+        $mform->addElement('header', '', get_string('courseavailabilityconditions', 'enrol_self'));
+        $courseoptions = array();
+        global $CFG, $DB;
+        $sql = "select c.id,c.fullname,cc.name
+                  from {$CFG->prefix}course  c
+             LEFT JOIN {$CFG->prefix}course_categories cc
+                    ON cc.id = c.category
+                 WHERE c.id != 1
+                   AND c.id != {$context->instanceid}
+              ORDER BY cc.name,cc.id,c.fullname";
+        if ($courses = $DB->get_records_sql($sql)) {
+            foreach ( $courses as $course_id=>$course_and_cat ) {
+                $courseoptions[$course_id] = $course_and_cat->fullname;
+            }
+        }
+        asort($courseoptions);
+        $courseoptions = array(0=>get_string('none','enrol_self'))+$courseoptions;
+        $mform->addElement('select','condition[0][sourcecourseid]','',$courseoptions);
+        $mform->addElement('static', '', '',' '.get_string('grade_atleast','enrol_self'));
+        $mform->addElement('text', 'condition[0][grademin]','',array('size'=>3));
+        $mform->addElement('static', '', '','% '.get_string('grade_upto','enrol_self'));
+        $mform->addElement('text', 'condition[0][grademax]','',array('size'=>3));
+        $mform->addElement('static', '', '','%');
+        $mform->setType('condition[0][grademin]',PARAM_FLOAT);
+        $mform->setType('condition[0][grademax]',PARAM_FLOAT);
+
+        $sql = "select sc.fullname,ca.* FROM {$CFG->prefix}course_availability ca join course sc on (sc.id = ca.sourcecourseid) WHERE courseid='{$context->instanceid}'";
+        if ($course_availability_set = $DB->get_records_sql($sql)) {
+            foreach($course_availability_set as $caid=>$ca) {
+                $mform->addElement('select','condition['.$ca->sourcecourseid.'][sourcecourseid]',$ca->fullname,$courseoptions);
+                $mform->setDefault('condition['.$ca->sourcecourseid.'][sourcecourseid]', $ca->sourcecourseid);
+                $mform->addElement('static', '', '',' '.get_string('grade_atleast','enrol_self').' ');
+                $mform->addElement('text', 'condition['.$ca->sourcecourseid.'][grademin]','',array('size'=>3));
+                $mform->setDefault('condition['.$ca->sourcecourseid.'][grademin]', $ca->grademin);
+                $mform->addElement('static', '', '','% '.get_string('grade_upto','enrol_self').' ');
+                $mform->addElement('text', 'condition['.$ca->sourcecourseid.'][grademax]','',array('size'=>3));
+                $mform->setDefault('condition['.$ca->sourcecourseid.'][grademax]', $ca->grademax);
+                $mform->addElement('static', '', '','%');
+                $mform->setType('condition['.$ca->sourcecourseid.'][grademin]',PARAM_FLOAT);
+                $mform->setType('condition['.$ca->sourcecourseid.'][grademax]',PARAM_FLOAT);
+            }
+        }
+
         $this->add_action_buttons(true, ($instance->id ? null : get_string('addinstance', 'enrol')));
 
         $this->set_data($instance);

@@ -55,5 +55,3 @@ function xmldb_enrol_self_upgrade($oldversion) {
 
     return true;
 }
-
-
