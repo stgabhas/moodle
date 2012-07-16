@@ -216,7 +216,6 @@ YUI.add('moodle-course-coursebase', function(Y) {
         }
 
     }
-
 },
 '@VERSION@', {
     requires : ['base', 'node']

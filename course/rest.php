@@ -77,6 +77,7 @@ switch($requestmethod) {
             case 'section':
                 require_capability('moodle/course:update', $coursecontext);
 
+
                 if (!$DB->record_exists('course_sections', array('course'=>$course->id, 'section'=>$id))) {
                     throw new moodle_exception('AJAX commands.php: Bad Section ID '.$id);
                 }
@@ -99,6 +100,10 @@ switch($requestmethod) {
                             echo json_encode($functionname($course));
                         }
                         break;
+                    case 'delete':
+                        delete_section($course->id, $id);
+                        break;
+
                 }
                 rebuild_course_cache($course->id);
                 break;
@@ -230,6 +235,9 @@ switch($requestmethod) {
                 add_to_log($courseid, "course", "delete mod",
                            "view.php?id=$courseid",
                            "$cm->modname $cm->instance", $cm->id);
+                break;
+            case 'section':
+                delete_section($course->id, $sectionid);
                 break;
         }
         break;

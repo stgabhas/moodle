@@ -197,7 +197,7 @@ abstract class format_section_renderer_base extends plugin_renderer_base {
      * @return array of links with edit controls
      */
     protected function section_edit_controls($course, $section, $onsectionpage = false) {
-        global $PAGE;
+        global $PAGE, $USER;
 
         if (!$PAGE->user_is_editing()) {
             return array();
@@ -216,6 +216,8 @@ abstract class format_section_renderer_base extends plugin_renderer_base {
 
         $controls = array();
 
+        $strdeletesection = get_string('deletesection');
+
         $url = clone($baseurl);
         if ($section->visible) { // Show the hide/show eye.
             $strhidefromothers = get_string('hidefromothers', 'format_'.$course->format);
@@ -231,6 +233,17 @@ abstract class format_section_renderer_base extends plugin_renderer_base {
                 html_writer::empty_tag('img', array('src' => $this->output->pix_url('i/show'),
                 'class' => 'icon hide', 'alt' => $strshowfromothers)),
                 array('title' => $strshowfromothers, 'class' => 'editing_showhide'));
+        }
+
+        if ($section->section > 0) {
+            // add link to delete section
+            $urldel = new moodle_url('/course/deletesection.php');
+            $urldel->param('id', $section->id);
+            $urldel->param('sesskey', $USER->sesskey);
+            $controls[] = html_writer::link($urldel, html_writer::empty_tag('img', array('src' => $this->output->pix_url('t/delete'), 
+                                                                           'class' => 'icon delete_section',
+                                                                            'alt' => $strdeletesection)),
+                                           array('title' => $strdeletesection, 'class' => 'delete_section'));
         }
 
         if (!$onsectionpage) {

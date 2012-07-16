@@ -7,6 +7,7 @@ YUI.add('moodle-course-toolboxes', function(Y) {
         SPINNERCOMMANDSPAN : 'span.commands',
         CONTENTAFTERLINK : 'div.contentafterlink',
         DELETE : 'a.editing_delete',
+        DELETESECTION : 'a.delete_section',
         DIMCLASS : 'dimmed',
         DIMMEDTEXT : 'dimmed_text',
         EDITTITLE : 'a.editing_title',
@@ -653,6 +654,64 @@ YUI.add('moodle-course-toolboxes', function(Y) {
 
             // Section Visibility
             this.replace_button(toolboxtarget, CSS.RIGHTSIDE + ' ' + CSS.SHOWHIDE, this.toggle_hide_section);
+
+            this.replace_button(toolboxtarget, CSS.RIGHTSIDE + ' ' + CSS.DELETESECTION, this.delete_section);
+        },
+        delete_section : function(e) {
+
+            // Prevent the default button action
+            e.preventDefault();
+
+            if (this.debug) {
+                YAHOO.log("Deleting section "+this.sectionId);
+            }
+            // Get the section we're working on
+            var section = e.target.ancestor(M.course.format.get_section_selector(Y));
+            var button = e.target.ancestor('a', true);
+            var hideicon = button.one('img');
+
+            // Change the highlight status
+            var data = {
+                'class' : 'section',
+                'field' : 'delete',
+                'id'    : this.get_section_id(section)
+            };
+            var lightbox = M.util.add_lightbox(Y, section);
+            lightbox.show();
+
+            if (!this.send_request(data, lightbox)) {
+                return false;
+            }
+            var parentEl = section.ancestor();
+
+            var sectionlist = Y.one(CSS.PAGECONTENT).all(M.course.format.get_section_selector(Y))
+            var sectionCount = sectionlist.length;
+
+            var i = 0;
+            var found = false;
+            sectionlist.each(function(node) {
+                if (found) {
+                    sectionlist[i - 1] = sectionlist[i];
+                    if (i == sectionCount - 1) {
+                        sectionlist = sectionlist.slice(0, -1);
+                    }
+                } else if (node.id == section.id) {
+                    found = true;
+                }
+                i++;
+            });
+
+            // Remove any extra text nodes to keep DOM clean.
+            var kids = parentEl.all();
+
+            for (var i=0; i<kids.length; i++) {
+                if (kids[i].nodeType == 3) {
+                    YAHOO.log('Removed extra text node.');
+                    parentEl.removeChild(kids[i]);
+                }
+            }
+
+            parentEl.removeChild(section);
         },
         toggle_hide_section : function(e) {
             // Prevent the default button action
