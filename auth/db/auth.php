@@ -326,7 +326,12 @@ class auth_plugin_db extends auth_plugin_base {
                 foreach ($map_array as $mdl_field => $ext_field) {
                     $data->{$mdl_field} = mysql_escape_string($rec[$ext_field]);
                 }
-                $DB->insert_record_raw('tmp_extuser', $data, false);
+                try {
+                    $DB->insert_record_raw('tmp_extuser', $data, false);
+                } catch (Exception $e) {
+                    $dbman->drop_temp_table($table);
+                    die('Problem inserting records. Aborting!');
+                }
             }
         }
 
