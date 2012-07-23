@@ -111,24 +111,16 @@ if ($mform->is_cancelled()) {
         $DB->update_record('enrol', $instance);
 
         $DB->delete_records("course_availability", array("courseid"=>$course->id));
-        foreach ($data->condition as $k => $condition) {
-            if (empty($condition['sourcecourseid'])) {
-                continue;
+        if (isset($data->condition)) {
+            foreach ($data->condition as $sourcecourseid => $value) {
+                if ($value != 1 ) {
+                    continue;
+                }
+                $insdata = new stdClass();
+                $insdata->courseid = $course->id;
+                $insdata->sourcecourseid = $sourcecourseid;
+                $DB->insert_record("course_availability", $insdata);
             }
-            $insdata = new stdClass();
-            $insdata->courseid = $course->id;
-            $insdata->sourcecourseid = $condition['sourcecourseid'];
-            if (!empty($condition['grademin']) && $condition['grademin'] != '0') {
-                $insdata->grademin = $condition['grademin'];
-            } else {
-                $insdata->grademin = null;
-            }
-            if (!empty($condition['grademax']) && $condition['grademax'] != '0') {
-                $insdata->grademax = $condition['grademax'];
-            } else {
-                $insdata->grademax = null;
-            }
-            $DB->insert_record("course_availability", $insdata);
         }
 
         if ($reset) {

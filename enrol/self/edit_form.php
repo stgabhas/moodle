@@ -159,35 +159,15 @@ class enrol_self_edit_form extends moodleform {
                    AND c.id != {$context->instanceid}
               ORDER BY cc.name,cc.id,c.fullname";
         if ($courses = $DB->get_records_sql($sql)) {
-            foreach ( $courses as $course_id=>$course_and_cat ) {
-                $courseoptions[$course_id] = $course_and_cat->fullname;
-            }
-        }
-        asort($courseoptions);
-        $courseoptions = array(0=>get_string('none','enrol_self'))+$courseoptions;
-        $mform->addElement('select','condition[0][sourcecourseid]','',$courseoptions);
-        $mform->addElement('static', '', '',' '.get_string('grade_atleast','enrol_self'));
-        $mform->addElement('text', 'condition[0][grademin]','',array('size'=>3));
-        $mform->addElement('static', '', '','% '.get_string('grade_upto','enrol_self'));
-        $mform->addElement('text', 'condition[0][grademax]','',array('size'=>3));
-        $mform->addElement('static', '', '','%');
-        $mform->setType('condition[0][grademin]',PARAM_FLOAT);
-        $mform->setType('condition[0][grademax]',PARAM_FLOAT);
-
-        $sql = "select sc.fullname,ca.* FROM {$CFG->prefix}course_availability ca join course sc on (sc.id = ca.sourcecourseid) WHERE courseid='{$context->instanceid}'";
-        if ($course_availability_set = $DB->get_records_sql($sql)) {
-            foreach($course_availability_set as $caid=>$ca) {
-                $mform->addElement('select','condition['.$ca->sourcecourseid.'][sourcecourseid]',$ca->fullname,$courseoptions);
-                $mform->setDefault('condition['.$ca->sourcecourseid.'][sourcecourseid]', $ca->sourcecourseid);
-                $mform->addElement('static', '', '',' '.get_string('grade_atleast','enrol_self').' ');
-                $mform->addElement('text', 'condition['.$ca->sourcecourseid.'][grademin]','',array('size'=>3));
-                $mform->setDefault('condition['.$ca->sourcecourseid.'][grademin]', $ca->grademin);
-                $mform->addElement('static', '', '','% '.get_string('grade_upto','enrol_self').' ');
-                $mform->addElement('text', 'condition['.$ca->sourcecourseid.'][grademax]','',array('size'=>3));
-                $mform->setDefault('condition['.$ca->sourcecourseid.'][grademax]', $ca->grademax);
-                $mform->addElement('static', '', '','%');
-                $mform->setType('condition['.$ca->sourcecourseid.'][grademin]',PARAM_FLOAT);
-                $mform->setType('condition['.$ca->sourcecourseid.'][grademax]',PARAM_FLOAT);
+            $sql = "select c.id, c.fullname, ca.courseid,ca.sourcecourseid
+                      FROM {$CFG->prefix}course_availability ca
+                      join course c
+                        on (c.id = ca.sourcecourseid)
+                     WHERE courseid={$context->instanceid}";
+            $course_availability = $DB->get_records_sql($sql);
+            foreach($courses as $cid => $c) {
+                $mform->addElement('checkbox','condition['.$c->id.']',$c->fullname);
+                $mform->setDefault('condition['.$c->id.']', isset($course_availability[$c->id]));
             }
         }
 
