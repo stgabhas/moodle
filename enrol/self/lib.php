@@ -188,6 +188,19 @@ class enrol_self_plugin extends enrol_plugin {
             //TODO: inform that enrolment is not possible any more
             return null;
         }
+        if (!empty($instance->customchar1)) {
+            $plugin = $instance->customchar1;
+            $plugin_lib = "{$CFG->dirroot}/{$plugin}/lib.php";
+            if (file_exists($plugin_lib)) {
+                require_once($plugin_lib);
+                $f = basename($plugin).'_user_can_enrol';
+                if (function_exists($f)) {
+                    if (!call_user_func($f, $instance)) {
+                        return null;
+                    }
+                }
+            }
+        }
 
         require_once("$CFG->dirroot/enrol/self/locallib.php");
         require_once("$CFG->dirroot/group/lib.php");

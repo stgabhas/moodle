@@ -70,6 +70,7 @@ if ($mform->is_cancelled()) {
         $instance->status         = $data->status;
         $instance->name           = $data->name;
         $instance->password       = $data->password;
+        $instance->customchar1    = $data->customchar1;
         $instance->customint1     = $data->customint1;
         $instance->customint2     = $data->customint2;
         $instance->customint3     = $data->customint3;

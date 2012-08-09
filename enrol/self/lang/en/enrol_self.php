@@ -24,6 +24,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+$string['conditionplugin'] = 'Condition plugin';
+$string['conditionplugin_help'] = 'Path to plugin that implements a conditional enrol callback. eg.: local/progress_tracking. Leave blank if dont want a callback to be called.';
 $string['customwelcomemessage'] = 'Custom welcome message';
 $string['defaultrole'] = 'Default role assignment';
 $string['defaultrole_desc'] = 'Select role which should be assigned to users during self enrolment';
