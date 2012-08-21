@@ -753,7 +753,7 @@ function file_save_draft_area_files($draftitemid, $contextid, $component, $filea
 }
 
 function file_notify_users_new_file($contextid, $file) {
-    global $SESSION;
+    global $SESSION, $USER;
 
     // notify users via email that a file was uploaded...
     $context = get_context_instance_by_id($contextid);
