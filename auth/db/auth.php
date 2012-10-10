@@ -324,7 +324,7 @@ class auth_plugin_db extends auth_plugin_base {
         $rs = $externaldbconnection->Execute("SELECT {$fields_select} FROM {$this->config->table}");
 
         if (!$rs) {
-            $dbman->drop_temp_table($table);
+            $dbman->drop_table($table);
             print_error('auth_dbcantgetusers','auth_db');
         } else if (!$rs->EOF) {
             while ($rec = $rs->FetchRow()) {
@@ -337,7 +337,7 @@ class auth_plugin_db extends auth_plugin_base {
                 try {
                     $DB->insert_record_raw('tmp_extuser', $data, false);
                 } catch (Exception $e) {
-                    $dbman->drop_temp_table($table);
+                    $dbman->drop_table($table);
                     die('Problem inserting records. Aborting!');
                 }
             }
@@ -509,7 +509,7 @@ class auth_plugin_db extends auth_plugin_base {
 
         echo get_string('auth_dbsuccess', 'auth_db'), "\n";
 
-        $dbman->drop_temp_table($table);
+        $dbman->drop_table($table);
         $externaldbconnection->Close();
         return true;
     }
