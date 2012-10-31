@@ -1421,13 +1421,13 @@ class restore_ras_and_caps_structure_step extends restore_structure_step {
         } else if ((strpos($data->component, 'enrol_') === 0)) {
             // Deal with enrolment roles
             if ($enrolid = $this->get_mappingid('enrol', $data->itemid)) {
-                if ($component = $DB->get_field('enrol', 'component', array('id'=>$enrolid))) {
+                if ($component = $DB->get_field('enrol', 'enrol', array('id'=>$enrolid))) {
                     //note: we have to verify component because it might have changed
-                    if ($component === 'enrol_manual') {
+                    if ($component === 'manual') {
                         // manual is a special case, we do not use components - this owudl happen when converting from other plugin
                         role_assign($newroleid, $newuserid, $contextid); //TODO: do we need modifierid?
                     } else {
-                        role_assign($newroleid, $newuserid, $contextid, $component, $enrolid); //TODO: do we need modifierid?
+                        role_assign($newroleid, $newuserid, $contextid, 'enrol_'.$component, $enrolid); //TODO: do we need modifierid?
                     }
                 }
             }
