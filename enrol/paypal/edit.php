@@ -77,6 +77,23 @@ if ($mform->is_cancelled()) {
         $instance->timemodified   = time();
         $DB->update_record('enrol', $instance);
 
+        $DB->delete_records("course_availability",
+                            array("courseid"=>$course->id,
+                                  "enrolinstanceid"=>$instance->id));
+
+        if (isset($data->condition)) {
+            foreach ($data->condition as $sourcecourseid => $value) {
+                if ($value != 1 ) {
+                    continue;
+                }
+                $insdata = new stdClass();
+                $insdata->courseid = $course->id;
+                $insdata->sourcecourseid = $sourcecourseid;
+                $insdata->enrolinstanceid = $instance->id;
+                $DB->insert_record("course_availability", $insdata);
+            }
+        }
+
         if ($reset) {
             $context->mark_dirty();
         }

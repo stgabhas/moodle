@@ -164,6 +164,27 @@ class enrol_paypal_plugin extends enrol_plugin {
             return ob_get_clean();
         }
 
+        $sql = "SELECT c.id, c.fullname
+                  FROM {course_availability} ca
+             LEFT JOIN {course_completions} cc
+                    ON (cc.course = ca.sourcecourseid AND
+                        ca.courseid = {$instance->courseid} AND
+                        cc.userid = {$USER->id} AND
+                        ca.enrolinstanceid = {$instance->id})
+                  JOIN {course} c
+                    ON (c.id = ca.sourcecourseid )
+                 WHERE cc.id IS NULL";
+
+        if ($to_complete = $DB->get_records_sql($sql)) {
+            $a = get_string('cannotenrolprerequisites', 'enrol_self');
+            $a .= "<ul>";
+            foreach ($to_complete as $c) {
+                $a .= '<li>'.format_string($c->fullname, true).'</li>';
+            }
+            $a .= "</ul>";
+            return $OUTPUT->box($a);
+        }
+
         $course = $DB->get_record('course', array('id'=>$instance->courseid));
         $context = context_course::instance($course->id);
 

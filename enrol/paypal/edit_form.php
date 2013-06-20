@@ -79,6 +79,33 @@ class enrol_paypal_edit_form extends moodleform {
         $mform->addElement('hidden', 'courseid');
         $mform->setType('courseid', PARAM_INT);
 
+        // Course pre-requisites
+        $mform->addElement('header', '', get_string('courseavailabilityconditions', 'enrol_self'));
+        $courseoptions = array();
+        global $CFG, $DB;
+        $sql = "select c.id,c.fullname,cc.name
+                  from {$CFG->prefix}course  c
+             LEFT JOIN {$CFG->prefix}course_categories cc
+                    ON cc.id = c.category
+                 WHERE c.id != 1
+                   AND c.id != {$context->instanceid}
+              ORDER BY cc.name,cc.id,c.fullname";
+
+        if ($courses = $DB->get_records_sql($sql)) {
+
+            $sql = "SELECT c.id, c.fullname, ca.courseid,ca.sourcecourseid
+                      FROM {$CFG->prefix}course_availability ca
+                      JOIN course c
+                        ON (c.id = ca.sourcecourseid)
+                     WHERE courseid={$context->instanceid}
+                       AND ca.enrolinstanceid={$instance->id}";
+            $course_availability = $DB->get_records_sql($sql);
+            foreach($courses as $cid => $c) {
+                $mform->addElement('checkbox','condition['.$c->id.']',$c->fullname);
+                $mform->setDefault('condition['.$c->id.']', isset($course_availability[$c->id]));
+            }
+        }
+
         $this->add_action_buttons(true, ($instance->id ? null : get_string('addinstance', 'enrol')));
 
         $this->set_data($instance);

@@ -25,9 +25,11 @@
 $string['assignrole'] = 'Assign role';
 $string['businessemail'] = 'PayPal business email';
 $string['businessemail_desc'] = 'The email address of your business PayPal account';
+$string['cannotenrolprerequisites'] = 'Before enrol in this course you must complete the courses listed below.';
 $string['cost'] = 'Enrol cost';
 $string['costerror'] = 'The enrolment cost is not numeric';
 $string['costorkey'] = 'Please choose one of the following methods of enrolment.';
+$string['courseavailabilityconditions'] = 'Course pre-requisites';
 $string['currency'] = 'Currency';
 $string['defaultrole'] = 'Default role assignment';
 $string['defaultrole_desc'] = 'Select role which should be assigned to users during PayPal enrolments';
