@@ -59,10 +59,12 @@ function xmldb_enrol_self_upgrade($oldversion) {
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
         $table->add_field('courseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
         $table->add_field('sourcecourseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('enrolinstanceid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
 
         $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
         $table->add_key('courseid', XMLDB_KEY_FOREIGN, array('courseid'), 'course', array('id'));
         $table->add_key('sourcecourseid', XMLDB_KEY_FOREIGN, array('sourcecourseid'), 'course', array('id'));
+        $table->add_key('enrolinstanceid', XMLDB_KEY_FOREIGN, array('enrolinstanceid'), 'enrol', array('id'));
 
         if (!$dbman->table_exists($table)) {
             $dbman->create_table($table);

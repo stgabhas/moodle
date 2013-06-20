@@ -147,7 +147,7 @@ class enrol_self_edit_form extends moodleform {
         $mform->addElement('hidden', 'courseid');
         $mform->setType('courseid', PARAM_INT);
 
-        // Conditions based on grades
+        // Course pre-requisites
         $mform->addElement('header', '', get_string('courseavailabilityconditions', 'enrol_self'));
         $courseoptions = array();
         global $CFG, $DB;

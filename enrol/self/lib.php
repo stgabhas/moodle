@@ -233,7 +233,8 @@ class enrol_self_plugin extends enrol_plugin {
              LEFT JOIN {course_completions} cc
                     ON (cc.course = ca.sourcecourseid AND
                         ca.courseid = {$instance->courseid} AND
-                        cc.userid = {$USER->id})
+                        cc.userid = {$USER->id} AND
+                        ca.enrolinstanceid = {$instance->id})
                   JOIN {course} c
                     ON (c.id = ca.sourcecourseid )
                  WHERE cc.id IS NULL";
