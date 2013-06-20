@@ -228,19 +228,24 @@ class enrol_self_plugin extends enrol_plugin {
             }
         }
 
-        $sql = "select c.id, c.fullname
-                  from course_availability ca
-             left join course_completions cc
-                    on (cc.course = ca.sourcecourseid AND
-                        ca.courseid = {$course->id}
-                   AND cc.userid = {$USER->id} )
-                  join course c
+        $sql = "SELECT c.id, c.fullname
+                  FROM {course_availability} ca
+             LEFT JOIN {course_completions} cc
+                    ON (cc.course = ca.sourcecourseid AND
+                        ca.courseid = {$instance->courseid} AND
+                        cc.userid = {$USER->id})
+                  JOIN {course} c
                     ON (c.id = ca.sourcecourseid )
-                 where cc.id is null";
+                 WHERE cc.id IS NULL";
 
         if ($to_complete = $DB->get_records_sql($sql)) {
-            // TODO: tell the user he/she does not have completed the required courses
-            return null;
+            $a = get_string('cannotenrolprerequisites', 'enrol_self');
+            $a .= "<ul>";
+            foreach ($to_complete as $c) {
+                $a .= '<li>'.format_string($c->fullname, true).'</li>';
+            }
+            $a .= "</ul>";
+            return $OUTPUT->box($a);
         }
 
         require_once("$CFG->dirroot/enrol/self/locallib.php");

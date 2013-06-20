@@ -22,9 +22,11 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+$string['cannotenrolprerequisites'] = 'Before enrol in this course you must complete the courses listed below.';
 $string['cohortnonmemberinfo'] = 'Only members of cohort \'{$a}\' can self-enrol.';
 $string['cohortonly'] = 'Only cohort members';
 $string['cohortonly_help'] = 'Self enrolment may be restricted to members of a specified cohort only. Note that changing this setting has no effect on existing enrolments.';
+$string['courseavailabilityconditions'] = 'Course pre-requisites';
 $string['customwelcomemessage'] = 'Custom welcome message';
 $string['customwelcomemessage_help'] = 'A custom welcome message may be added as plain text or Moodle-auto format, including HTML tags and multi-lang tags.
 
@@ -108,17 +110,3 @@ $string['welcometocoursetext'] = 'Welcome to {$a->coursename}!
 If you have not done so already, you should edit your profile page so that we can learn more about you:
 
   {$a->profileurl}';
-
-$string['courseavailabilityconditions'] = 'Course pre-requisites';
-$string['coursegradecondition']         = 'Pre-requisite course grade condition';
-$string['none']                         = '(none)';
-$string['grade_atleast']                = 'must be at least';
-$string['grade_upto']                   = 'and less than';
-$string['addcompletions']               = 'Add new pre-requisite course requirements';
-$string['mustcompletecourse']           = 'You must complete course {$a}';
-$string['beforeyoucanenter']            = 'before you can enter this course ({$a})';
-$string['currentlyyourgradeis']         = 'Currently your grade is {$a}';
-$string['grademorethan']                = 'with a grade of more than';
-$string['gradebetween']                 = 'with a grade of between';
-$string['and']                          = 'and';
-$string['cannotentercourse']            = 'You cannot enter this course because there are pre-requisite course requirements you have not yet achieved.<br/>{$a}';

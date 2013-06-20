@@ -44,7 +44,6 @@ function xmldb_enrol_self_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2012120600, 'enrol', 'self');
     }
 
-
     // Moodle v2.4.0 release upgrade line
     // Put any upgrade step following this
 
@@ -52,6 +51,25 @@ function xmldb_enrol_self_upgrade($oldversion) {
     // Moodle v2.5.0 release upgrade line.
     // Put any upgrade step following this.
 
+    if ($oldversion < 2013051400) {
+        // Create course_availability table for prerequisites
+
+        $table = new xmldb_table('course_availability');
+
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('courseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('sourcecourseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('courseid', XMLDB_KEY_FOREIGN, array('courseid'), 'course', array('id'));
+        $table->add_key('sourcecourseid', XMLDB_KEY_FOREIGN, array('sourcecourseid'), 'course', array('id'));
+
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        upgrade_plugin_savepoint(true, 2013062000, 'enrol', 'self');
+    }
 
     return true;
 }
