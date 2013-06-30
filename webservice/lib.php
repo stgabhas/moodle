@@ -1268,6 +1268,8 @@ class '.$classname.' {
                 case PARAM_BOOL: // 0 or 1 only for now
                 case PARAM_INT:
                     $type = 'int'; break;
+                case PARAM_LONG:
+                    $type = 'long'; break;
                 case PARAM_FLOAT;
                     $type = 'double'; break;
                 default:

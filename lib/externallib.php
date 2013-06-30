@@ -26,6 +26,11 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
+ * PARAM_LONG - use when expecting only bing numbers. Special case for mapping to xsd:long in SOAP webservices.
+ */
+define('PARAM_LONG', 'long');
+
+/**
  * Returns detailed function information
  *
  * @param string|object $function name of external function or record from external_function
