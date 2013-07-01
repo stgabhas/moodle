@@ -75,6 +75,7 @@ if ($mform->is_cancelled()) {
         $instance->enrolstartdate = $data->enrolstartdate;
         $instance->enrolenddate   = $data->enrolenddate;
         $instance->timemodified   = time();
+        $instance->customint1     = $data->customfield;
         $DB->update_record('enrol', $instance);
 
         $DB->delete_records("course_availability",

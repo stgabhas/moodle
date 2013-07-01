@@ -106,6 +106,20 @@ class enrol_paypal_edit_form extends moodleform {
             }
         }
 
+        // Custom profile field to group mapping
+
+        $categories = $DB->get_records('user_info_category', null, 'sortorder ASC');
+        $options = array('' => get_string('none'));
+        foreach ($categories as $category) {
+            if ($fields = $DB->get_records('user_info_field', array('categoryid'=>$category->id), 'sortorder ASC')) {
+                foreach ($fields as $field) {
+                    $options[$field->id] = format_string($field->name);
+                }
+            }
+        }
+        $mform->addElement('select', 'customfield', get_string('customfield', 'enrol_paypal'), $options);
+        $mform->setDefault('customfield', $plugin->get_config('customfield'));
+
         $this->add_action_buttons(true, ($instance->id ? null : get_string('addinstance', 'enrol')));
 
         $this->set_data($instance);

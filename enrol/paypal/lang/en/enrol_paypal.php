@@ -31,6 +31,7 @@ $string['costerror'] = 'The enrolment cost is not numeric';
 $string['costorkey'] = 'Please choose one of the following methods of enrolment.';
 $string['courseavailabilityconditions'] = 'Course pre-requisites';
 $string['currency'] = 'Currency';
+$string['customfield'] = 'Custom profilefield';
 $string['defaultrole'] = 'Default role assignment';
 $string['defaultrole_desc'] = 'Select role which should be assigned to users during PayPal enrolments';
 $string['enrolenddate'] = 'End date';

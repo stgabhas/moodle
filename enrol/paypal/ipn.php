@@ -221,6 +221,22 @@ if (strlen($result) > 0) {
         // Enrol user
         $plugin->enrol_user($plugin_instance, $user->id, $plugin_instance->roleid, $timestart, $timeend);
 
+        // Add to group based on customfield
+        if ($plugin_instance->customint1) {
+            require_once($CFG->dirroot."/user/profile/lib.php");
+            require_once($CFG->dirroot."/lib/grouplib.php");
+            $usercustomfields = profile_user_record($data->userid);
+            $groups = groups_get_all_groups($data->courseid);
+
+            foreach ($groups as $g) {
+                if ($g->name == $usercustomfields[$plugin_instance->customint1]) {
+                    group_add_member($g->id, $data->userid);
+                    break;
+                }
+            }
+        }
+
+
         // Pass $view=true to filter hidden caps if the user cannot see them
         if ($users = get_users_by_capability($context, 'moodle/course:update', 'u.*', 'u.id ASC',
                                              '', '', '', '', false, true)) {
