@@ -80,7 +80,7 @@ class enrol_paypal_edit_form extends moodleform {
         $mform->setType('courseid', PARAM_INT);
 
         // Course pre-requisites
-        $mform->addElement('header', '', get_string('courseavailabilityconditions', 'enrol_self'));
+        $mform->addElement('header', '', get_string('courseavailabilityconditions', 'enrol_paypal'));
         $courseoptions = array();
         global $CFG, $DB;
         $sql = "select c.id,c.fullname,cc.name
@@ -108,6 +108,7 @@ class enrol_paypal_edit_form extends moodleform {
 
         // Custom profile field to group mapping
 
+        $mform->addElement('header', '', get_string('groupmembershipcustomfield', 'enrol_paypal'));
         $categories = $DB->get_records('user_info_category', null, 'sortorder ASC');
         $options = array('' => get_string('none'));
         foreach ($categories as $category) {
