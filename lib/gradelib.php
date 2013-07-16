@@ -1108,6 +1108,11 @@ function grade_regrade_final_grades($courseid, $userid=null, $updated_item=null)
             // do the locktime locking of grades, but only when doing full regrading
             grade_grade::check_locktime_all($gids);
         }
+        $event = new stdClass();
+        $event->courseid = $courseid;
+        $event->userid = $userid;
+        $event->updateditem = $updated_item;
+        events_trigger('grade_regrade_final_grades', $event);
         return true;
     } else {
         return $errors;
