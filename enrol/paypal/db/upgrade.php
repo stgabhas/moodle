@@ -57,7 +57,7 @@ function xmldb_enrol_paypal_upgrade($oldversion) {
     // Moodle v2.5.0 release upgrade line.
     // Put any upgrade step following this.
 
-    if ($oldversion < 2013051400) {
+    if ($oldversion < 2013062000) {
         // Create course_availability table for prerequisites
 
         $table = new xmldb_table('course_availability');

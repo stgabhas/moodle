@@ -84,8 +84,8 @@ class enrol_paypal_edit_form extends moodleform {
         $courseoptions = array();
         global $CFG, $DB;
         $sql = "select c.id,c.fullname,cc.name
-                  from {$CFG->prefix}course  c
-             LEFT JOIN {$CFG->prefix}course_categories cc
+                  from {course}  c
+             LEFT JOIN {course_categories} cc
                     ON cc.id = c.category
                  WHERE c.id != 1
                    AND c.id != {$context->instanceid}
@@ -94,11 +94,11 @@ class enrol_paypal_edit_form extends moodleform {
         if ($courses = $DB->get_records_sql($sql)) {
 
             $sql = "SELECT c.id, c.fullname, ca.courseid,ca.sourcecourseid
-                      FROM {$CFG->prefix}course_availability ca
-                      JOIN course c
+                      FROM {course_availability} ca
+                      JOIN {course} c
                         ON (c.id = ca.sourcecourseid)
                      WHERE courseid={$context->instanceid}
-                       AND ca.enrolinstanceid={$instance->id}";
+                       AND ca.enrolinstanceid={$context->instanceid}";
             $course_availability = $DB->get_records_sql($sql);
             foreach($courses as $cid => $c) {
                 $mform->addElement('checkbox','condition['.$c->id.']',$c->fullname);
