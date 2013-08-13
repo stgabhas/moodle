@@ -97,8 +97,9 @@ class enrol_paypal_edit_form extends moodleform {
                       FROM {course_availability} ca
                       JOIN {course} c
                         ON (c.id = ca.sourcecourseid)
-                     WHERE courseid={$context->instanceid}
-                       AND ca.enrolinstanceid={$context->instanceid}";
+                     WHERE courseid = {$context->instanceid}
+                       AND ca.enrolinstanceid = {$instance->id}";
+
             $course_availability = $DB->get_records_sql($sql);
             foreach($courses as $cid => $c) {
                 $mform->addElement('checkbox','condition['.$c->id.']',$c->fullname);
@@ -119,7 +120,7 @@ class enrol_paypal_edit_form extends moodleform {
             }
         }
         $mform->addElement('select', 'customfield', get_string('customfield', 'enrol_paypal'), $options);
-        $mform->setDefault('customfield', $plugin->get_config('customfield'));
+        $mform->setDefault('customfield', $instance->customint1);
 
         $this->add_action_buttons(true, ($instance->id ? null : get_string('addinstance', 'enrol')));
 

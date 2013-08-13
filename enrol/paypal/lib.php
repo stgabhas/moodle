@@ -168,15 +168,16 @@ class enrol_paypal_plugin extends enrol_plugin {
                   FROM {course_availability} ca
              LEFT JOIN {course_completions} cc
                     ON (cc.course = ca.sourcecourseid AND
-                        ca.courseid = {$instance->courseid} AND
-                        cc.userid = {$USER->id} AND
-                        ca.enrolinstanceid = {$instance->id})
+                        cc.userid = {$USER->id})
                   JOIN {course} c
-                    ON (c.id = ca.sourcecourseid )
-                 WHERE cc.id IS NULL";
+                    ON (c.id = ca.sourcecourseid)
+                 WHERE cc.id IS NULL
+                   AND ca.courseid = {$instance->courseid}
+                   AND ca.enrolinstanceid = {$instance->id}
+                 ";
 
         if ($to_complete = $DB->get_records_sql($sql)) {
-            $a = get_string('cannotenrolprerequisites', 'enrol_self');
+            $a = get_string('cannotenrolprerequisites', 'enrol_paypal');
             $a .= "<ul>";
             foreach ($to_complete as $c) {
                 $a .= '<li>'.format_string($c->fullname, true).'</li>';
