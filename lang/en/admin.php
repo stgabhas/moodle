@@ -1189,3 +1189,4 @@ $string['solrsslkeypassword_desc'] = 'Password for PEM-formatted private key fil
 $string['solrversion'] = 'Version';
 $string['solrversion_desc'] = 'Define the Solr version. The current Apache Solr php extension installed on your system is <code>{$a}</code>';
 $string['statistics'] = 'Statistics';
+$string['statistics_desc'] = 'Indexing Statistics';
