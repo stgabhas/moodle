@@ -95,6 +95,7 @@ $string['blog:viewdrafts'] = 'View draft blog entries';
 $string['calendar:manageentries'] = 'Manage any calendar entries';
 $string['calendar:managegroupentries'] = 'Manage group calendar entries';
 $string['calendar:manageownentries'] = 'Manage own calendar entries';
+$string['calendar:vieweventswithoutenrol'] = 'View events of courses without enrol';
 $string['capabilities'] = 'Capabilities';
 $string['capability'] = 'Capability';
 $string['category:create'] = 'Create categories';
