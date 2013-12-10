@@ -1593,7 +1593,21 @@ function calendar_get_default_courses() {
 
     $courses = enrol_get_my_courses();
 
-    return $courses;
+    // default fields from enrol_get_my_courses
+
+    $final_courses = array();
+    foreach ($courses as $c) {
+        $final_courses[$c->id] = $c;
+    }
+
+    $basefields = 'id, category, sortorder, shortname, fullname, idnumber, startdate, visible, groupmode, groupmodeforce';
+    if($other_courses = get_user_capability_course('moodle/calendar:vieweventswithoutenrol', null, true, $basefields)) {
+       foreach ($other_courses as $oc) {
+           $final_courses[$oc->id] = $oc;
+       }
+    }
+
+    return $final_courses;
 }
 
 /**

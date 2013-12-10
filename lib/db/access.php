@@ -1200,6 +1200,15 @@ $capabilities = array(
         )
     ),
 
+    'moodle/calendar:vieweventswithoutenrol' => array(
+
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSECAT,
+        'archetypes' => array(
+            'manager' => CAP_ALLOW
+        )
+    ),
+
     'moodle/user:editprofile' => array(
 
         'riskbitmask' => RISK_SPAM | RISK_PERSONAL,
