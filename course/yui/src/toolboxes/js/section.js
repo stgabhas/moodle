@@ -39,6 +39,9 @@ Y.extend(SECTIONTOOLBOX, TOOLBOX, {
 
         // Section Visibility.
         Y.delegate('click', this.toggle_hide_section, SELECTOR.PAGECONTENT, SELECTOR.SECTIONLI + ' ' + SELECTOR.SHOWHIDE, this);
+
+        // Section delete
+        Y.delegate('click', this.delete_section, SELECTOR.PAGECONTENT, SELECTOR.SECTIONLI + ' ' + SELECTOR.DELETESECTION, this);
     },
 
     toggle_hide_section : function(e) {
@@ -161,6 +164,67 @@ Y.extend(SECTIONTOOLBOX, TOOLBOX, {
         var lightbox = M.util.add_lightbox(Y, section);
         lightbox.show();
         this.send_request(data, lightbox);
+    },
+    delete_section : function(e) {
+
+        // Prevent the default button action
+        e.preventDefault();
+
+        // Get the section we're working on
+        var section = e.target.ancestor(M.course.format.get_section_selector(Y));
+
+        confirmstring = M.util.get_string('deletesectioncheck', 'moodle');
+
+        // Confirm element removal
+        if (!confirm(confirmstring)) {
+            return false;
+        }
+
+        // Change the highlight status
+        var data = {
+            'class' : 'section',
+            'field' : 'delete',
+            'id'    : Y.Moodle.core_course.util.section.getId(section.ancestor(M.course.format.get_section_wrapper(Y), true)),
+        };
+
+        var lightbox = M.util.add_lightbox(Y, section);
+        lightbox.show();
+
+        this.send_request(data, lightbox, function(responseText) {
+
+            var parentEl = section.ancestor();
+
+            var sectionlist = Y.one(SELECTOR.PAGECONTENT).all(M.course.format.get_section_selector(Y))
+            var sectionCount = sectionlist.length;
+
+            var i = 0;
+            var found = -1;
+            sectionlist.each(function(node) {
+                if (found > -1) {
+                    sectionlist[i - 1] = sectionlist[i];
+                    if (i == sectionCount - 1) {
+                        sectionlist = sectionlist.slice(0, -1);
+                    }
+                } else if (node == section) {
+                    found = i;
+                }
+                i++;
+            });
+            // Remove any extra text nodes to keep DOM clean.
+            var kids = parentEl.all();
+
+            for (var i=0; i<kids.length; i++) {
+                if (kids[i].nodeType == 3) {
+                    YAHOO.log('Removed extra text node.');
+                    parentEl.removeChild(kids[i]);
+                }
+            }
+
+            parentEl.removeChild(section);
+
+            M.course.format.process_sections(Y, sectionlist, responseText, found, i-1);
+            M.course.format.swap_sections(Y, found, found+1);
+        });
     }
 }, {
     NAME : 'course-section-toolbox',

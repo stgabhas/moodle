@@ -41,6 +41,7 @@ var CSS = {
         COMMANDSPAN : '.commands',
         CONTENTAFTERLINK : 'div.contentafterlink',
         CONTENTWITHOUTLINK : 'div.contentwithoutlink',
+        DELETESECTION: 'a.delete_section',
         EDITTITLE: 'a.editing_title',
         HIDE : 'a.editing_hide',
         HIGHLIGHT : 'a.editing_highlight',
