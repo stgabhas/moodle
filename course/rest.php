@@ -96,6 +96,14 @@ switch($requestmethod) {
                             echo json_encode($response);
                         }
                         break;
+                    case 'delete':
+                        course_delete_section($course->id, $id);
+                        // See if format wants to do something about it
+                        $response = course_get_format($course)->ajax_section_move();
+                        if ($response !== null) {
+                            echo json_encode($response);
+                        }
+                        break;
                 }
                 break;
 

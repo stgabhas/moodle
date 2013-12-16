@@ -61,7 +61,7 @@ M.course.format.process_sections = function(Y, sectionlist, response, sectionfro
         SECTIONLEFTSIDE : '.left .section-handle img'
     };
 
-    if (response.action == 'move') {
+    if ( (response.action == 'move') || (response.action == 'delete')) {
         // If moving up swap around 'sectionfrom' and 'sectionto' so the that loop operates.
         if (sectionfrom > sectionto) {
             var temp = sectionto;

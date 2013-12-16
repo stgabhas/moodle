@@ -3231,6 +3231,7 @@ function include_course_ajax($course, $usedmodules = array(), $enabledmodules = 
             'moveleft',
             'deletechecktype',
             'deletechecktypename',
+            'deletesectioncheck',
             'edittitle',
             'edittitleinstructions',
             'show',
@@ -3656,4 +3657,58 @@ function course_change_sortorder_after_course($courseorid, $moveaftercourseid) {
     fix_course_sortorder();
     cache_helper::purge_by_event('changesincourse');
     return true;
+}
+
+function course_delete_section($courseid, $section) {
+    global $CFG, $DB;
+
+    if (!$DB->record_exists('course', array('id'=> $courseid))) {
+            print_error('Invalid course');
+    }
+    if (is_numeric($section)) {
+        if (!$section = $DB->get_record('course_sections', array('course' => $courseid, 'section' => $section))) {
+            print_error('Section not found');
+        }
+    } else if ( $section->section == 0) {
+        print_error("Course section 0 (main) could not be deleted");
+    }
+
+    // delete all modules if they exist
+    if (!empty($section->sequence) ) {
+        $modids = explode(',', $section->sequence);
+        foreach($modids AS $modid) {
+            if ($cm = $DB->get_record("course_modules", array("id" => $modid))) {
+                if ($modulename = $DB->get_field('modules', 'name', array('id' => $cm->module))) {
+
+                    $modlib = "{$CFG->dirroot}/mod/{$modulename}/lib.php";
+                    if (file_exists($modlib)) {
+                        include_once($modlib);
+                        $deleteinstancefunction = $modulename."_delete_instance";
+                        $deleteinstancefunction($cm->instance);
+                    }
+                }
+                delete_course_module($modid);
+            }
+        }
+    }
+    // remove the section and update the course.numsections and sections order
+    if (!$DB->delete_records("course_sections", array("id" => $section->id))) {
+        print_error("Could not delete Course section");
+    }
+
+    $DB->execute("UPDATE {$CFG->prefix}course_sections
+                     SET section = section - 1
+                   WHERE course = {$courseid}
+                     AND section > {$section->section}");
+
+    $DB->execute("UPDATE {$CFG->prefix}course_format_options
+                     SET value = value - 1
+                   WHERE courseid = {$courseid}
+                     AND name = 'numsections'");
+
+    $DB->delete_records('course_sections_availability', array('coursesectionid' => $section->id));
+
+    rebuild_course_cache($courseid);
+
+    add_to_log($courseid, "course", "deletesection", "deletesection.php?id=$section->id", "$section->section");
 }
