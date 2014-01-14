@@ -43,5 +43,13 @@ $functions = array(
         'description' => 'Returns a list of forum discussions contained within a given set of forums.',
         'type' => 'read',
         'capabilities' => 'mod/forum:viewdiscussion, mod/forum:viewqandawithoutposting'
+    ),
+
+    'mod_forum_get_all_posts' => array(
+        'classname' => 'mod_forum_external',
+        'methodname' => 'get_all_posts',
+        'classpath' => 'mod/forum/externallib.php',
+        'description' => 'Returns a list of all forum posts.',
+        'type' => 'read',
     )
 );

@@ -340,4 +340,37 @@ class mod_forum_external extends external_api {
             )
         );
     }
+
+    public static function get_all_posts_parameters() {
+        return new external_function_parameters(array());
+    }
+
+    public static function get_all_posts() {
+        global $DB;
+        $sql = "SELECT p.id, d.course, d.forum, p.discussion, p.parent,
+                       p.created, p.modified, p.subject, p.message, p.totalscore
+                  FROM {forum_posts} p
+                  JOIN {forum_discussions} d
+                    ON (d.id = p.discussion)";
+        return $DB->get_records_sql($sql);
+    }
+
+    public static function get_all_posts_returns() {
+        return new external_multiple_structure(
+            new external_single_structure(
+                array(
+                    'id'         => new external_value(PARAM_INT, 'Post id'),
+                    'course'     => new external_value(PARAM_INT, 'Course id'),
+                    'forum'      => new external_value(PARAM_INT, 'The forum id'),
+                    'discussion' => new external_value(PARAM_INT, 'The discussion id'),
+                    'parent'     => new external_value(PARAM_INT, 'The parent post id'),
+                    'created'    => new external_value(PARAM_INT, 'Time created'),
+                    'modified'   => new external_value(PARAM_INT, 'Time modified'),
+                    'subject'    => new external_value(PARAM_TEXT, 'Post subject'),
+                    'message'    => new external_value(PARAM_CLEANHTML, 'Post body'),
+                    'totalscore' => new external_value(PARAM_INT, 'Total score'),
+                )
+            )
+        );
+    }
 }
