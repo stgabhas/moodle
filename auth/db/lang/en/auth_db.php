@@ -22,7 +22,6 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['auth_dbcantconnect'] = 'Could not connect to the specified authentication database...';
 $string['auth_dbdebugauthdb'] = 'Debug ADOdb';
 $string['auth_dbdebugauthdbhelp'] = 'Debug ADOdb connection to external database - use when getting empty page during login. Not suitable for production sites.';
 $string['auth_dbdeleteuser'] = 'Deleted user {$a->name} id {$a->id}';
@@ -65,4 +64,5 @@ $string['auth_dbuser_key'] = 'DB user';
 $string['auth_dbusernotexist'] = 'Cannot update non-existent user: {$a}';
 $string['auth_dbuserstoadd'] = 'User entries to add: {$a}';
 $string['auth_dbuserstoremove'] = 'User entries to remove: {$a}';
+$string['cannottconnect'] = 'Can not connect to the specified authentication database.';
 $string['pluginname'] = 'External database';
