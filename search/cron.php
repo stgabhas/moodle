@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-require_once('../config.php');
+
 require_once($CFG->dirroot . '/search/' . $CFG->SEARCH_ENGINE . '/connection.php');
 require_once($CFG->dirroot . '/search/lib.php');
 
@@ -38,4 +38,6 @@ if ($search_engine_installed() and $search_engine_check_server($client)) {
     search_index_files($client);
     // Optimize index at last.
     search_optimize_index($client);
+} else {
+    echo "Solr not installed or check server failed.";
 }

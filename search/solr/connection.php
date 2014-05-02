@@ -31,17 +31,17 @@ require_once($CFG->dirroot . '/search/' . $CFG->SEARCH_ENGINE . '/search.php');
 if (function_exists('solr_get_version')) {
     // Solr connection options.
     $options = array(
-        'hostname' => $CFG->SOLR_SERVER_HOSTNAME,
-        'login'    => $CFG->SOLR_SERVER_USERNAME,
-        'password' => $CFG->SOLR_SERVER_PASSWORD,
-        'port'     => $CFG->SOLR_SERVER_PORT,
-        'issecure' => $CFG->SOLR_SECURE,
-        'ssl_cert' => $CFG->SOLR_SSL_CERT,
-        'ssl_cert_only' => $CFG->SOLR_SSL_CERT_ONLY,
-        'ssl_key' => $CFG->SOLR_SSL_KEY,
-        'ssl_password' => $CFG->SOLR_SSL_KEYPASSWORD,
-        'ssl_cainfo' => $CFG->SOLR_SSL_CAINFO,
-        'ssl_capath' => $CFG->SOLR_SSL_CAPATH
+        'hostname' => isset($CFG->SOLR_SERVER_HOSTNAME) ? $CFG->SOLR_SERVER_HOSTNAME : '',
+        'login'    => isset($CFG->SOLR_SERVER_USERNAME) ? $CFG->SOLR_SERVER_USERNAME : '',
+        'password' => isset($CFG->SOLR_SERVER_PASSWORD) ? $CFG->SOLR_SERVER_PASSWORD : '',
+        'port'     => isset($CFG->SOLR_SERVER_PORT) ? $CFG->SOLR_SERVER_PORT : '',
+        'issecure' => isset($CFG->SOLR_SECURE) ? $CFG->SOLR_SECURE : '',
+        'ssl_cert' => isset($CFG->SOLR_SSL_CERT) ? $CFG->SOLR_SSL_CERT : '',
+        'ssl_cert_only' => isset($CFG->SOLR_SSL_CERT_ONLY) ? $CFG->SOLR_SSL_CERT_ONLY : '',
+        'ssl_key' => isset($CFG->SOLR_SSL_KEY) ? $CFG->SOLR_SSL_KEY : '',
+        'ssl_password' => isset($CFG->SOLR_SSL_KEYPASSWORD) ? $CFG->SOLR_SSL_KEYPASSWORD : '',
+        'ssl_cainfo' => isset($CFG->SOLR_SSL_CAINFO) ? $CFG->SOLR_SSL_CAINFO : '',
+        'ssl_capath' => isset($CFG->SOLR_SSL_CAPATH) ? $CFG->SOLR_SSL_CAPATH : ''
     );
 
     // If php solr extension 1.0.3-alpha installed, one may choose 3.x or 4.x solr from admin settings page.
