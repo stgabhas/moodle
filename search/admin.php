@@ -54,6 +54,8 @@ class search_admin_form extends moodleform {
 
         $mform->disabledIf('modadvcheckbox', 'delete', 'notchecked');
 
+        $mform->addElement('checkbox', 'reindex', '', get_string('reindex', 'search'));
+
         $this->add_action_buttons($cancel = false);
         $mform->setDefault('action', '');
     }
@@ -94,6 +96,21 @@ if ($data = $mform->get_data()) {
             }
             $data->module = substr($a, 0, -1);
             search_delete_index($client, $data);
+        }
+    }
+    if (!empty($data->reindex)) {
+        require_once($CFG->dirroot . '/search/' . $CFG->SEARCH_ENGINE . '/connection.php');
+        $search_engine_installed = $CFG->SEARCH_ENGINE . '_installed';
+        $search_engine_check_server = $CFG->SEARCH_ENGINE . '_check_server';
+        if ($search_engine_installed() and $search_engine_check_server($client)) {
+            // Indexing database records for modules + rich documents of forum.
+            search_index($client);
+            // Indexing rich documents for lesson, wiki.
+            search_index_files($client);
+            // Optimize index at last.
+            search_optimize_index($client);
+        } else {
+            echo "Solr not installed or check server failed.";
         }
     }
 }
