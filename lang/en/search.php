@@ -109,5 +109,6 @@ $string['query'] = 'Enter Query';
 $string['optimize'] = 'Optimize';
 $string['titlefilterquery'] = 'From records having this title';
 $string['filtertimesection'] = 'Limit search by time';
+$string['reindex'] = 'Recreate Solr index';
 $string['searchfromtime'] = 'Include search results modified after';
 $string['searchtilltime'] = 'Include search results modified before';
