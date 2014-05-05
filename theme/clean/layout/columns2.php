@@ -34,18 +34,24 @@ echo $OUTPUT->doctype() ?>
 <header role="banner" class="navbar navbar-fixed-top<?php echo $html->navbarclass ?> moodle-has-zindex">
     <nav role="navigation" class="navbar-inner">
         <div class="container-fluid">
-            <a class="brand" href="<?php echo $CFG->wwwroot;?>"><?php echo $SITE->shortname; ?></a>
-            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </a>
-            <div class="nav-collapse collapse">
-                <?php echo $OUTPUT->custom_menu(); ?>
-                <ul class="nav pull-right">
-                    <li><?php echo $OUTPUT->page_heading_menu(); ?></li>
-                    <li class="navbar-text"><?php echo $OUTPUT->login_info() ?></li>
-                </ul>
+            <div class="span4">
+                <a class="brand span4" href="<?php echo $CFG->wwwroot;?>"><?php echo theme_clean_left_logo($PAGE); ?></a>
+            </div>
+
+            <div class="span5" id="site-name">
+                <?php echo theme_clean_center_logo($PAGE); ?>
+            </div>
+
+            <div class="span4 pull-right">
+                <div class="span4 pull-right text-right">
+                        <?php echo $OUTPUT->page_heading_menu(); ?>
+                        <?php echo $OUTPUT->login_info(); ?>
+                </div>
+                <div class="row-fluid">
+                    <div class="span8 pull-right">
+                        <?php echo $OUTPUT->custom_menu(); ?>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>

@@ -146,6 +146,64 @@ function theme_clean_get_html_for_settings(renderer_base $output, moodle_page $p
     return $return;
 }
 
+function theme_clean_left_logo(moodle_page $page) {
+    global $CFG;
+
+    if (isset($page->theme->settings->logo_left) && $page->theme->settings->logo_left != 'none') {
+
+        switch ($page->theme->settings->logo_left) {
+            case 'unasus':
+                return html_writer::empty_tag('img', array('class' => "span3",
+                                                           'src' => $CFG->wwwroot . '/theme/clean/pix/logo_unasus.svg',
+                                                           'alt' => 'EaD-UFSC / UNA-SUS'));
+            break;
+            case 'ead':
+                return html_writer::empty_tag('img', array('class' => "span3",
+                                                           'src' => $CFG->wwwroot . '/theme/clean/pix/logo_ead.svg',
+                                                           'alt' => 'EaD-UFSC Ensino a Distância'));
+                break;
+            case 'ufsc':
+                return html_writer::empty_tag('img', array('class' => "span3",
+                                                           'src' => $CFG->wwwroot . '/theme/clean/pix/logo_ufsc.svg',
+                                                           'alt' => 'Universidade Federal de Santa Catarina'));
+            break;
+        }
+    }
+    return '';
+}
+
+function theme_clean_center_logo(moodle_page $page) {
+    global $SITE;
+
+    if (isset($page->theme->settings->logo_center) && $page->theme->settings->logo_center != 'none') {
+
+        switch ($page->theme->settings->logo_center) {
+
+            case 'sitefullname':
+                return html_writer::tag('h1', '', array('id' => 'curso', 'class' => 'presencial')) .
+                       html_writer::tag('h2', $SITE->fullname, array('id' => 'subtitulo', 'class' => 'presencial'));
+            case 'presencial':
+                return html_writer::tag('h1', 'Sistema de apoio aos', array('id' => 'curso', 'class' => 'presencial')) .
+                       html_writer::tag('h2', 'Cursos presenciais', array('id' => 'subtitulo', 'class' => 'presencial'));
+            case 'provas':
+                return html_writer::tag('h1', '', array('id' => 'curso', 'class' => 'presencial')) .
+                       html_writer::tag('h2', 'Moodle Provas', array('id' => 'subtitulo', 'class' => 'presencial'));
+            case 'category':
+
+                foreach ($page->categories as $c) {
+                    if ($c->depth == 1) {
+                        $categoryid = $c->id;
+                    }
+                }
+                return html_writer::tag('h1', $page->theme->settings->{"course_category_title_{$categoryid}"},
+                                        array('id' => 'curso', 'class' => 'category_title')) .
+                       html_writer::tag('h2', $page->theme->settings->{"course_category_subtitle_{$categoryid}"},
+                                        array('id' => 'subtitulo', 'class' => 'category_subtitle'));
+        }
+    }
+    return '';
+}
+
 /**
  * All theme functions should start with theme_clean_
  * @deprecated since 2.5.1
@@ -169,3 +227,4 @@ function clean_set_logo() {
 function clean_set_customcss() {
     throw new coding_exception('Please call theme_'.__FUNCTION__.' instead of '.__FUNCTION__);
 }
+
