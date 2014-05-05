@@ -18,4 +18,46 @@ a.logo {
 
 /* Custom CSS Settings
 -------------------------*/
+
+#page-header {
+    margin-top: 4em;
+}
+
+#site-name h1#curso {
+        margin: 0;
+        margin-top: .5em;
+}
+#site-name h2#subtitulo {
+        margin: 0;
+}
+#site-name h1#curso,
+#site-name h2#subtitulo {
+	text-align: center;
+	font-family: 'Droid Sans', sans-serif;
+	font-weight: 400;
+        padding: 0;
+        line-height: 30px;
+}
+#site-name h1#curso.category_title {
+	margin: 12px 0 0 0;
+	font-size: 32px;
+	text-transform: uppercase;
+	letter-spacing: 2px;
+}
+#site-name h2#subtitulo.category_subtitle {
+	font-size: 20px;
+	margin: 0;
+}
+#site-name h1#curso.presencial {
+	font-size: 20px;
+}
+#site-name h2#subtitulo.presencial {
+	font-size: 30px;
+	text-transform: uppercase;
+	letter-spacing: 2px;
+}
+
+#dock .dockeditem_container {
+    margin-top: 95px;
+}
 [[setting:customcss]]
