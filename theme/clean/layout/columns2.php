@@ -31,14 +31,14 @@ echo $OUTPUT->doctype() ?>
 
 <?php echo $OUTPUT->standard_top_of_body_html() ?>
 
-<header role="banner" class="navbar navbar-fixed-top<?php echo $html->navbarclass ?> moodle-has-zindex">
+<header role="banner" class="navbar navbar-static-top<?php echo $html->navbarclass ?> moodle-has-zindex">
     <nav role="navigation" class="navbar-inner">
         <div class="container-fluid">
             <div class="span4">
-                <a class="brand span4" href="<?php echo $CFG->wwwroot;?>"><?php echo theme_clean_left_logo($PAGE); ?></a>
+                <a class="navbar-brand" href="<?php echo $CFG->wwwroot;?>"><?php echo theme_clean_left_logo($PAGE); ?></a>
             </div>
 
-            <div class="span5" id="site-name">
+            <div class="span4" id="site-name">
                 <?php echo theme_clean_center_logo($PAGE); ?>
             </div>
 

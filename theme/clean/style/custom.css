@@ -19,17 +19,23 @@ a.logo {
 /* Custom CSS Settings
 -------------------------*/
 
+body {
+    padding-top: 0;
+}
+
 #page-header {
-    margin-top: 4em;
+    margin-top: 1em;
 }
 
 #site-name h1#curso {
         margin: 0;
         margin-top: .5em;
 }
+
 #site-name h2#subtitulo {
         margin: 0;
 }
+
 #site-name h1#curso,
 #site-name h2#subtitulo {
 	text-align: center;
