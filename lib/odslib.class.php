@@ -835,38 +835,20 @@ class MoodleODSWriter {
         } while (file_exists($CFG->tempdir.'/'.$dir));
 
         make_temp_directory($dir);
-        make_temp_directory($dir.'/META-INF');
+
         $dir = "$CFG->tempdir/$dir";
-        $files = array();
-
-        $handle = fopen("$dir/mimetype", 'w');
-        fwrite($handle, $this->get_ods_mimetype());
-        $files[] = "$dir/mimetype";
-
-        $handle = fopen("$dir/content.xml", 'w');
-        fwrite($handle, $this->get_ods_content($this->worksheets));
-        $files[] = "$dir/content.xml";
-
-        $handle = fopen("$dir/meta.xml", 'w');
-        fwrite($handle, $this->get_ods_meta());
-        $files[] = "$dir/meta.xml";
-
-        $handle = fopen("$dir/styles.xml", 'w');
-        fwrite($handle, $this->get_ods_styles());
-        $files[] = "$dir/styles.xml";
-
-        $handle = fopen("$dir/settings.xml", 'w');
-        fwrite($handle, $this->get_ods_settings());
-        $files[] = "$dir/settings.xml";
-
-        $handle = fopen("$dir/META-INF/manifest.xml", 'w');
-        fwrite($handle, $this->get_ods_manifest());
-        $files[] = "$dir/META-INF";
-
         $filename = "$dir/result.ods";
-        zip_files($files, $filename);
 
-        $handle = fopen($filename, 'rb');
+        $handle = fopen($filename, 'w');
+        fwrite($handle, $this->get_ods_start_office_document());
+        fwrite($handle, $this->get_ods_meta());
+        fwrite($handle, $this->get_ods_settings());
+        fwrite($handle, $this->get_ods_styles());
+        fwrite($handle, $this->get_ods_content($this->worksheets));
+        fwrite($handle, $this->get_ods_end_office_document());
+        fclose($handle);
+
+        $handle = fopen($filename, 'r');
         $contents = fread($handle, filesize($filename));
         fclose($handle);
 
@@ -1044,36 +1026,7 @@ class MoodleODSWriter {
   </style:style>
 ';
         // Header.
-        $buffer =
-'<?xml version="1.0" encoding="UTF-8"?>
-<office:document-content xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
-                         xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0"
-                         xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0"
-                         xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0"
-                         xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0"
-                         xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0"
-                         xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/"
-                         xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0"
-                         xmlns:number="urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0"
-                         xmlns:presentation="urn:oasis:names:tc:opendocument:xmlns:presentation:1.0"
-                         xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0"
-                         xmlns:chart="urn:oasis:names:tc:opendocument:xmlns:chart:1.0"
-                         xmlns:dr3d="urn:oasis:names:tc:opendocument:xmlns:dr3d:1.0"
-                         xmlns:math="http://www.w3.org/1998/Math/MathML"
-                         xmlns:form="urn:oasis:names:tc:opendocument:xmlns:form:1.0"
-                         xmlns:script="urn:oasis:names:tc:opendocument:xmlns:script:1.0"
-                         xmlns:ooo="http://openoffice.org/2004/office" xmlns:ooow="http://openoffice.org/2004/writer"
-                         xmlns:oooc="http://openoffice.org/2004/calc" xmlns:dom="http://www.w3.org/2001/xml-events"
-                         xmlns:xforms="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                         xmlns:rpt="http://openoffice.org/2005/report"
-                         xmlns:of="urn:oasis:names:tc:opendocument:xmlns:of:1.2"
-                         xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:grddl="http://www.w3.org/2003/g/data-view#"
-                         xmlns:tableooo="http://openoffice.org/2009/table"
-                         xmlns:calcext="urn:org:documentfoundation:names:experimental:calc:xmlns:calcext:1.0"
-                         xmlns:field="urn:openoffice:names:experimental:ooo-ms-interop:xmlns:field:1.0"
-                         xmlns:formx="urn:openoffice:names:experimental:ooxml-odf-interop:xmlns:form:1.0"
-                         xmlns:css3t="http://www.w3.org/TR/css3-text/" office:version="1.2">
+        $buffer = '
   <office:scripts/>
   <office:font-face-decls>
     <style:font-face style:name="Arial" svg:font-family="Arial" style:font-family-generic="swiss"
@@ -1230,23 +1183,82 @@ class MoodleODSWriter {
         // Footer.
         $buffer .= '
     </office:spreadsheet>
-  </office:body>
-</office:document-content>';
+  </office:body>';
 
         return $buffer;
     }
 
+    /**
+     * Get first elements of Flat ODS file
+     *
+     * @return string the <office:document> tag with various definitions
+     */
+    public function get_ods_start_office_document() {
+        return '<?xml version="1.0" encoding="UTF-8"?>
+<office:document xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
+                 xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0"
+                 xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0"
+                 xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0"
+                 xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0"
+                 xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0"
+                 xmlns:xlink="http://www.w3.org/1999/xlink"
+                 xmlns:dc="http://purl.org/dc/elements/1.1/"
+                 xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0"
+                 xmlns:number="urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0"
+                 xmlns:presentation="urn:oasis:names:tc:opendocument:xmlns:presentation:1.0"
+                 xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0"
+                 xmlns:chart="urn:oasis:names:tc:opendocument:xmlns:chart:1.0"
+                 xmlns:dr3d="urn:oasis:names:tc:opendocument:xmlns:dr3d:1.0"
+                 xmlns:math="http://www.w3.org/1998/Math/MathML"
+                 xmlns:form="urn:oasis:names:tc:opendocument:xmlns:form:1.0"
+                 xmlns:script="urn:oasis:names:tc:opendocument:xmlns:script:1.0"
+                 xmlns:config="urn:oasis:names:tc:opendocument:xmlns:config:1.0"
+                 xmlns:ooo="http://openoffice.org/2004/office"
+                 xmlns:ooow="http://openoffice.org/2004/writer"
+                 xmlns:oooc="http://openoffice.org/2004/calc"
+                 xmlns:dom="http://www.w3.org/2001/xml-events"
+                 xmlns:xforms="http://www.w3.org/2002/xforms"
+                 xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xmlns:rpt="http://openoffice.org/2005/report"
+                 xmlns:of="urn:oasis:names:tc:opendocument:xmlns:of:1.2"
+                 xmlns:xhtml="http://www.w3.org/1999/xhtml"
+                 xmlns:grddl="http://www.w3.org/2003/g/data-view#"
+                 xmlns:tableooo="http://openoffice.org/2009/table"
+                 xmlns:drawooo="http://openoffice.org/2010/draw"
+                 xmlns:calcext="urn:org:documentfoundation:names:experimental:calc:xmlns:calcext:1.0"
+                 xmlns:loext="urn:org:documentfoundation:names:experimental:office:xmlns:loext:1.0"
+                 xmlns:field="urn:openoffice:names:experimental:ooo-ms-interop:xmlns:field:1.0"
+                 xmlns:formx="urn:openoffice:names:experimental:ooxml-odf-interop:xmlns:form:1.0"
+                 xmlns:css3t="http://www.w3.org/TR/css3-text/"
+                 office:version="1.2" office:mimetype="application/vnd.oasis.opendocument.spreadsheet">';
+    }
+
+    /**
+     * Get the close tag for <office:document> tag
+     *
+     * @return string </office:document>
+     */
+    public function get_ods_end_office_document() {
+        return '</office:document>';
+    }
+
+    /**
+     * Get the mime type for Flat ODS file
+     *
+     * @return string application/vnd.oasis.opendocument.spreadsheet
+     */
     public function get_ods_mimetype() {
         return 'application/vnd.oasis.opendocument.spreadsheet';
     }
 
+    /**
+     * Get the mime <office:settings> tag and sub tags
+     *
+     * @return string <office:settings> with various definitions
+     */
     protected function get_ods_settings() {
-        $buffer =
-'<?xml version="1.0" encoding="UTF-8"?>
-<office:document-settings xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
-                          xmlns:xlink="http://www.w3.org/1999/xlink"
-                          xmlns:config="urn:oasis:names:tc:opendocument:xmlns:config:1.0"
-                          xmlns:ooo="http://openoffice.org/2004/office" office:version="1.2">
+        $buffer = '
     <office:settings>
       <config:config-item-set config:name="ooo:view-settings">
         <config:config-item config:name="VisibleAreaTop" config:type="int">0</config:config-item>
@@ -1269,57 +1281,25 @@ class MoodleODSWriter {
       <config:config-item-set config:name="ooo:configuration-settings">
         <config:config-item config:name="ShowGrid" config:type="boolean">true</config:config-item>
       </config:config-item-set>
-    </office:settings>
-</office:document-settings>';
+    </office:settings>';
 
         return $buffer;
     }
     protected function get_ods_meta() {
         global $CFG, $USER;
 
-        return
-'<?xml version="1.0" encoding="UTF-8"?>
-<office:document-meta xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
-                      xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/"
-                      xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0"
-                      xmlns:ooo="http://openoffice.org/2004/office" xmlns:grddl="http://www.w3.org/2003/g/data-view#"
-                      office:version="1.2">
+        $meta = '
     <office:meta>
         <meta:generator>Moodle '.$CFG->release.'</meta:generator>
         <meta:initial-creator>'.fullname($USER, true).'</meta:initial-creator>
         <meta:creation-date>'.strftime('%Y-%m-%dT%H:%M:%S').'</meta:creation-date>
         <meta:document-statistic meta:table-count="1" meta:cell-count="0" meta:object-count="0"/>
-    </office:meta>
-</office:document-meta>';
+    </office:meta>';
+        return $meta;
     }
 
     protected function get_ods_styles() {
-        return
-'<?xml version="1.0" encoding="UTF-8"?>
-<office:document-styles xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
-                        xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0"
-                        xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0"
-                        xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0"
-                        xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0"
-                        xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0"
-                        xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/"
-                        xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0"
-                        xmlns:number="urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0"
-                        xmlns:presentation="urn:oasis:names:tc:opendocument:xmlns:presentation:1.0"
-                        xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0"
-                        xmlns:chart="urn:oasis:names:tc:opendocument:xmlns:chart:1.0"
-                        xmlns:dr3d="urn:oasis:names:tc:opendocument:xmlns:dr3d:1.0"
-                        xmlns:math="http://www.w3.org/1998/Math/MathML"
-                        xmlns:form="urn:oasis:names:tc:opendocument:xmlns:form:1.0"
-                        xmlns:script="urn:oasis:names:tc:opendocument:xmlns:script:1.0"
-                        xmlns:ooo="http://openoffice.org/2004/office" xmlns:ooow="http://openoffice.org/2004/writer"
-                        xmlns:oooc="http://openoffice.org/2004/calc" xmlns:dom="http://www.w3.org/2001/xml-events"
-                        xmlns:rpt="http://openoffice.org/2005/report"
-                        xmlns:of="urn:oasis:names:tc:opendocument:xmlns:of:1.2"
-                        xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:grddl="http://www.w3.org/2003/g/data-view#"
-                        xmlns:tableooo="http://openoffice.org/2009/table"
-                        xmlns:calcext="urn:org:documentfoundation:names:experimental:calc:xmlns:calcext:1.0"
-                        xmlns:css3t="http://www.w3.org/TR/css3-text/" office:version="1.2">
+        $styles = '
     <office:font-face-decls>
         <style:font-face style:name="Arial" svg:font-family="Arial" style:font-family-generic="swiss"
                          style:font-pitch="variable"/>
@@ -1423,20 +1403,9 @@ class MoodleODSWriter {
             </style:footer>
             <style:footer-left style:display="false"/>
         </style:master-page>
-    </office:master-styles>
-</office:document-styles>';
-    }
+    </office:master-styles>';
 
-    protected function get_ods_manifest() {
-        return
-'<?xml version="1.0" encoding="UTF-8"?>
-<manifest:manifest xmlns:manifest="urn:oasis:names:tc:opendocument:xmlns:manifest:1.0" manifest:version="1.2">
- <manifest:file-entry manifest:full-path="/" manifest:version="1.2" manifest:media-type="application/vnd.oasis.opendocument.spreadsheet"/>
- <manifest:file-entry manifest:full-path="meta.xml" manifest:media-type="text/xml"/>
- <manifest:file-entry manifest:full-path="content.xml" manifest:media-type="text/xml"/>
- <manifest:file-entry manifest:full-path="styles.xml" manifest:media-type="text/xml"/>
- <manifest:file-entry manifest:full-path="settings.xml" manifest:media-type="text/xml"/>
-</manifest:manifest>';
+        return $styles;
     }
 
     protected function get_num_styles() {
