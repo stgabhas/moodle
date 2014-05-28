@@ -188,7 +188,7 @@ if ($roleid) {
 <form id="assignform" method="post" action="<?php echo $assignurl ?>"><div>
   <input type="hidden" name="sesskey" value="<?php echo sesskey() ?>" />
 
-  <table id="assigningrole" summary="" class="admintable roleassigntable generaltable" cellspacing="0">
+  <table id="assigningrole" class="admintable roleassigntable generaltable" cellspacing="0">
     <tr>
       <td id="existingcell">
           <p><label for="removeselect"><?php print_string('extusers', 'core_role'); ?></label></p>

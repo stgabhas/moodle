@@ -163,7 +163,7 @@ echo '<form id="groupeditform" action="index.php" method="post">'."\n";
 echo '<div>'."\n";
 echo '<input type="hidden" name="id" value="' . $courseid . '" />'."\n";
 
-echo '<table cellpadding="6" class="generaltable generalbox groupmanagementtable boxaligncenter" summary="">'."\n";
+echo '<table cellpadding="6" class="generaltable generalbox groupmanagementtable boxaligncenter">'."\n";
 echo '<tr>'."\n";
 
 

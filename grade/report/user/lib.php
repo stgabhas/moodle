@@ -577,7 +577,6 @@ class grade_report_user extends grade_report {
         $html = "
             <table cellspacing='0'
                    cellpadding='0'
-                   summary='" . s($this->get_lang_string('tablesummary', 'gradereport_user')) . "'
                    class='boxaligncenter generaltable user-grade'>
             <thead>
                 <tr>

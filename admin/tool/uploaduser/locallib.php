@@ -64,7 +64,7 @@ class uu_progress_tracker {
      */
     public function start() {
         $ci = 0;
-        echo '<table id="uuresults" class="generaltable boxaligncenter flexible-wrap" summary="'.get_string('uploadusersresult', 'tool_uploaduser').'">';
+        echo '<table id="uuresults" class="generaltable boxaligncenter flexible-wrap">';
         echo '<tr class="heading r0">';
         echo '<th class="header c'.$ci++.'" scope="col">'.get_string('status').'</th>';
         echo '<th class="header c'.$ci++.'" scope="col">'.get_string('uucsvline', 'tool_uploaduser').'</th>';

@@ -142,7 +142,7 @@ if (!empty($groupinforow)) {
     <div>
     <input type="hidden" name="sesskey" value="<?php p(sesskey()); ?>" />
 
-    <table class="generaltable generalbox groupmanagementtable boxaligncenter" summary="">
+    <table class="generaltable generalbox groupmanagementtable boxaligncenter">
     <tr>
       <td id='existingcell'>
           <p>

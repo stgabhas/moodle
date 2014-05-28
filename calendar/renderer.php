@@ -475,7 +475,6 @@ class core_calendar_renderer extends plugin_renderer_base {
 
         $table = new html_table();
         $table->attributes = array('class'=>'calendarmonth calendartable');
-        $table->summary = get_string('calendarheading', 'calendar', userdate($calendar->time, get_string('strftimemonthyear')));
         $table->data = array();
 
         // Get the day names as the header.

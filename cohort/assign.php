@@ -101,7 +101,7 @@ if (optional_param('remove', false, PARAM_BOOL) && confirm_sesskey()) {
 <form id="assignform" method="post" action="<?php echo $PAGE->url ?>"><div>
   <input type="hidden" name="sesskey" value="<?php echo sesskey() ?>" />
 
-  <table summary="" class="generaltable generalbox boxaligncenter" cellspacing="0">
+  <table class="generaltable generalbox boxaligncenter" cellspacing="0">
     <tr>
       <td id="existingcell">
           <p><label for="removeselect"><?php print_string('currentusers', 'cohort'); ?></label></p>

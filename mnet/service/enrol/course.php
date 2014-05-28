@@ -136,7 +136,7 @@ if (!empty($error)) {
   <input type="hidden" name="hostid" value="<?php echo $host->id ?>" />
   <input type="hidden" name="courseid" value="<?php echo $course->id ?>" />
 
-  <table summary="" class="roleassigntable generaltable generalbox boxaligncenter" cellspacing="0">
+  <table class="roleassigntable generaltable generalbox boxaligncenter" cellspacing="0">
     <tr>
       <td id="existingcell">
           <p><label for="removeselect"><?php print_string('enrolledusers', 'enrol'); ?></label></p>

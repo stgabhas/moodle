@@ -287,9 +287,7 @@ function calendar_get_mini($courses, $groups, $users, $calmonth = false, $calyea
     // We want to have easy access by day, since the display is on a per-day basis.
     calendar_events_by_day($events, $m, $y, $eventsbyday, $durationbyday, $typesbyday, $courses);
 
-    // Accessibility: added summary and <abbr> elements.
-    $summary = get_string('calendarheading', 'calendar', userdate($display->tstart, get_string('strftimemonthyear')));
-    $content .= '<table class="minicalendar calendartable" summary="'.$summary.'">'; // Begin table.
+    $content .= '<table class="minicalendar calendartable">'; // Begin table.
     if (($placement !== false) && ($courseid !== false)) {
         $content .= '<caption>'. calendar_top_controls($placement, array('id' => $courseid, 'time' => $time)) .'</caption>';
     }
@@ -298,6 +296,7 @@ function calendar_get_mini($courses, $groups, $users, $calmonth = false, $calyea
     // Print out the names of the weekdays.
     for ($i = $display->minwday; $i <= $display->maxwday; ++$i) {
         $pos = $i % $numberofdaysinweek;
+        // Accessibility: added <abbr> elements.
         $content .= '<th scope="col"><abbr title="'. $daynames[$pos]['fullname'] .'">'.
             $daynames[$pos]['shortname'] ."</abbr></th>\n";
     }

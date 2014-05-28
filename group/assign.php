@@ -141,7 +141,7 @@ echo $OUTPUT->header();
     <div>
     <input type="hidden" name="sesskey" value="<?php p(sesskey()); ?>" />
 
-    <table summary="" cellpadding="5" cellspacing="0">
+    <table cellpadding="5" cellspacing="0">
     <tr>
       <td valign="top">
           <label for="removeselect"><?php print_string('existingmembers', 'group', $currentmemberscount); ?></label>
