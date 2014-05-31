@@ -15,22 +15,24 @@ if ($hassiteconfig) { // speedup for non-admins, add all caps used on this page
     $options = array('solr' => 'Apache Solr');
     $temp->add(new admin_setting_configselect('SEARCH_ENGINE', new lang_string('choosesearchengine', 'admin'), new lang_string('choosesearchengine_desc', 'admin'), 'solr', $options));
 
-    switch ($CFG->SEARCH_ENGINE) {
-        case 'solr':
-            if (function_exists('solr_get_version')) {
-                $version = solr_get_version();
-                $solr_installed = true;
-            }
-            break;
-        /*
-        case '{anothersearchengine}':
-            if (check_for_another_search_engine) {
-                {anothersearchengine}_installed = true;
-            }
-            break;
-        */
-        default:
-            break;
+    if (isset($CFG->SEARCH_ENGINE)) {
+        switch ($CFG->SEARCH_ENGINE) {
+            case 'solr':
+                if (function_exists('solr_get_version')) {
+                    $version = solr_get_version();
+                    $solr_installed = true;
+                }
+                break;
+            /*
+            case '{anothersearchengine}':
+                if (check_for_another_search_engine) {
+                    {anothersearchengine}_installed = true;
+                }
+                break;
+            */
+            default:
+                break;
+        }
     }
 
     $ADMIN->add('globalsearch', $temp);
@@ -65,7 +67,7 @@ if ($hassiteconfig) { // speedup for non-admins, add all caps used on this page
         $ADMIN->add('globalsearch', $temp);     
     */
 
-    if ($CFG->enableglobalsearch) {
+    if (isset($CFG->enableglobalsearch ) && $CFG->enableglobalsearch == true) {
         $temp = new admin_settingpage('activatemods', new lang_string('activatemods', 'admin'));
 
         $supported_mods = array('book', 'forum', 'glossary', 'label', 'lesson', 'page', 'resource', 'url', 'wiki'); // add a module here to make it gs_supported
