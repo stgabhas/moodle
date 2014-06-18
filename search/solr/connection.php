@@ -41,7 +41,8 @@ if (function_exists('solr_get_version')) {
         'ssl_key' => isset($CFG->SOLR_SSL_KEY) ? $CFG->SOLR_SSL_KEY : '',
         'ssl_password' => isset($CFG->SOLR_SSL_KEYPASSWORD) ? $CFG->SOLR_SSL_KEYPASSWORD : '',
         'ssl_cainfo' => isset($CFG->SOLR_SSL_CAINFO) ? $CFG->SOLR_SSL_CAINFO : '',
-        'ssl_capath' => isset($CFG->SOLR_SSL_CAPATH) ? $CFG->SOLR_SSL_CAPATH : ''
+        'ssl_capath' => isset($CFG->SOLR_SSL_CAPATH) ? $CFG->SOLR_SSL_CAPATH : '',
+        'path' => isset($path) ? $path : '', // a way to use more than one collection/core
     );
 
     // If php solr extension 1.0.3-alpha installed, one may choose 3.x or 4.x solr from admin settings page.

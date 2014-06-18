@@ -42,18 +42,11 @@ function solr_execute_query(global_search_engine $client, $data) {
         return 'Solr Jetty Server is not running!';
     }
 
-    // check cache through MUC
-    $cache = cache::make_from_params(cache_store::MODE_SESSION, 'globalsearch', 'search');
-    if (time() - $cache->get('time_' . $USER->id) < SEARCH_CACHE_TIME and $cache->get('query_' . $USER->id) == serialize($data)) {
-        return $results = unserialize($cache->get('results_' . $USER->id));
-    } else { // fire a new search request to server and store its cache
-        $cache->set('query_' . $USER->id, serialize($data));
-    }
-
     $query = new SolrQuery();
     solr_set_query($query, $data);
     solr_prepare_filter($client, $data);
     solr_add_fields($query);
+
 
     // search filters applied
     if (!empty($data->titlefilterqueryfield)) {
@@ -83,7 +76,7 @@ function solr_execute_query(global_search_engine $client, $data) {
     try {
         return solr_query_response($client, $client->query($query));
     } catch (SolrClientException $ex) {
-        return 'Bad query request!';
+        throw $ex;
     }
 }
 
@@ -234,7 +227,7 @@ function solr_query_response(global_search_engine $client, $query_response) {
         }
     }
     if (empty($docs)) {
-        return 'No search results found. Try modifying your query.';
+        return $docs;
     }
     // set cache through MUC
     $cache->set('results_' . $USER->id, serialize($docs));
