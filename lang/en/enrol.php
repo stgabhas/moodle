@@ -131,3 +131,5 @@ $string['extremovedsuspend'] = 'Disable course enrolment';
 $string['extremovedsuspendnoroles'] = 'Disable course enrolment and remove roles';
 $string['extremovedkeep'] = 'Keep user enrolled';
 $string['extremovedunenrol'] = 'Unenrol user from course';
+$string['cannotenrolprerequisites'] = 'Before enrol in this course you must complete the courses listed below.';
+$string['courseavailabilityconditions'] = 'Course pre-requisites';
