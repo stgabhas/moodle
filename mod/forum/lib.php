@@ -7556,11 +7556,14 @@ function forum_search_get_documents($id) {
 
     $docs = array();
     try {
-        $post = forum_get_post_full($id);
-        $forum = $DB->get_record('forum', array('id' => $post->forum), '*', MUST_EXIST);
-        $cm = get_coursemodule_from_instance('forum', $forum->id, $forum->course);
-        $context = context_module::instance($cm->id);
-        $user = $DB->get_record('user', array('id' => $post->userid));
+        if ($post = forum_get_post_full($id)) {
+            $forum = $DB->get_record('forum', array('id' => $post->forum), '*', MUST_EXIST);
+            $cm = get_coursemodule_from_instance('forum', $forum->id, $forum->course);
+            $context = context_module::instance($cm->id);
+            $user = $DB->get_record('user', array('id' => $post->userid));
+        } else {
+            return $docs;
+        }
     } catch (mdml_missing_record_exception $ex) {
         return $docs;
     }
