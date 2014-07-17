@@ -35,34 +35,6 @@ $PAGE->set_heading(get_string('globalsearch', 'search'));
 
 global $DB;
 
-class search_admin_form extends moodleform {
-
-    function definition() {
-        $mform = & $this->_form;
-        $checkboxarray = array();
-        $checkboxarray[] =& $mform->createElement('checkbox', 'delete', '', get_string('delete', 'search'));
-        $mform->addGroup($checkboxarray, 'indexcheckbox', '', array(' '), false);
-        $mform->closeHeaderBefore('indexcheckbox');
-
-        $modcheckboxarray = array();
-        $mods = search_get_modules();
-        $modcheckboxarray[] =& $mform->createElement('advcheckbox', 'all', '', 'Entire Index', array('group' => 1));
-        $modcheckboxarray[] =& $mform->createElement('advcheckbox', 'course', '', get_string('course'), array('group' => 2));  // add course
-        foreach ($mods as $mod) {
-            $modcheckboxarray[] =& $mform->createElement('advcheckbox', $mod->name, '', ucfirst($mod->name), array('group' => 2));
-        }
-        $mform->addGroup($modcheckboxarray, 'modadvcheckbox', '', array(' '), false);
-        $mform->closeHeaderBefore('modadvcheckbox');
-
-        $mform->disabledIf('modadvcheckbox', 'delete', 'notchecked');
-
-        $mform->addElement('checkbox', 'reindex', '', get_string('reindex', 'search'));
-
-        $this->add_action_buttons($cancel = false);
-        $mform->setDefault('action', '');
-    }
-}
-
 require_capability('moodle/site:config', context_system::instance());
 
 $search_engine_installed = $CFG->search_engine . '_installed';
@@ -82,7 +54,7 @@ if (!$CFG->enableglobalsearch) {
     exit();
 }
 
-$mform = new search_admin_form();
+$mform = new core_search_admin_form();
 
 if ($data = $mform->get_data()) {
     if (!empty($data->delete)) {

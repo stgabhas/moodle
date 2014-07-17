@@ -423,11 +423,3 @@ function search_get_user_url($fullname) {
     }
     return $url;
 }
-
-/**
- * Displays Global Search form.
- * @param object $mform moodle form.
- */
-function search_display_form($mform) {
-    $mform->display();
-}

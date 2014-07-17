@@ -41,7 +41,7 @@ $PAGE->set_heading(get_string('globalsearch', 'search'));
 
 require_login();
 
-$mform = new search_form();
+$mform = new core_search_search_form();
 $data = new stdClass();
 
 require_once($CFG->dirroot . '/search/' . $CFG->search_engine . '/lib.php');
@@ -84,7 +84,7 @@ $PAGE->set_url($url);
 
 echo $OUTPUT->header();
 
-search_display_form($mform);
+$mform->display();
 
 if (!empty($results) and $CFG->enableglobalsearch) {
     if (is_array($results)) {
