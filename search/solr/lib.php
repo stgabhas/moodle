@@ -85,17 +85,17 @@ function solr_get_search_client() {
     if (function_exists('solr_get_version')) {
         // Solr connection options.
         $options = array(
-            'hostname' => isset($CFG->SOLR_SERVER_HOSTNAME) ? $CFG->SOLR_SERVER_HOSTNAME : '',
-            'login'    => isset($CFG->SOLR_SERVER_USERNAME) ? $CFG->SOLR_SERVER_USERNAME : '',
-            'password' => isset($CFG->SOLR_SERVER_PASSWORD) ? $CFG->SOLR_SERVER_PASSWORD : '',
-            'port'     => isset($CFG->SOLR_SERVER_PORT) ? $CFG->SOLR_SERVER_PORT : '',
-            'issecure' => isset($CFG->SOLR_SECURE) ? $CFG->SOLR_SECURE : '',
-            'ssl_cert' => isset($CFG->SOLR_SSL_CERT) ? $CFG->SOLR_SSL_CERT : '',
-            'ssl_cert_only' => isset($CFG->SOLR_SSL_CERT_ONLY) ? $CFG->SOLR_SSL_CERT_ONLY : '',
-            'ssl_key' => isset($CFG->SOLR_SSL_KEY) ? $CFG->SOLR_SSL_KEY : '',
-            'ssl_password' => isset($CFG->SOLR_SSL_KEYPASSWORD) ? $CFG->SOLR_SSL_KEYPASSWORD : '',
-            'ssl_cainfo' => isset($CFG->SOLR_SSL_CAINFO) ? $CFG->SOLR_SSL_CAINFO : '',
-            'ssl_capath' => isset($CFG->SOLR_SSL_CAPATH) ? $CFG->SOLR_SSL_CAPATH : '',
+            'hostname' => isset($CFG->solr_server_hostname) ? $CFG->solr_server_hostname : '',
+            'login'    => isset($CFG->solr_server_username) ? $CFG->solr_server_username : '',
+            'password' => isset($CFG->solr_server_password) ? $CFG->solr_server_password : '',
+            'port'     => isset($CFG->solr_server_port) ? $CFG->solr_server_port : '',
+            'issecure' => isset($CFG->solr_secure) ? $CFG->solr_secure : '',
+            'ssl_cert' => isset($CFG->solr_ssl_cert) ? $CFG->solr_ssl_cert : '',
+            'ssl_cert_only' => isset($CFG->solr_ssl_cert_only) ? $CFG->solr_ssl_cert_only : '',
+            'ssl_key' => isset($CFG->solr_ssl_key) ? $CFG->solr_ssl_key : '',
+            'ssl_password' => isset($CFG->solr_ssl_keypassword) ? $CFG->solr_ssl_keypassword : '',
+            'ssl_cainfo' => isset($CFG->solr_ssl_cainfo) ? $CFG->solr_ssl_cainfo : '',
+            'ssl_capath' => isset($CFG->solr_ssl_capath) ? $CFG->solr_ssl_capath : '',
             'path' => isset($path) ? $path : '', // a way to use more than one collection/core
         );
 

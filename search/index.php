@@ -52,8 +52,8 @@ if (!$search_engine_installed() || (!$client = $search_engine_get_search_client(
     redirect('/search/install.php');
 }
 
-require_once($CFG->dirroot . '/search/' . $CFG->SEARCH_ENGINE . '/search.php');
-$search_function = $CFG->SEARCH_ENGINE . '_execute_query';
+require_once($CFG->dirroot . '/search/' . $CFG->search_engine . '/search.php');
+$search_function = $CFG->search_engine . '_execute_query';
 
 if (!empty($search)) { // search executed from URL params
     $data->queryfield = $search;
