@@ -23,7 +23,6 @@
  */
 
 require_once('../config.php');
-require_once($CFG->dirroot . '/search/' . $CFG->search_engine . '/connection.php');
 require_once($CFG->dirroot . '/search/lib.php');
 require_once($CFG->dirroot . '/search/locallib.php');
 
@@ -45,13 +44,16 @@ require_login();
 $mform = new search_form();
 $data = new stdClass();
 
+require_once($CFG->dirroot . '/search/' . $CFG->search_engine . '/lib.php');
+$search_engine_get_search_client = $CFG->search_engine . '_get_search_client';
 $search_engine_installed = $CFG->search_engine . '_installed';
-if (!$search_engine_installed()) {
-    include($CFG->dirroot . '/search/install.php');
-    exit();
+$search_engine_check_server = $CFG->search_engine . '_check_server';
+if (!$search_engine_installed() || (!$client = $search_engine_get_search_client()) || !$search_engine_check_server($client)) {
+    redirect('/search/install.php');
 }
 
-$search_function = $CFG->search_engine . '_execute_query';
+require_once($CFG->dirroot . '/search/' . $CFG->SEARCH_ENGINE . '/search.php');
+$search_function = $CFG->SEARCH_ENGINE . '_execute_query';
 
 if (!empty($search)) { // search executed from URL params
     $data->queryfield = $search;
