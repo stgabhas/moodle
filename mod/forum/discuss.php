@@ -222,6 +222,11 @@
         $node->add(format_string($post->subject), $PAGE->url);
     }
 
+    if ($relateddiscussions = forum_get_related_discussions($discussion)) {
+        $PAGE->requires->strings_for_js(array('related_discussions'), 'local_solr');
+        $PAGE->requires->js_init_call('M.local_solr.show_related_discussions', array($relateddiscussions), true);
+    }
+
     $PAGE->set_title("$course->shortname: ".format_string($discussion->name));
     $PAGE->set_heading($course->fullname);
     $PAGE->set_button($searchform);

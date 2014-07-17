@@ -7640,3 +7640,49 @@ function forum_search_access($id) {
 
     return SEARCH_ACCESS_GRANTED;
 }
+function forum_get_related_discussions($discussion) {
+    global $CFG, $DB;
+
+    require_once($CFG->dirroot . '/search/' . $CFG->SEARCH_ENGINE . '/lib.php');
+
+    $search_engine_get_search_client = $CFG->SEARCH_ENGINE . '_get_search_client';
+    $search_engine_installed = $CFG->SEARCH_ENGINE . '_installed';
+    $search_engine_check_server = $CFG->SEARCH_ENGINE . '_check_server';
+
+    if ($search_engine_installed() && ($client = $search_engine_get_search_client()) && $search_engine_check_server($client)) {
+
+        $firstpost = clean_param($DB->get_field('forum_posts', 'message', array('id' => $discussion->firstpost)), PARAM_TEXT);
+
+        try {
+            require_once($CFG->dirroot . '/search/' . $CFG->SEARCH_ENGINE . '/search.php');
+            $query = new \SolrQuery();
+            solr_add_fields($query);
+            $query->setMlt(true);
+            $query->setMltCount(5);
+            $query->addMltField('content');
+            $query->setQuery('"'.$firstpost.'"');
+            $query->setStart(0);
+            $query->setRows(10);
+            $query->setMltMinDocFrequency(1);
+            $query->setMltMinTermFrequency(1);
+            $query->setMltMinWordLength(4);
+            $query->setOmitHeader(5);
+            $query_response = $client->query($query);
+            $response = $query_response->getResponse();
+            if ($mlt = (array) $response->moreLikeThis) {
+                $mlt = array_pop($mlt);
+
+                $cleanresults = array();
+                if ($mlt->numFound > 0) {
+                    foreach ($mlt->docs as $r){
+                        $link = substr($r->contextlink, 0, strpos($r->contextlink, '#'));
+                        $discussion = substr($link, strpos($link, '=') + 1);
+                        $cleanresults[$discussion] = array('name' => $r->title, 'link' => $link);
+                    }
+                }
+                return $cleanresults;
+            }
+        } catch (Exception $e) {
+        }
+    }
+}
