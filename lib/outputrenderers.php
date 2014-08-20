@@ -1288,7 +1288,6 @@ class core_renderer extends renderer_base {
             $bc->add_class('block_with_controls');
         }
 
-
         if (empty($skiptitle)) {
             $output = '';
             $skipdest = '';

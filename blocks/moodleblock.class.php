@@ -468,12 +468,12 @@ class block_base {
     }
 
     /**
-     * Are you going to allow multiple instances of each block?
+     * Are you going to allow multiple instances of each block in same page?
      * If yes, then it is assumed that the block WILL USE per-instance configuration
      * @return boolean
      */
     function instance_allow_multiple() {
-        // Are you going to allow multiple instances of each block?
+        // Are you going to allow multiple instances of each block in same page?
         // If yes, then it is assumed that the block WILL USE per-instance configuration
         return false;
     }
