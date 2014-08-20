@@ -1005,6 +1005,7 @@ class block_manager {
      * @param string $region The name of the region to check
      */
     public function ensure_content_created($region, $output) {
+
         $this->ensure_instances_exist($region);
         if (!array_key_exists($region, $this->visibleblockcontent)) {
             $contents = array();
@@ -1012,6 +1013,14 @@ class block_manager {
                 $contents = $this->extracontent[$region];
             }
             $contents = array_merge($contents, $this->create_block_contents($this->blockinstances[$region], $output, $region));
+            // Make sure the block "add a block" exists if we are editing.
+            // Just have to check in default region, if block exists in any region.
+            if ($this->page->user_is_editing() &&
+                $this->page->user_can_edit_blocks() &&
+                ($region == $this->defaultregion) &&
+                !$this->page->blocks->is_block_present('add_blocks')) {
+                    $this->page->blocks->add_block('add_blocks', $region, 0, false);
+            }
             $this->visibleblockcontent[$region] = $contents;
         }
     }
