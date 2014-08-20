@@ -381,7 +381,7 @@ class block_manager {
         global $CFG;
 
         if (!isset($CFG->undeletableblocktypes) || (!is_array($CFG->undeletableblocktypes) && !is_string($CFG->undeletableblocktypes))) {
-            return array('navigation','settings');
+            return array('navigation','settings', 'add_blocks');
         } else if (is_string($CFG->undeletableblocktypes)) {
             return explode(',', $CFG->undeletableblocktypes);
         } else {
@@ -1043,12 +1043,6 @@ class block_manager {
                 $contents = $this->extracontent[$region];
             }
             $contents = array_merge($contents, $this->create_block_contents($this->blockinstances[$region], $output, $region));
-            if ($region == $this->defaultregion) {
-                $addblockui = block_add_block_ui($this->page, $output);
-                if ($addblockui) {
-                    $contents[] = $addblockui;
-                }
-            }
             $this->visibleblockcontent[$region] = $contents;
         }
     }
@@ -1906,47 +1900,6 @@ function mod_page_type_list($pagetype, $parentcontext = null, $currentcontext = 
         }
     }
     return $patterns;
-}
-/// Functions update the blocks if required by the request parameters ==========
-
-/**
- * Return a {@link block_contents} representing the add a new block UI, if
- * this user is allowed to see it.
- *
- * @return block_contents an appropriate block_contents, or null if the user
- * cannot add any blocks here.
- */
-function block_add_block_ui($page, $output) {
-    global $CFG, $OUTPUT;
-    if (!$page->user_is_editing() || !$page->user_can_edit_blocks()) {
-        return null;
-    }
-
-    $bc = new block_contents();
-    $bc->title = get_string('addblock');
-    $bc->add_class('block_adminblock');
-    $bc->attributes['data-block'] = 'adminblock';
-
-    $missingblocks = $page->blocks->get_addable_blocks();
-    if (empty($missingblocks)) {
-        $bc->content = get_string('noblockstoaddhere');
-        return $bc;
-    }
-
-    $menu = array();
-    foreach ($missingblocks as $block) {
-        $blockobject = block_instance($block->name);
-        if ($blockobject !== false && $blockobject->user_can_addto($page)) {
-            $menu[$block->name] = $blockobject->get_title();
-        }
-    }
-    core_collator::asort($menu);
-
-    $actionurl = new moodle_url($page->url, array('sesskey'=>sesskey()));
-    $select = new single_select($actionurl, 'bui_addblock', $menu, null, array(''=>get_string('adddots')), 'add_block');
-    $select->set_label(get_string('addblock'), array('class'=>'accesshide'));
-    $bc->content = $OUTPUT->render($select);
-    return $bc;
 }
 
 // Functions that have been deprecated by block_manager =======================
