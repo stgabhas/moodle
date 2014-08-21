@@ -380,8 +380,11 @@ class block_manager {
     public static function get_undeletable_block_types() {
         global $CFG;
 
-        if (!isset($CFG->undeletableblocktypes) || (!is_array($CFG->undeletableblocktypes) && !is_string($CFG->undeletableblocktypes))) {
-            return array('navigation','settings', 'add_blocks');
+        if (!isset($CFG->undeletableblocktypes) ||
+            (!is_array($CFG->undeletableblocktypes) &&
+            !is_string($CFG->undeletableblocktypes))) {
+
+            return array('navigation', 'settings', 'add_blocks');
         } else if (is_string($CFG->undeletableblocktypes)) {
             return explode(',', $CFG->undeletableblocktypes);
         } else {
