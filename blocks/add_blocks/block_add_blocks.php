@@ -15,39 +15,74 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * A block to add blocks to pages.
+ *
  * @package    block_add_blocks
+ * @copyright  2014 Daniel Neis
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Add a block.
+ * Display a select box with all box addable to current page, if user is editing.
+ */
 class block_add_blocks extends block_base {
 
+    /**
+     * Define block title
+     */
     public function init() {
         $this->title = get_string('pluginname', 'block_add_blocks');
     }
 
+    /**
+     * Do not allow multiple instances of block in same page.
+     * @return boolean false
+     */
     public function instance_allow_multiple() {
         return false;
     }
 
+    /**
+     * This block has no settings.php file
+     * @return boolean false
+     */
     public function has_config() {
         return false;
     }
 
+    /**
+     * This  block does not has instance configs
+     * @return boolean false
+     */
     public function instance_allow_config() {
-        return true;
+        return false;
     }
 
+    /**
+     * Which page types this block may appear on.
+     *
+     * @return array page-type prefix => true/false.
+     */
     public function applicable_formats() {
         return array(
                 'admin' => true,
                 'site-index' => true,
                 'course-view' => true,
                 'mod' => true,
-                'my' => true
+                'my' => true,
+                'tag' => false
         );
     }
+
+    /**
+     * Returns the content of the block.
+     * A select box with all box addable to current page, if user is editing.
+     *
+     * @return stdObject
+     */
     public function get_content() {
         global $PAGE, $OUTPUT;
 
@@ -76,9 +111,9 @@ class block_add_blocks extends block_base {
         }
         core_collator::asort($menu);
 
-        $actionurl = new moodle_url($PAGE->url, array('sesskey'=>sesskey()));
-        $select = new single_select($actionurl, 'bui_addblock', $menu, null, array(''=>get_string('adddots')), 'add_block');
-        $select->set_label(get_string('addblock'), array('class'=>'accesshide'));
+        $actionurl = new moodle_url($PAGE->url, array('sesskey' => sesskey()));
+        $select = new single_select($actionurl, 'bui_addblock', $menu, null, array('' => get_string('adddots')), 'add_block');
+        $select->set_label(get_string('addblock'), array('class' => 'accesshide'));
 
         $this->content->text = $OUTPUT->render($select);
 

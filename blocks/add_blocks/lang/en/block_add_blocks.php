@@ -18,6 +18,7 @@
  * Language file for block "add_blocks"
  *
  * @package    block_add_blocks
+ * @copyright  2014 Daniel Neis
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 $string['pluginname'] = 'Add a block';
