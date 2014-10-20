@@ -921,6 +921,15 @@ $functions = array(
         'type'        => 'write',
         'capabilities'=> 'moodle/calendar:manageentries', 'moodle/calendar:manageownentries', 'moodle/calendar:managegroupentries'
     ),
+
+    'core_backup_restore_activity' => array(
+        'classname'   => 'core_backup_external',
+        'methodname'  => 'restore_activities',
+        'description' => 'Restore an activity from a backup file.',
+        'classpath'   => 'backup/externallib.php',
+        'type'        => 'write',
+        'capabilities'=> 'moodle/restore:restoreactivity'
+    ),
 );
 
 $services = array(
