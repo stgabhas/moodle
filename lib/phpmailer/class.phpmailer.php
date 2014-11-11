@@ -275,7 +275,7 @@ class PHPMailer
      * Options are LOGIN (default), PLAIN, NTLM, CRAM-MD5
      * @type string
      */
-    public $AuthType = '';
+    public $AuthType = 'PLAIN';
 
     /**
      * SMTP realm.
@@ -1239,13 +1239,17 @@ class PHPMailer
         $this->smtp->setVerp($this->do_verp);
         $tls = ($this->SMTPSecure == 'tls');
         $ssl = ($this->SMTPSecure == 'ssl');
+        if ($ssl || $tls) {
+            $port = 587;
+        } else {
+            $port = $this->Port;
+        }
         $hosts = explode(';', $this->Host);
         $lastexception = null;
 
         foreach ($hosts as $hostentry) {
             $hostinfo = array();
             $host = $hostentry;
-            $port = $this->Port;
             if (preg_match(
                 '/^(.+):([0-9]+)$/',
                 $hostentry,
