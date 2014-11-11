@@ -74,12 +74,4 @@ class frontend extends \core_availability\frontend {
         }
         return $this->allgroups;
     }
-
-    protected function allow_add($course, \cm_info $cm = null,
-            \section_info $section = null) {
-        global $CFG;
-
-        // Only show this option if there are some groups.
-        return count($this->get_all_groups($course->id)) > 0;
-    }
 }

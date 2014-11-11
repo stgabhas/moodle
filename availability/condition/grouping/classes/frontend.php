@@ -69,15 +69,4 @@ class frontend extends \core_availability\frontend {
         }
         return $this->allgroupings;
     }
-
-    protected function allow_add($course, \cm_info $cm = null,
-            \section_info $section = null) {
-        global $CFG, $DB;
-
-        // Check if groupings are in use for the course. (Unlike the 'group'
-        // condition there is no case where you might want to set up the
-        // condition before you set a grouping - there is no 'any grouping'
-        // option.)
-        return count($this->get_all_groupings($course->id)) > 0;
-    }
 }
