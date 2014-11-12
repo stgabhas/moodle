@@ -60,7 +60,7 @@ abstract class user_selector_base {
     protected $autoselectunique = false;
     /** @var boolean When searching, do we only match the starts of fields (better performance)
      * or do we match occurrences anywhere? */
-    protected $searchanywhere = false;
+    protected $searchanywhere = true;
     /** @var mixed This is used by get selected users */
     protected $validatinguserids = null;
 

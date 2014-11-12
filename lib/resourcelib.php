@@ -268,7 +268,7 @@ function resourcelib_embed_general($fullurl, $title, $clicktoopen, $mimetype) {
     // this is ok in HTML5.
     $code = <<<EOT
 <div class="resourcecontent resourcegeneral">
-  <iframe id="resourceobject" src="$fullurl">
+  <iframe height="340" width="99%" src="$fullurl">
     $clicktoopen
   </iframe>
 </div>

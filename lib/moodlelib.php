@@ -156,6 +156,11 @@ define('PARAM_HOST',     'host');
 define('PARAM_INT',      'int');
 
 /**
+ * PARAM_LONG - use when expecting only bing numbers. Special case for mapping to xsd:long in SOAP webservices.
+ */
+define('PARAM_LONG',     'long');
+
+/**
  * PARAM_LANG - checks to see if the string is a valid installed language in the current site.
  */
 define('PARAM_LANG',  'lang');
@@ -823,6 +828,9 @@ function clean_param($param, $type) {
         case PARAM_INT:
             // Convert to integer.
             return (int)$param;
+        
+	case PARAM_LONG:
+            return (int)$param;  // Convert to integer
 
         case PARAM_FLOAT:
             // Convert to float.

@@ -1227,7 +1227,11 @@ class assign_grading_table extends table_sql implements renderable {
                 } else if ($row->submissionid) {
                     if ($row->status == ASSIGN_SUBMISSION_STATUS_REOPENED) {
                         // For a newly reopened submission - we want to show the previous submission in the table.
-                        $submission = $this->assignment->get_user_submission($row->userid, false, $row->attemptnumber - 1);
+                        if ($row->attemptnumber > 1) {
+                            $submission = $this->assignment->get_user_submission($row->userid, false, $row->attemptnumber - 1);
+                        } else {
+                            $submission = $this->assignment->get_user_submission($row->userid, false, $row->attemptnumber);
+                        }
                     } else {
                         $submission = new stdClass();
                         $submission->id = $row->submissionid;

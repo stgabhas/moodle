@@ -1269,8 +1269,10 @@ class grade_structure {
                         $stragg = $aggrstrings[$category->aggregation];
                         switch ($category->aggregation) {
                             case GRADE_AGGREGATE_MEAN:
+                            case GRADE_AGGREGATE_MEAN_UFSC:
                             case GRADE_AGGREGATE_MEDIAN:
                             case GRADE_AGGREGATE_WEIGHTED_MEAN:
+                            case GRADE_AGGREGATE_WEIGHTED_MEAN_UFSC:
                             case GRADE_AGGREGATE_WEIGHTED_MEAN2:
                             case GRADE_AGGREGATE_EXTRACREDIT_MEAN:
                                 return '<img src="'.$OUTPUT->pix_url('i/agg_mean') . '" ' .

@@ -2743,6 +2743,11 @@ class course_in_list implements IteratorAggregate {
                     // Only display a user once with the highest sortorder role.
                     continue;
                 }
+
+		if(isset($CFG->coursecontact_not_visible) && isguestuser() && in_array($ruser->id, $CFG->coursecontact_not_visible)){
+                    continue;
+                }
+
                 $user = new stdClass();
                 $user = username_load_fields_from_object($user, $ruser, null, array('id', 'username'));
                 $role = new stdClass();

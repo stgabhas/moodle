@@ -629,16 +629,15 @@ function get_docs_url($path = null) {
         // that will ensure people end up at the latest version of the docs.
         $branch = '.';
     }
-    if (empty($CFG->doclang)) {
-        $lang = current_language();
-    } else {
+    if (isset($CFG->doclang) && !empty($CFG->doclang)) {
         $lang = $CFG->doclang;
-    }
-    $end = '/' . $branch . '/' . $lang . '/' . $path;
-    if (empty($CFG->docroot)) {
-        return 'http://docs.moodle.org'. $end;
     } else {
-        return $CFG->docroot . $end ;
+        $lang = current_language();
+    }
+    if (!empty($CFG->docroot)) {
+        return $CFG->docroot . '/' . $branch . '/' . $lang . '/' . $path;
+    } else {
+        return 'http://docs.moodle.org/'. $branch . '/' . $lang . '/' . $path;
     }
 }
 

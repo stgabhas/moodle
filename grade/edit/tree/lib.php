@@ -675,6 +675,116 @@ class grade_edit_tree_column_name extends grade_edit_tree_column {
         $itemcell->text = $moveaction . $name;
         return $itemcell;
     }
+
+    public function is_hidden($mode='simple') {
+        return false;
+    }
+}
+
+class grade_edit_tree_column_aggregation extends grade_edit_tree_column_category {
+
+    public function __construct($params) {
+        parent::__construct('aggregation');
+    }
+
+    public function get_header_cell() {
+        global $OUTPUT;
+        $headercell = clone($this->headercell);
+        $headercell->text = get_string('aggregation', 'grades').$OUTPUT->help_icon('aggregation', 'grades');
+        return $headercell;
+    }
+
+    public function get_category_cell($category, $levelclass, $params) {
+        global $CFG, $OUTPUT;
+        if (empty($params['id'])) {
+            throw new Exception('Array key (id) missing from 3rd param of grade_edit_tree_column_aggregation::get_category_cell($category, $levelclass, $params)');
+        }
+
+        $options = array(GRADE_AGGREGATE_MEAN             => get_string('aggregatemean', 'grades'),
+                         GRADE_AGGREGATE_MEAN_UFSC        => get_string('aggregatemeanufsc', 'grades'),
+                         GRADE_AGGREGATE_WEIGHTED_MEAN    => get_string('aggregateweightedmean', 'grades'),
+                         GRADE_AGGREGATE_WEIGHTED_MEAN_UFSC => get_string('aggregateweightedmeanufsc', 'grades'),
+                         GRADE_AGGREGATE_WEIGHTED_MEAN2   => get_string('aggregateweightedmean2', 'grades'),
+                         GRADE_AGGREGATE_EXTRACREDIT_MEAN => get_string('aggregateextracreditmean', 'grades'),
+                         GRADE_AGGREGATE_MEDIAN           => get_string('aggregatemedian', 'grades'),
+                         GRADE_AGGREGATE_MIN              => get_string('aggregatemin', 'grades'),
+                         GRADE_AGGREGATE_MAX              => get_string('aggregatemax', 'grades'),
+                         GRADE_AGGREGATE_MODE             => get_string('aggregatemode', 'grades'),
+                         GRADE_AGGREGATE_SUM              => get_string('aggregatesum', 'grades'));
+
+        $visible = explode(',', $CFG->grade_aggregations_visible);
+        foreach ($options as $constant => $string) {
+            if (!in_array($constant, $visible) && $constant != $category->aggregation) {
+                unset($options[$constant]);
+            }
+        }
+
+        if ($this->forced) {
+            $aggregation = $options[$category->aggregation];
+        } else {
+            $attributes = array();
+            $attributes['id'] = 'aggregation_'.$category->id;
+            $attributes['class'] = 'ignoredirty';
+            $aggregation = html_writer::label(get_string('aggregation', 'grades'), 'aggregation_'.$category->id, false, array('class' => 'accesshide'));
+            $aggregation .= html_writer::select($options, 'aggregation_'.$category->id, $category->aggregation, null, $attributes);
+            $action = new component_action('change', 'update_category_aggregation', array('courseid' => $params['id'], 'category' => $category->id, 'sesskey' => sesskey()));
+            $OUTPUT->add_action_handler($action, 'aggregation_'.$category->id);
+        }
+
+        $categorycell = clone($this->categorycell);
+        $categorycell->attributes['class'] .= ' ' . $levelclass;
+        $categorycell->text = $aggregation;
+        return $categorycell;
+
+    }
+
+    public function get_item_cell($item, $params) {
+        $itemcell = clone($this->itemcell);
+        $itemcell->text = ' - ';
+        return $itemcell;
+    }
+}
+
+class grade_edit_tree_column_extracredit extends grade_edit_tree_column {
+
+    public function get_header_cell() {
+        global $OUTPUT;
+        $headercell = clone($this->headercell);
+        $headercell->text = get_string('aggregationcoefextra', 'grades').$OUTPUT->help_icon('aggregationcoefextra', 'grades');
+        return $headercell;
+    }
+
+    public function get_category_cell($category, $levelclass, $params) {
+        $item = $category->get_grade_item();
+        $categorycell = clone($this->categorycell);
+        $categorycell->attributes['class'] .= ' ' . $levelclass;
+        $categorycell->text = grade_edit_tree::get_weight_input($item, 'extra');
+        return $categorycell;
+    }
+
+    public function get_item_cell($item, $params) {
+        if (empty($params['element'])) {
+            throw new Exception('Array key (element) missing from 2nd param of grade_edit_tree_column_weightorextracredit::get_item_cell($item, $params)');
+        }
+
+        $itemcell = clone($this->itemcell);
+        $itemcell->text = '&nbsp;';
+
+        if (!in_array($params['element']['object']->itemtype, array('courseitem', 'categoryitem', 'category'))) {
+            $itemcell->text = grade_edit_tree::get_weight_input($item, 'extra');
+        }
+
+        return $itemcell;
+    }
+
+    public function is_hidden($mode='simple') {
+        global $CFG;
+        if ($mode == 'simple') {
+            return strstr($CFG->grade_item_advanced, 'aggregationcoef');
+        } elseif ($mode == 'advanced') {
+            return false;
+        }
+    }
 }
 
 /**

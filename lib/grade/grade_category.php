@@ -763,6 +763,11 @@ class grade_category extends grade_object {
         return;
     }
 
+    public function round_ufsc_value($grade_value) {
+        $value = (int)(($grade_value + 0.02500001)*100);
+        return ($value - ($value % 5)) / 100;
+    }
+
     /**
      * Set the flags on the grade_grade items to indicate how individual grades are used
      * in the aggregation.
@@ -1004,6 +1009,23 @@ class grade_category extends grade_object {
                 }
                 break;
 
+            case GRADE_AGGREGATE_WEIGHTED_MEAN_UFSC: // Weighted average of all existing final grades, weight specified in coef
+                $weightsum = 0;
+                $sum       = 0;
+                foreach($grade_values as $itemid=>$grade_value) {
+                    if ($items[$itemid]->aggregationcoef <= 0) {
+                        continue;
+                    }
+                    $weightsum += $items[$itemid]->aggregationcoef;
+                    $sum       += $items[$itemid]->aggregationcoef * $grade_value;
+                }
+                if ($weightsum == 0) {
+                    $agg_grade = null;
+                } else {
+                    $agg_grade = $this->round_ufsc_value($sum / $weightsum);
+                }
+                break;
+
             case GRADE_AGGREGATE_WEIGHTED_MEAN2:
                 // Weighted average of all existing final grades with optional extra credit flag,
                 // weight is the range of grade (usually grademax)
@@ -1091,6 +1113,12 @@ class grade_category extends grade_object {
                         }
                     }
                 }
+                break;
+
+            case GRADE_AGGREGATE_MEAN_UFSC:    // Arithmetic average of all grade items (if ungraded aggregated, NULL counted as minimum)
+                $num = count($grade_values);
+                $sum = array_sum($grade_values);
+                $agg_grade = $this->round_ufsc_value($sum / $num);
                 break;
 
             case GRADE_AGGREGATE_EXTRACREDIT_MEAN: // special average
@@ -1771,6 +1799,7 @@ class grade_category extends grade_object {
      */
     public static function aggregation_uses_aggregationcoef($aggregation) {
         return ($aggregation == GRADE_AGGREGATE_WEIGHTED_MEAN
+             or $aggregation == GRADE_AGGREGATE_WEIGHTED_MEAN_UFSC
              or $aggregation == GRADE_AGGREGATE_WEIGHTED_MEAN2
              or $aggregation == GRADE_AGGREGATE_EXTRACREDIT_MEAN
              or $aggregation == GRADE_AGGREGATE_SUM);
@@ -1813,7 +1842,8 @@ class grade_category extends grade_object {
         }
 
         // No parent category is overriding this category's aggregation, return its string
-        if ($this->aggregation == GRADE_AGGREGATE_WEIGHTED_MEAN) {
+        if (($this->aggregation == GRADE_AGGREGATE_WEIGHTED_MEAN) OR
+            ($this->aggregation == GRADE_AGGREGATE_WEIGHTED_MEAN_UFSC)) {
             $this->coefstring = 'aggregationcoefweight';
 
         } else if ($this->aggregation == GRADE_AGGREGATE_WEIGHTED_MEAN2) {

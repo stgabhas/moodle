@@ -58,7 +58,7 @@ $outcome->success = true;
 $outcome->response = new stdClass();
 $outcome->error = '';
 
-$searchanywhere = get_user_preferences('userselector_searchanywhere', false);
+$searchanywhere = get_user_preferences('userselector_searchanywhere', true);
 
 switch ($action) {
     case 'getassignable':

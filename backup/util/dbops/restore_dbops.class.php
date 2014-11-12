@@ -1381,15 +1381,8 @@ abstract class restore_dbops {
             if ($rec = $DB->get_record_sql("SELECT *
                                               FROM {user} u
                                              WHERE username = ?
-                                               AND mnethostid = ?
-                                               AND (
-                                                       UPPER(email) = UPPER(?)
-                                                    OR (
-                                                           firstaccess != 0
-                                                       AND firstaccess = ?
-                                                       )
-                                                   )",
-                                           array($user->username, $user->mnethostid, $user->email, $user->firstaccess))) {
+                                               AND mnethostid = ?",
+                                           array($user->username, $user->mnethostid))) {
                 return $rec; // Matching user found, return it
             }
 
