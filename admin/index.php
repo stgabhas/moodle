@@ -65,9 +65,8 @@ if ((isset($_GET['cache']) and $_GET['cache'] === '0')
 
     // Force OPcache reset if used, we do not want any stale caches
     // when detecting if upgrade necessary or when running upgrade.
-    if (function_exists('opcache_reset')) {
-        opcache_reset();
-    }
+    require_once($CFG->libdir.'/opcachelib.php');
+    opcache_invalidate_dir();
     $cache = 0;
 
 } else {
