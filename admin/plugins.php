@@ -103,17 +103,15 @@ if ($uninstall) {
             $continueurl = new moodle_url($PAGE->url, array('delete' => $pluginfo->component, 'sesskey' => sesskey(), 'confirm' => 1));
             echo $output->plugin_uninstall_results_removable_page($pluginman, $pluginfo, $progress, $continueurl);
             // Reset op code caches.
-            if (function_exists('opcache_reset')) {
-                opcache_reset();
-            }
+            require_once($CFG->libdir.'/opcachelib.php');
+            opcache_invalidate_dir();
             exit();
 
         } else {
             echo $output->plugin_uninstall_results_page($pluginman, $pluginfo, $progress);
             // Reset op code caches.
-            if (function_exists('opcache_reset')) {
-                opcache_reset();
-            }
+            require_once($CFG->libdir.'/opcachelib.php');
+            opcache_invalidate_dir();
             exit();
         }
     }
@@ -166,9 +164,8 @@ if ($delete and $confirmed) {
     // So long, and thanks for all the bugs.
     fulldelete($pluginfo->rootdir);
     // Reset op code caches.
-    if (function_exists('opcache_reset')) {
-        opcache_reset();
-    }
+    require_once($CFG->libdir.'/opcachelib.php';
+    opcache_invalidate_dir();
     // We need to execute upgrade to make sure everything including caches is up to date.
     redirect(new moodle_url('/admin/index.php'));
 }

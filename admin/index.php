@@ -65,16 +65,16 @@ if ((isset($_GET['cache']) and $_GET['cache'] === '0')
 
     // Force OPcache reset if used, we do not want any stale caches
     // when detecting if upgrade necessary or when running upgrade.
-    if (function_exists('opcache_reset')) {
-        opcache_reset();
-    }
+    require('../config.php');
+    require_once($CFG->libdir.'/opcachelib.php');
+    opcache_invalidate_dir();
     $cache = 0;
 
 } else {
     $cache = 1;
+    require('../config.php');
 }
 
-require('../config.php');
 
 // Invalidate the cache of version.php in any circumstances to help core_component
 // detecting if the version has changed and component cache should be reset.
