@@ -954,6 +954,7 @@ $string['choosereportfilter'] = 'Choose a filter for the report';
 $string['choosetheme'] = 'Choose theme';
 $string['chooseuser'] = 'Choose a user';
 $string['eventcontentviewed'] = 'Content viewed';
+$string['eventfileuploaded'] = 'File uploaded';
 $string['icqnumber'] = 'ICQ number';
 $string['icon'] = 'Icon';
 $string['idnumber'] = 'ID number';

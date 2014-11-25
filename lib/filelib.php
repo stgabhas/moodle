@@ -954,7 +954,18 @@ function file_save_draft_area_files($draftitemid, $contextid, $component, $filea
 
             $fs->create_file_from_storedfile($file_record, $file);
         }
+
+        \core\event\file_uploaded::create(array(
+            'objectid'      => $file->get_id(),
+            'context'       => context::instance_by_id($file->get_contextid()),
+            'relateduserid' => $file->get_userid(),
+            'other'         => array(
+                'filename'     => $file->get_filename(),
+            )
+        ))->trigger();
+        
     }
+                    
 
     // note: do not purge the draft area - we clean up areas later in cron,
     //       the reason is that user might press submit twice and they would loose the files,
