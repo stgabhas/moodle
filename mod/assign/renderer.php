@@ -448,7 +448,7 @@ class mod_assign_renderer extends plugin_renderer_base {
             if ($group) {
                 $cell2 = new html_table_cell(format_string($group->name, false, $status->context));
             } else {
-                $cell2 = new html_table_cell(get_string('defaultteam', 'assign'));
+                $cell2 = new html_table_cell(get_string('noteam', 'assign'));
             }
             $row->cells = array($cell1, $cell2);
             $t->data[] = $row;

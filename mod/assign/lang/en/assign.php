@@ -289,6 +289,7 @@ $string['noonlinesubmissions'] = 'This assignment does not require you to submit
 $string['nosavebutnext'] = 'Next';
 $string['nosubmission'] = 'Nothing has been submitted for this assignment';
 $string['nosubmissionsacceptedafter'] = 'No submissions accepted after ';
+$string['noteam'] = 'No group';
 $string['notgraded'] = 'Not graded';
 $string['notgradedyet'] = 'Not graded yet';
 $string['notsubmittedyet'] = 'Not submitted yet';

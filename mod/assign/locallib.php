@@ -1414,14 +1414,7 @@ class assign {
                                         0,
                                         $this->get_instance()->teamsubmissiongroupingid,
                                         'g.id');
-        $count = count($groups);
-
-        // See if there are any users in the default group.
-        $defaultusers = $this->get_submission_group_members(0, true);
-        if (count($defaultusers) > 0) {
-            $count += 1;
-        }
-        return $count;
+        return count($groups);
     }
 
     /**
@@ -1972,19 +1965,12 @@ class assign {
                     $members[] = $user;
                 }
             }
-        } else {
-            $allusers = $this->list_participants(null, $onlyids);
-            foreach ($allusers as $user) {
-                if ($this->get_submission_group($user->id) == null) {
-                    $members[] = $user;
-                }
-            }
-        }
-        // Exclude suspended users, if user can't see them.
-        if (!has_capability('moodle/course:viewsuspendedusers', $this->context)) {
-            foreach ($members as $key => $member) {
-                if (!$this->is_active_user($member->id)) {
-                    unset($members[$key]);
+            // Exclude suspended users, if user can't see them.
+            if (!has_capability('moodle/course:viewsuspendedusers', $this->context)) {
+                foreach ($members as $key => $member) {
+                    if (!$this->is_active_user($member->id)) {
+                        unset($members[$key]);
+                    }
                 }
             }
         }
@@ -2935,6 +2921,7 @@ class assign {
                 $extensionduedate = $flags->extensionduedate;
             }
             $showedit = $this->submissions_open($userid) && ($this->is_any_submission_plugin_enabled());
+
             $viewfullnames = has_capability('moodle/site:viewfullnames', $this->get_course_context());
 
             $submissionstatus = new assign_submission_status($instance->allowsubmissionsfromdate,
@@ -3375,6 +3362,9 @@ class assign {
         if ($userid == $USER->id) {
             // User is editing their own submission.
             require_capability('mod/assign:submit', $this->context);
+            if (!$this->can_edit_submission($userid, $USER->id)) {
+                print_error('nopermission');
+            }
             $title = get_string('editsubmission', 'assign');
         } else {
             // User is editing another user's submission.
@@ -3815,7 +3805,7 @@ class assign {
             }
 
             $showsubmit = ($showlinks && $this->submissions_open($user->id));
-            $showsubmit = ($showsubmit && $this->show_submit_button($submission, $teamsubmission));
+            $showsubmit = ($showsubmit && $this->show_submit_button($submission, $teamsubmission, $user->id));
 
             $extensionduedate = null;
             if ($flags) {
@@ -3959,7 +3949,7 @@ class assign {
      * @param stdClass $teamsubmission The users team submission record if there is one
      * @return bool
      */
-    protected function show_submit_button($submission = null, $teamsubmission = null) {
+    protected function show_submit_button($submission = null, $teamsubmission = null, $userid = null) {
         if ($teamsubmission) {
             if ($teamsubmission->status === ASSIGN_SUBMISSION_STATUS_SUBMITTED) {
                 // The assignment submission has been completed.
@@ -3969,6 +3959,8 @@ class assign {
                 return false;
             } else if ($submission && $submission->status === ASSIGN_SUBMISSION_STATUS_SUBMITTED) {
                 // The user has already clicked the submit button on the team submission.
+                return false;
+            } else if (!$this->get_submission_group($userid)) {
                 return false;
             }
         } else if ($submission) {
@@ -4492,8 +4484,11 @@ class assign {
         }
 
         if ($userid == $graderid &&
-                $this->submissions_open($userid) &&
-                has_capability('mod/assign:submit', $this->context, $graderid)) {
+            $this->submissions_open($userid) &&
+            has_capability('mod/assign:submit', $this->context, $graderid) &&
+            (!$this->get_instance()->teamsubmission ||
+            ($this->get_instance()->teamsubmission &&
+            $this->get_submission_group($userid)))) {
             // User can edit their own submission.
             return true;
         }
