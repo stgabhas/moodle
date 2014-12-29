@@ -164,7 +164,7 @@ if ($delete and $confirmed) {
     // So long, and thanks for all the bugs.
     fulldelete($pluginfo->rootdir);
     // Reset op code caches.
-    require_once($CFG->libdir.'/opcachelib.php';
+    require_once($CFG->libdir.'/opcachelib.php');
     opcache_invalidate_dir();
     // We need to execute upgrade to make sure everything including caches is up to date.
     redirect(new moodle_url('/admin/index.php'));
