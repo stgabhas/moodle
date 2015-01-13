@@ -63,17 +63,60 @@ echo $OUTPUT->doctype() ?>
 
 <div id="page" class="container-fluid">
 
-    <header id="page-header" class="clearfix">
-        <?php echo $html->heading; ?>
-        <div id="page-navbar" class="clearfix">
-            <nav class="breadcrumb-nav"><?php echo $OUTPUT->navbar(); ?></nav>
-            <div class="breadcrumb-button"><?php echo $OUTPUT->page_heading_button(); ?></div>
+    <div class="row-fluid">
+        <div class="alert alert-info loginbox span10 offset1">
+            <a href="<?php echo $CFG->wwwroot;?>/login" />
+                <h2>
+                    <img src="<?php echo $CFG->wwwroot; ?>/theme/clean/pix/01.png" alt="01" />
+                    <strong>Acessar o Moodle</strong> (via autenticação centralizada da UFSC)
+                </h2>
+            </a>
         </div>
-        <div id="course-header">
-            <?php echo $OUTPUT->course_header(); ?>
-        </div>
-    </header>
+    </div>
 
+    <div class="row-fluid cardscontainer">
+
+        <div class="span2 card offset1">
+            <a href="#">
+                <img src="<?php echo $CFG->wwwroot; ?>/theme/clean/pix/05.png" alt="01" />
+                <h3>Políticas de uso</h3>
+                <p>Mussum ipsum cacilds, vidis litro abertis. Consetis adipiscings elitis. Pra lá , depois divoltis porris, paradis. Paisis, filhis, espiritis santis.</p>
+            </a>
+        </div>
+        <div class="span2 card">
+            <a href="#">
+                <img src="<?php echo $CFG->wwwroot; ?>/theme/clean/pix/03.png" alt="01" />
+                <h3>Cursos abertos</h3>
+                <p>Mussum ipsum cacilds, vidis litro abertis. Consetis adipiscings elitis. Pra lá , depois divoltis porris, paradis. Paisis, filhis, espiritis santis.</p>
+            </a>
+        </div>
+        <div class="span2 card">
+            <a href="#">
+                <img src="<?php echo $CFG->wwwroot; ?>/theme/clean/pix/06.png" alt="01" />
+                <h3>Tutoriais</h3>
+                <p>Mussum ipsum cacilds, vidis litro abertis. Consetis adipiscings elitis. Pra lá , depois divoltis porris, paradis. Paisis, filhis, espiritis santis.</p>
+            </a>
+        </div>
+        <div class="span2 card">
+            <a href="#">
+                <img src="<?php echo $CFG->wwwroot; ?>/theme/clean/pix/04.png" alt="01" />
+                <h3>Perguntas frequentes</h3>
+                <p>Mussum ipsum cacilds, vidis litro abertis. Consetis adipiscings elitis. Pra lá , depois divoltis porris, paradis. Paisis, filhis, espiritis santis.</p>
+            </a>
+        </div>
+        <div class="span2 card">
+            <a href="#">
+                <img src="<?php echo $CFG->wwwroot; ?>/theme/clean/pix/02.png" alt="01" />
+                <h3>Atendimento a usuários</h3>
+                <p>Mussum ipsum cacilds, vidis litro abertis. Consetis adipiscings elitis. Pra lá , depois divoltis porris, paradis. Paisis, filhis, espiritis santis.</p>
+            </a>
+        </div>
+    </div>
+    <div class="row-fluid prerodape">
+        <div class="span10 offset1">
+            <p>:: Este é o Moodle de apoio aos cursos presenciais. Se você procura outro Moodle da UFSC, acesse a <a href="#">lista de instalaçãoes de Moodle da UFSC</a>.</p>
+        </div>
+    </div>
     <div id="page-content" class="row-fluid">
         <section id="region-main" class="span9<?php if ($left) { echo ' pull-right'; } ?>">
             <?php
