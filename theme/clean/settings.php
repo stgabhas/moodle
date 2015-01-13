@@ -65,4 +65,13 @@ if ($ADMIN->fulltree) {
     $setting = new admin_setting_confightmleditor($name, $title, $description, $default);
     $setting->set_updatedcallback('theme_reset_all_caches');
     $settings->add($setting);
+
+    // Custom FAQ link.
+    $name = 'theme_clean/faq';
+    $title = get_string('faq', 'theme_clean');
+    $description = get_string('faqdesc', 'theme_clean');
+    $default = get_config('theme_clean', 'faq');
+    $setting = new admin_setting_configtext($name, $title, $description, $default);
+    $setting->set_updatedcallback('theme_reset_all_caches');
+    $settings->add($setting);
 }

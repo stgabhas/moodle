@@ -33,6 +33,7 @@ echo $OUTPUT->doctype() ?>
     <link rel="shortcut icon" href="<?php echo $OUTPUT->favicon(); ?>" />
     <?php echo $OUTPUT->standard_head_html() ?>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css">
 </head>
 
 <body <?php echo $OUTPUT->body_attributes('two-column'); ?>>
@@ -42,9 +43,8 @@ echo $OUTPUT->doctype() ?>
 <header role="banner" class="navbar navbar-fixed-top<?php echo $html->navbarclass ?> moodle-has-zindex">
     <nav role="navigation" class="navbar-inner">
         <div class="container-fluid">
-            <a class="brand" href="<?php echo $CFG->wwwroot;?>"><?php echo
-                format_string($SITE->shortname, true, array('context' => context_course::instance(SITEID)));
-                ?></a>
+            <a class="ufsc" href="http://www.ufsc.br"><?php echo html_writer::img(new moodle_url('/theme/clean/pix/brasao.ufsc.svg'), 'UFSC'); ?></a>
+            <a class="second" href="<?php echo $CFG->wwwroot;?>"><h2><?php echo $SITE->fullname; ?></h2></a>
             <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>

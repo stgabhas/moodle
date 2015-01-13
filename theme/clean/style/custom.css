@@ -16,6 +16,99 @@ a.logo {
     float: right;
 }
 
+body {
+    padding-top: 70px;
+    font-family: 'Open Sans', sans-serif;
+}
+
+.navbar-inner {
+    background-color: #132972; /* background color will be black for all browsers */
+    background-image: none;
+    background-repeat: no-repeat;
+    filter: none;
+}
+
+.ufsc img {
+    height: 45px;
+    float: left;
+    margin: 10px 5px;
+    vertical-align: middle;
+}
+
+.second h2 {
+    float: left;
+    border-left: 2px solid #00aef1;
+    padding: 5px 10px;
+    margin-left: 5px;
+    color: #fff;
+    font-weight: normal;
+}
+
+.navbar .nav > li > a,
+.navbar .nav > li > a:hover,
+.usermenu .login,
+.usermenu .moodle-actionmenu .toggle-display .userbutton .usertext {
+    color: #fff;
+    margin: 15px 5px;
+}
+
+.usermenu {
+    margin: 15px 5px;
+}
+
+.nav-collapse {
+    float: right;
+}
+
+.loginbox {
+    background: #eaf5f7;
+    margin-top: 2em;
+    margin-bottom: 2em;
+}
+
+.loginbox img {
+    vertical-align: text-top;
+}
+
+.loginbox h2 {
+    text-align: left;
+}
+.loginbox h2,
+.cardscontainer h3 {
+    color: #003366;
+    font-weight: normal;
+    line-height: 30px;
+}
+
+.cardscontainer .card {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.05) inset;
+    padding: 2em;
+    text-align: center;
+    height: 360px;
+}
+
+.cardscontainer .card h3 {
+    text-align: left;
+}
+
+.prerodape {
+    color: #003366;
+    margin-top: 2em;
+}
+
+.cardscontainer .card p {
+    color: #333;
+    text-align: left;
+}
+
+footer {
+    margin-top: 0 !important;
+}
+
+
+
 /* Custom CSS Settings
 -------------------------*/
 [[setting:customcss]]

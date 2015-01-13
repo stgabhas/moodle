@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * The one column layout.
+ * The two column layout.
  *
  * @package   theme_clean
  * @copyright 2013 Moodle, moodle.org
@@ -25,6 +25,7 @@
 // Get the HTML for the settings bits.
 $html = theme_clean_get_html_for_settings($OUTPUT, $PAGE);
 
+$left = (!right_to_left());  // To know if to add 'pull-right' and 'desktop-first-column' classes in the layout for LTR.
 echo $OUTPUT->doctype() ?>
 <html <?php echo $OUTPUT->htmlattributes(); ?>>
 <head>
@@ -35,9 +36,9 @@ echo $OUTPUT->doctype() ?>
     <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css">
 </head>
 
-<body <?php echo $OUTPUT->body_attributes(); ?>>
+<body <?php echo $OUTPUT->body_attributes('two-column'); ?>>
 
-<?php echo $OUTPUT->standard_top_of_body_html() ?>
+<?php echo $OUTPUT->standard_top_of_body_html(); ?>
 
 <header role="banner" class="navbar navbar-fixed-top<?php echo $html->navbarclass ?> moodle-has-zindex">
     <nav role="navigation" class="navbar-inner">
@@ -62,25 +63,75 @@ echo $OUTPUT->doctype() ?>
 
 <div id="page" class="container-fluid">
 
-    <header id="page-header" class="clearfix">
-        <?php echo $html->heading; ?>
-        <div id="page-navbar" class="clearfix">
-            <nav class="breadcrumb-nav"><?php echo $OUTPUT->navbar(); ?></nav>
-            <div class="breadcrumb-button"><?php echo $OUTPUT->page_heading_button(); ?></div>
+    <div class="row-fluid">
+        <div class="alert alert-info loginbox span10 offset1">
+            <a href="<?php echo $CFG->wwwroot;?>/login" />
+                <h2>
+                    <img src="<?php echo $CFG->wwwroot; ?>/theme/clean/pix/01.png" alt="01" />
+                    <strong>Acessar o Moodle</strong>
+                </h2>
+            </a>
         </div>
-        <div id="course-header">
-            <?php echo $OUTPUT->course_header(); ?>
-        </div>
-    </header>
+    </div>
 
+    <div class="row-fluid cardscontainer">
+
+        <div class="span2 card offset1">
+            <a href="<?php echo $CFG->wwwroot; ?>/local/tutoriais/politicas_de_uso.php">
+                <img src="<?php echo $CFG->wwwroot; ?>/theme/clean/pix/05.png" alt="01" />
+                <h3>Políticas de uso</h3>
+                <p>Saiba mais sobre o propósito deste ambiente, as nossas e as suas reponsabilidades.</p>
+            </a>
+        </div>
+        <div class="span2 card">
+            <a href="#">
+                <img src="<?php echo $CFG->wwwroot; ?>/theme/clean/pix/03.png" alt="01" />
+                <h3>Cursos abertos</h3>
+                <p>Navegue por cursos disponíveis para visitantes. Em breve!</p>
+            </a>
+        </div>
+        <div class="span2 card">
+            <a href="<?php echo $CFG->wwwroot;?>/local/tutoriais">
+                <img src="<?php echo $CFG->wwwroot; ?>/theme/clean/pix/06.png" alt="01" />
+                <h3>Tutoriais</h3>
+                <p>Aprenda mais sobre o Moodle e como realizar algumas tarefas na plataforma.</p>
+            </a>
+        </div>
+        <div class="span2 card">
+            <a href="<?php echo get_config('theme_clean', 'faq'); ?>">
+                <img src="<?php echo $CFG->wwwroot; ?>/theme/clean/pix/04.png" alt="01" />
+                <h3>Perguntas frequentes</h3>
+                <p>Aqui você encontra resposta para as dúvidas mais frequentes.</p>
+            </a>
+        </div>
+        <div class="span2 card">
+            <a href="<?php echo $CFG->wwwroot; ?>/local/tutoriais/atendimento.php">
+                <img src="<?php echo $CFG->wwwroot; ?>/theme/clean/pix/02.png" alt="01" />
+                <h3>Atendimento a usuários</h3>
+                <p>Se você não encontrou a resposta que procurava nas perguntas frequentes, veja aqui como conseguir ajuda.</p>
+            </a>
+        </div>
+    </div>
+    <div class="row-fluid prerodape">
+        <div class="span10 offset1">
+            <p>:: Este é o Moodle de apoio aos cursos presenciais. Se você procura outro Moodle da UFSC, acesse a <a href="<?php echo $CFG->wwwroot; ?>/local/tutoriais/implantacoes.php">lista de implantações de Moodle da UFSC</a>.</p>
+        </div>
+    </div>
     <div id="page-content" class="row-fluid">
-        <section id="region-main" class="span12">
+        <section id="region-main" class="span9<?php if ($left) { echo ' pull-right'; } ?>">
             <?php
             echo $OUTPUT->course_content_header();
             echo $OUTPUT->main_content();
             echo $OUTPUT->course_content_footer();
             ?>
         </section>
+        <?php
+        $classextra = '';
+        if ($left) {
+            $classextra = ' desktop-first-column';
+        }
+        echo $OUTPUT->blocks('side-pre', 'span3'.$classextra);
+        ?>
     </div>
 
     <footer id="page-footer">

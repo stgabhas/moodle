@@ -50,6 +50,9 @@ $string['configtitle'] = 'Clean';
 $string['customcss'] = 'Custom CSS';
 $string['customcssdesc'] = 'Whatever CSS rules you add to this textarea will be reflected in every page, making for easier customization of this theme.';
 
+$string['faq'] = 'FAQ';
+$string['faqdesc'] = 'Link to frequently asked questions';
+
 $string['footnote'] = 'Footnote';
 $string['footnotedesc'] = 'Whatever you add to this textarea will be displayed in the footer throughout your Moodle site.';
 
