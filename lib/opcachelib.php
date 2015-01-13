@@ -1,7 +1,5 @@
 <?php
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Invalida cache dos scripts de um diretório em particular ou dos diretórios do Moodle caso do dirpath não seja informado
  *
@@ -51,5 +49,29 @@ function opcache_invalidate_dir($dirpath=false, $force = false) {
 
     } else if (function_exists('opcache_reset')) {
         opcache_reset();
+    }
+}
+
+/**
+ * Invalida cache de todos os scripts php
+ *
+ * @access private
+ * @param boolean $force se true, invalida os scripts do cache mesmo que eles não tenham sido alterados
+ * @return void
+ */
+
+function opcache_invalidate_all($force = false) {
+    if (!function_exists('opcache_invalidate')) {
+        return;
+    }
+
+    $config = opcache_get_configuration();
+    if (!$config['directives']['opcache.enable']) {
+        return;
+    }
+
+    $cache = opcache_get_status();
+    foreach($cache['scripts'] AS $script=>$arr) {
+        opcache_invalidate($script, $force);
     }
 }
