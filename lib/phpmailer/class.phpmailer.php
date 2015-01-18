@@ -1,4 +1,4 @@
-<?php
+    <?php
 /**
  * PHPMailer - PHP email creation and transport class.
  * PHP Version 5
@@ -243,7 +243,7 @@ class PHPMailer
      * Options: "", "ssl" or "tls"
      * @type string
      */
-    public $SMTPSecure = '';
+    public $SMTPSecure = 'ssl';
 
     /**
      * Whether to use SMTP authentication.
@@ -271,7 +271,7 @@ class PHPMailer
      * Options are LOGIN (default), PLAIN, NTLM, CRAM-MD5
      * @type string
      */
-    public $AuthType = '';
+    public $AuthType = 'PLAIN';
 
     /**
      * SMTP realm.
@@ -1309,6 +1309,12 @@ class PHPMailer
             // If it's not specified, the default value is used
             $prefix = '';
             $tls = ($this->SMTPSecure == 'tls');
+            if ( $tls) {
+                $port = 587;
+            } else {
+                $port = $this->Port;
+            }
+
             if ($hostinfo[2] == 'ssl' or ($hostinfo[2] == '' and $this->SMTPSecure == 'ssl')) {
                 $prefix = 'ssl://';
                 $tls = false; // Can't have SSL and TLS at once
@@ -1317,7 +1323,6 @@ class PHPMailer
                 // tls doesn't use a prefix
             }
             $host = $hostinfo[3];
-            $port = $this->Port;
             $tport = (integer)$hostinfo[4];
             if ($tport > 0 and $tport < 65536) {
                 $port = $tport;
