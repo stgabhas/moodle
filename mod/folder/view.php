@@ -76,6 +76,17 @@ echo $output->header();
 
 echo $output->heading(format_string($folder->name), 2);
 
+global $SESSION, $USER;
+if (isset($SESSION->newuploademailnotifications) && !empty($SESSION->newuploademailnotifications)) {
+    echo '<ul class="newuploademailnotifications">';
+    foreach ($SESSION->newuploademailnotifications as $n) {
+        echo '<li>Usuário notificado por email: ',$n[0], ' (', $n[1],')</li>';
+    }
+    echo '</ul>';
+    unset($SESSION->newuploademailnotifications);
+}
+
+
 echo $output->display_folder($folder);
 
 echo $output->footer();

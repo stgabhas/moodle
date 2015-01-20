@@ -953,8 +953,37 @@ function file_save_draft_area_files($draftitemid, $contextid, $component, $filea
             }
 
             $fs->create_file_from_storedfile($file_record, $file);
+            // notify users via email that a file was uploaded...
+            $context = context::instance_by_id($contextid);
+            $site = get_site();
+            $supportuser = core_user::get_support_user();
+
+            $a = new stdclass();
+            $a->url = $context->get_url()->out();
+            $a->filename = $file->get_filename();
+            $a->context_name = $context->get_context_name();
+            if ($course_context = $context->get_course_context(false)) {
+                $a->course_name = $course_context->get_context_name();
+                $a->course_url =  $course_context->get_url()->out();
+                $subject = format_string($site->fullname) .': '. get_string('newuploademailsubjectcourse', 'moodle', $a->course_name);
+                $message_string = 'newuploademailmessagecourse';
+            } else {
+                $subject = format_string($site->fullname) .': '. get_string('newuploademailsubject');
+                $message_string = 'newuploademailmessage';
+            }
+                global $SESSION;
+                $SESSION->newuploademailnotifications = array();
+                $users = get_enrolled_users($context, 'moodle:site/receiveuploadnotifications');
+                $a->user_fullname = fullname($USER);
+                foreach ($users as $u) {
+                    $message = get_string($message_string, 'moodle', $a);
+                    email_to_user($u, $supportuser, $subject, '', $message);
+                    $SESSION->newuploademailnotifications[] = array($a->user_fullname, $u->email);
+                }
         }
     }
+
+
 
     // note: do not purge the draft area - we clean up areas later in cron,
     //       the reason is that user might press submit twice and they would loose the files,
