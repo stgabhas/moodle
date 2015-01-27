@@ -77,7 +77,7 @@ echo $OUTPUT->doctype() ?>
     <div class="row-fluid cardscontainer">
 
         <div class="span2 card offset1">
-            <a href="#">
+            <a href="<?php echo $CFG->sitepolicy; ?>">
                 <img src="<?php echo $CFG->wwwroot; ?>/theme/clean/pix/05.png" alt="01" />
                 <h3>Políticas de uso</h3>
                 <p>Mussum ipsum cacilds, vidis litro abertis. Consetis adipiscings elitis. Pra lá , depois divoltis porris, paradis. Paisis, filhis, espiritis santis.</p>
