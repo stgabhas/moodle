@@ -3,8 +3,40 @@
         {
             "type": "vcs",
             "url": "https://github.com/moodlehq/moodle-behat-extension"
-        }
+        },
+        { "type": "vcs", "url":  "https://github.com/danielneis/moodle-block_attendance.git" },
+        { "type": "vcs", "url":  "https://github.com/danielneis/moodle-filter_jmol.git" },
+        { "type": "vcs", "url":  "https://github.com/danielneis/moodle-local_mobile.git" },
+        { "type": "vcs", "url":  "https://github.com/danielneis/moodle-assignsubmission_onlineaudio.git" },
+        { "type": "vcs", "url":  "https://github.com/danielneis/moodle-mod_attendance.git" },
+        { "type": "vcs", "url":  "https://github.com/danielneis/moodle-mod_bigbluebuttonbn.git" },
+        { "type": "vcs", "url":  "https://github.com/danielneis/moodle-mod_groupselect.git" },
+        { "type": "vcs", "url":  "https://github.com/danielneis/moodle-mod_hotpot.git" },
+        { "type": "vcs", "url":  "https://github.com/danielneis/moodle-mod_questionnaire.git" },
+        { "type": "vcs", "url":  "https://github.com/danielneis/moodle-mod_scheduler.git" },
+        { "type": "vcs", "url":  "https://github.com/danielneis/moodle-mod_vpl.git" },
+        { "type": "vcs", "url":  "https://github.com/danielneis/moodle-qformat_hotpot.git" },
+        { "type": "vcs", "url":  "https://github.com/danielneis/moodle-webservice_soapfda.git" },
+        { "type": "vcs", "url":  "https://github.com/danielneis/moodle-tool_editrolesbycap.git" }
+
     ],
+    "require" : {
+        "composer/installers" :                "dev-master",
+        "danmarsden/moodle-block_attendance" : "dev-composer",
+        "geoffrowland/moodle-filter_jmol" :    "dev-composer",
+        "jleyva/moodle-local_mobile" :         "dev-composer",
+        "pauln/moodle-assignsubmission_onlineaudio" :    "dev-composer",
+        "danmarsden/moodle-mod_attendance" :             "dev-composer",
+        "blindsidenetworks/moodle-mod_bigbluebuttonbn" : "dev-composer",
+        "skodak/moodle-mod_groupselect" :                "dev-composer",
+        "gbateson/moodle-mod_hotpot" :                   "dev-composer",
+        "remotelearner/moodle-mod_questionnaire" :       "dev-composer",
+        "bostelm/moodle-mod_scheduler" :                 "dev-composer",
+        "jcrodriguez-dis/moodle-mod_vpl" :               "dev-composer",
+        "gbateson/moodle-qformat_hotpot" :               "dev-composer",
+        "ghigio/moodle-webservice_soapfda" :             "dev-composer",
+        "moodleou/moodle-tool_editrolesbycap" :          "dev-composer"
+    },
     "require-dev": {
         "phpunit/phpunit": "3.7.*",
         "phpunit/dbUnit": "1.2.*",
