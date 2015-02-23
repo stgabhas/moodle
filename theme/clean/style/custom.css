@@ -52,6 +52,10 @@ body {
     margin: 15px 5px;
 }
 
+.jsenabled .usermenu .moodle-actionmenu.show {
+    background-color: #132972 !important;
+}
+
 .usermenu {
     margin: 15px 5px;
 }
