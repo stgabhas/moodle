@@ -44,7 +44,7 @@ echo $OUTPUT->doctype() ?>
     <nav role="navigation" class="navbar-inner">
         <div class="container-fluid">
             <a class="ufsc" href="http://www.ufsc.br"><?php echo html_writer::img(new moodle_url('/theme/clean/pix/brasao.ufsc.svg'), 'UFSC'); ?></a>
-            <a class="second" href="<?php echo $CFG->wwwroot;?>"><h2><?php echo $SITE->fullname; ?></h2></a>
+            <a class="second" href="<?php echo $CFG->wwwroot;?>"><h2><?php echo $SITE->shortname; ?></h2></a>
             <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
@@ -68,7 +68,7 @@ echo $OUTPUT->doctype() ?>
             <a href="<?php echo $CFG->wwwroot;?>/login" />
                 <h2>
                     <img src="<?php echo $CFG->wwwroot; ?>/theme/clean/pix/01.png" alt="01" />
-                    <strong>Acessar o Moodle</strong>
+                    <strong>Acessar o <?php echo $SITE->shortname; ?></strong>
                 </h2>
             </a>
         </div>
@@ -77,44 +77,52 @@ echo $OUTPUT->doctype() ?>
     <div class="row-fluid cardscontainer">
 
         <div class="span2 card offset1">
-            <a href="<?php echo $CFG->wwwroot; ?>/local/tutoriais/politicas_de_uso.php">
-                <img src="<?php echo $CFG->wwwroot; ?>/theme/clean/pix/05.png" alt="01" />
-                <h3>Políticas de uso</h3>
-                <p>Saiba mais sobre o propósito deste ambiente, as nossas e as suas reponsabilidades.</p>
+            <a href="<?php echo get_config('theme_clean', 'faq'); ?>">
+                <img src="<?php echo $CFG->wwwroot; ?>/theme/clean/pix/04.png" alt="01" />
+                <h3>Perguntas frequentes</h3>
+                <p>Veja respostas para as dúvidas frequentes</p>
             </a>
         </div>
-        <div class="span2 card">
-            <a href="#">
-                <img src="<?php echo $CFG->wwwroot; ?>/theme/clean/pix/03.png" alt="01" />
-                <h3>Cursos abertos</h3>
-                <p>Navegue por cursos disponíveis para visitantes. Em breve!</p>
-            </a>
-        </div>
+
         <div class="span2 card">
             <a href="<?php echo $CFG->wwwroot;?>/local/tutoriais">
                 <img src="<?php echo $CFG->wwwroot; ?>/theme/clean/pix/06.png" alt="01" />
                 <h3>Tutoriais</h3>
-                <p>Aprenda mais sobre o Moodle e como realizar algumas tarefas na plataforma.</p>
+                <p>Aprenda mais sobre o Moodle e como nele realizar algumas tarefas</p>
             </a>
         </div>
-        <div class="span2 card">
-            <a href="<?php echo get_config('theme_clean', 'faq'); ?>">
-                <img src="<?php echo $CFG->wwwroot; ?>/theme/clean/pix/04.png" alt="01" />
-                <h3>Perguntas frequentes</h3>
-                <p>Aqui você encontra resposta para as dúvidas mais frequentes.</p>
-            </a>
-        </div>
+
         <div class="span2 card">
             <a href="<?php echo $CFG->wwwroot; ?>/local/tutoriais/atendimento.php">
                 <img src="<?php echo $CFG->wwwroot; ?>/theme/clean/pix/02.png" alt="01" />
-                <h3>Atendimento a usuários</h3>
-                <p>Se você não encontrou a resposta que procurava nas perguntas frequentes, veja aqui como conseguir ajuda.</p>
+                <h3>Suporte a usuários</h3>
+                <p>Saiba onde obter ajuda</p>
             </a>
         </div>
+
+        <div class="span2 card">
+            <a href="<?php echo $CFG->wwwroot; ?>/local/tutoriais/politicas_de_uso.php">
+                <img src="<?php echo $CFG->wwwroot; ?>/theme/clean/pix/05.png" alt="01" />
+                <h3>Políticas de uso</h3>
+                <p>Conheça o propósito deste ambiente e as reponsabilidades dos usuários</p>
+            </a>
+        </div>
+
+        <div class="span2 card">
+            <a href="#">
+                <img src="<?php echo $CFG->wwwroot; ?>/theme/clean/pix/03.png" alt="01" />
+                <h3>Cursos abertos</h3>
+                <!--
+                <p>Navegue por cursos disponíveis para visitantes. Em breve!</p>
+                -->
+                <p>(Em breve)</p>
+            </a>
+        </div>
+
     </div>
     <div class="row-fluid prerodape">
         <div class="span10 offset1">
-            <p>:: Este é o Moodle de apoio aos cursos presenciais. Se você procura outro Moodle da UFSC, acesse a <a href="<?php echo $CFG->wwwroot; ?>/local/tutoriais/implantacoes.php">lista de implantações de Moodle da UFSC</a>.</p>
+            <p>:: Este é o <?php echo $SITE->fullname; ?>. Consulte a <a href="<?php echo $CFG->wwwroot; ?>/local/tutoriais/implantacoes.php">lista de implantações de Moodle da UFSC</a> para ver outras opções.</p>
         </div>
     </div>
     <div id="page-content" class="row-fluid">

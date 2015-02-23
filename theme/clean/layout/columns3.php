@@ -55,7 +55,7 @@ echo $OUTPUT->doctype() ?>
     <nav role="navigation" class="navbar-inner">
         <div class="container-fluid">
             <a class="ufsc" href="http://www.ufsc.br"><?php echo html_writer::img(new moodle_url('/theme/clean/pix/brasao.ufsc.svg'), 'UFSC'); ?></a>
-            <a class="second" href="<?php echo $CFG->wwwroot;?>"><h2><?php echo $SITE->fullname; ?></h2></a>
+            <a class="second" href="<?php echo $CFG->wwwroot;?>"><h2><?php echo $SITE->shortname; ?></h2></a>
             <a class="btn btn-navbar" data-toggle="workaround-collapse" data-target=".nav-collapse">
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>

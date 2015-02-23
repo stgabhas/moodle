@@ -55,6 +55,10 @@ body {
 .usermenu {
     margin: 15px 5px;
 }
+.usermenu .login a,
+.usermenu .login a:hover {
+    color:white;
+}
 
 .nav-collapse {
     float: right;
@@ -84,9 +88,9 @@ body {
     border: 1px solid #ccc;
     border-radius: 4px;
     box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.05) inset;
-    padding: 2em;
+    padding: 2% 1%;
     text-align: center;
-    height: 360px;
+    height: 330px;
 }
 
 .cardscontainer .card h3 {
