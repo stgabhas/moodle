@@ -681,7 +681,7 @@ class grade_edit_tree_column_name extends grade_edit_tree_column {
     }
 }
 
-class grade_edit_tree_column_aggregation extends grade_edit_tree_column_category {
+class grade_edit_tree_column_aggregation extends grade_edit_tree_column {
 
     public function __construct($params) {
         parent::__construct('aggregation');
