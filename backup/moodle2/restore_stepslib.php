@@ -1398,6 +1398,12 @@ class restore_section_structure_step extends restore_structure_step {
         //        $DB->set_field('course', 'numsections', $section->section, array('id' => $this->get_courseid()));
         //    }
         //}
+
+        if($course_format_option = $DB->get_record('course_format_options', array('courseid' => $this->get_courseid(), 'name' => 'numsections'))) {
+            if ($course_format_option->value < $section->section) {
+                $DB->set_field('course_format_options', 'value', $section->section, array('id' => $course_format_option->id));
+            }
+        }
     }
 
     /**

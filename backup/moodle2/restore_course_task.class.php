@@ -157,41 +157,53 @@ class restore_course_task extends restore_task {
     protected function define_settings() {
 
         //$name, $vtype, $value = null, $visibility = self::VISIBLE, $status = self::NOT_LOCKED
-        $fullname = new restore_course_generic_text_setting('course_fullname', base_setting::IS_TEXT, $this->get_info()->original_course_fullname, base_setting::VISIBLE, base_setting::LOCKED_BY_PERMISSION);
+        $fullname = new restore_course_generic_text_setting('course_fullname', base_setting::IS_TEXT, $this->get_info()->original_course_fullname);
         $fullname->get_ui()->set_label(get_string('setting_course_fullname', 'backup'));
+        if ($this->get_target() == backup::TARGET_NEW_COURSE) {
+            $fullname->set_status(backup_setting::LOCKED_BY_CONFIG);
+        } else {
+            $fullname->set_visibility(backup_setting::HIDDEN);
+        }
         $this->add_setting($fullname);
 
-        $shortname = new restore_course_generic_text_setting('course_shortname', base_setting::IS_TEXT, $this->get_info()->original_course_shortname, base_setting::VISIBLE, base_setting::LOCKED_BY_PERMISSION);
+        $shortname = new restore_course_generic_text_setting('course_shortname', base_setting::IS_TEXT, $this->get_info()->original_course_shortname);
         $shortname->get_ui()->set_label(get_string('setting_course_shortname', 'backup'));
+        if ($this->get_target() == backup::TARGET_NEW_COURSE) {
+            $shortname->set_status(backup_setting::LOCKED_BY_CONFIG);
+        } else {
+            $shortname->set_visibility(backup_setting::HIDDEN);
+        }
         $this->add_setting($shortname);
 
         $startdate = new restore_course_generic_text_setting('course_startdate', base_setting::IS_INTEGER, $this->get_info()->original_course_startdate);
         $startdate->set_ui(new backup_setting_ui_dateselector($startdate, get_string('setting_course_startdate', 'backup')));
+        if ($this->get_target() == backup::TARGET_NEW_COURSE) {
+            $startdate->set_status(backup_setting::LOCKED_BY_CONFIG);
+        } else {
+            $startdate->set_visibility(backup_setting::HIDDEN);
+        }
         $this->add_setting($startdate);
 
-        $keep_enrols = new restore_course_generic_setting('keep_roles_and_enrolments', base_setting::IS_BOOLEAN, true, base_setting::VISIBLE, base_setting::LOCKED_BY_CONFIG);
+        $keep_enrols = new restore_course_generic_setting('keep_roles_and_enrolments', base_setting::IS_BOOLEAN, false);
         $keep_enrols->set_ui(new backup_setting_ui_select($keep_enrols, $keep_enrols->get_name(), array(1=>get_string('yes'), 0=>get_string('no'))));
         $keep_enrols->get_ui()->set_label(get_string('setting_keep_roles_and_enrolments', 'backup'));
-        if ($this->get_target() != backup::TARGET_CURRENT_DELETING and $this->get_target() != backup::TARGET_EXISTING_DELETING) {
-            $keep_enrols->set_visibility(backup_setting::HIDDEN);
-        }
+        $keep_enrols->set_value(true);
+        $keep_enrols->set_status(backup_setting::LOCKED_BY_CONFIG);
         $this->add_setting($keep_enrols);
 
-        $keep_groups = new restore_course_generic_setting('keep_groups_and_groupings', base_setting::IS_BOOLEAN, true, backup_setting::VISIBLE, backup_setting::LOCKED_BY_CONFIG);
+        $keep_groups = new restore_course_generic_setting('keep_groups_and_groupings', base_setting::IS_BOOLEAN, false);
         $keep_groups->set_ui(new backup_setting_ui_select($keep_groups, $keep_groups->get_name(), array(1=>get_string('yes'), 0=>get_string('no'))));
         $keep_groups->get_ui()->set_label(get_string('setting_keep_groups_and_groupings', 'backup'));
-        if ($this->get_target() != backup::TARGET_CURRENT_DELETING and $this->get_target() != backup::TARGET_EXISTING_DELETING) {
-            $keep_groups->set_visibility(backup_setting::HIDDEN);
-        }
+        $keep_groups->set_value(true);
+        $keep_groups->set_status(backup_setting::LOCKED_BY_CONFIG);
         $this->add_setting($keep_groups);
 
         // Define overwrite_conf to decide if course configuration will be restored over existing one
-        $overwrite = new restore_course_overwrite_conf_setting('overwrite_conf', base_setting::IS_BOOLEAN, true, backup_setting::VISIBLE, backup_setting::LOCKED_BY_CONFIG);
+        $overwrite = new restore_course_overwrite_conf_setting('overwrite_conf', base_setting::IS_BOOLEAN, false);
         $overwrite->set_ui(new backup_setting_ui_select($overwrite, $overwrite->get_name(), array(1=>get_string('yes'), 0=>get_string('no'))));
         $overwrite->get_ui()->set_label(get_string('setting_overwriteconf', 'backup'));
-        if ($this->get_target() == backup::TARGET_NEW_COURSE) {
-            $overwrite->set_visibility(backup_setting::HIDDEN);
-        }
+        $overwrite->set_value(false);
+        $overwrite->set_status(backup_setting::LOCKED_BY_CONFIG);
         $this->add_setting($overwrite);
 
     }

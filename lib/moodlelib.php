@@ -5258,6 +5258,11 @@ function remove_course_contents($courseid, $showfeedback = true, array $options 
     // Delete course sections.
     $DB->delete_records('course_sections', array('course' => $course->id));
 
+    $sql = "UPDATE {course_format_options}
+               SET value = :numsections
+             WHERE courseid = :courseid AND name = 'numsections'";
+    $DB->execute($sql, array('courseid' => $course->id, 'numsections' => 0));
+
     // Delete legacy, section and any other course files.
     $fs->delete_area_files($coursecontext->id, 'course'); // Files from summary and section.
 
