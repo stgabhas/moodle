@@ -31,6 +31,7 @@ $perpage   = optional_param('perpage', '', PARAM_RAW); // how many per page, may
 $blocklist = optional_param('blocklist', 0, PARAM_INT);
 $modulelist= optional_param('modulelist', '', PARAM_PLUGIN);
 $tagid     = optional_param('tagid', '', PARAM_INT);   // searches for courses tagged with this tag id
+$guestaccess = optional_param('guestaccess', 0, PARAM_INT);   // searches only for courses which allow guests to enter
 
 // List of minimum capabilities which user need to have for editing/moving course
 $capabilities = array('moodle/course:create', 'moodle/category:manage');
@@ -57,6 +58,9 @@ if ($perpage !== 'all' && !($perpage = (int)$perpage)) {
 }
 if (!empty($page)) {
     $urlparams['page'] = $page;
+}
+if (!empty($guestaccess)) {
+    $urlparams['guestaccess'] = $guestaccess;
 }
 $PAGE->set_url('/course/search.php', $searchcriteria + $urlparams);
 $PAGE->set_context(context_system::instance());
