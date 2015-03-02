@@ -873,9 +873,16 @@ class coursecat implements renderable, cacheable_object, IteratorAggregate {
         } else {
             $fields[] = $DB->sql_substr('c.summary', 1, 1). ' as hassummary';
         }
+        if (isset($options['guestaccess']) && $options['guestaccess'] == true) {
+            $guestsql = 'JOIN {enrol} e ON c.id = e.courseid AND e.enrol = :guest AND e.status=0';
+            $params['guest'] = 'guest';
+        } else {
+            $guestsql = '';
+        }
         $sql = "SELECT ". join(',', $fields). ", $ctxselect
                 FROM {course} c
                 JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextcourse
+                {$guestsql}
                 WHERE ". $whereclause." ORDER BY c.sortorder";
         $list = $DB->get_records_sql($sql,
                 array('contextcourse' => CONTEXT_COURSE) + $params);
@@ -1363,6 +1370,7 @@ class coursecat implements renderable, cacheable_object, IteratorAggregate {
      *    - limit - maximum number of children to return, 0 or null for no limit
      *    - idonly - returns the array or course ids instead of array of objects
      *               used only in get_courses_count()
+     *    - guestaccess - get courses with guest enrolment enabled
      * @return course_in_list[]
      */
     public function get_courses($options = array()) {
@@ -1371,6 +1379,7 @@ class coursecat implements renderable, cacheable_object, IteratorAggregate {
         $offset = !empty($options['offset']) ? $options['offset'] : 0;
         $limit = !empty($options['limit']) ? $options['limit'] : null;
         $sortfields = !empty($options['sort']) ? $options['sort'] : array('sortorder' => 1);
+        $guestaccess = !empty($options['guestaccess']) ? true : false;
 
         // Check if this category is hidden.
         // Also 0-category never has courses unless this is recursive call.
@@ -1380,8 +1389,8 @@ class coursecat implements renderable, cacheable_object, IteratorAggregate {
 
         $coursecatcache = cache::make('core', 'coursecat');
         $cachekey = 'l-'. $this->id. '-'. (!empty($options['recursive']) ? 'r' : '').
-                 '-'. serialize($sortfields);
-        $cntcachekey = 'lcnt-'. $this->id. '-'. (!empty($options['recursive']) ? 'r' : '');
+                 '-'. serialize($sortfields).'-'.$guestaccess;
+        $cntcachekey = 'lcnt-'. $this->id. '-'. (!empty($options['recursive']) ? 'r' : '').'-'.$guestaccess;
 
         // Check if we have already cached results.
         $ids = $coursecatcache->get($cachekey);

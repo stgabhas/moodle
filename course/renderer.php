@@ -568,7 +568,9 @@ class core_course_renderer extends plugin_renderer_base {
         }
 
         $strsearchcourses= get_string("searchcourses");
+        $strguestaccess  = get_string("guestaccess");
         $searchurl = new moodle_url('/course/search.php');
+        $searchurl->param('guestaccess', optional_param('guestaccess', 0, PARAM_INT));
 
         $output = html_writer::start_tag('form', array('id' => $formid, 'action' => $searchurl, 'method' => 'get'));
         $output .= html_writer::start_tag('fieldset', array('class' => 'coursesearchbox invisiblefieldset'));
@@ -577,6 +579,7 @@ class core_course_renderer extends plugin_renderer_base {
             'size' => $inputsize, 'name' => 'search', 'value' => s($value)));
         $output .= html_writer::empty_tag('input', array('type' => 'submit',
             'value' => get_string('go')));
+        $output .= html_writer::checkbox('guestaccess', 1, optional_param('guestaccess', 0, PARAM_INT), $strguestaccess);
         $output .= html_writer::end_tag('fieldset');
         $output .= html_writer::end_tag('form');
 
@@ -1713,6 +1716,7 @@ class core_course_renderer extends plugin_renderer_base {
         $browse = optional_param('browse', null, PARAM_ALPHA);
         $perpage = optional_param('perpage', $CFG->coursesperpage, PARAM_INT);
         $page = optional_param('page', 0, PARAM_INT);
+        $guestaccess = optional_param('guestaccess', 0, PARAM_INT);
         $baseurl = new moodle_url('/course/index.php');
         if ($coursecat->id) {
             $baseurl->param('categoryid', $coursecat->id);
@@ -1720,11 +1724,15 @@ class core_course_renderer extends plugin_renderer_base {
         if ($perpage != $CFG->coursesperpage) {
             $baseurl->param('perpage', $perpage);
         }
+        if ($guestaccess) {
+            $baseurl->param('guestaccess', $guestaccess);
+        }
         $coursedisplayoptions['limit'] = $perpage;
         $catdisplayoptions['limit'] = $perpage;
         if ($browse === 'courses' || !$coursecat->has_children()) {
             $coursedisplayoptions['offset'] = $page * $perpage;
             $coursedisplayoptions['paginationurl'] = new moodle_url($baseurl, array('browse' => 'courses'));
+            $coursedisplayoptions['guestaccess'] = $guestaccess;
             $catdisplayoptions['nodisplay'] = true;
             $catdisplayoptions['viewmoreurl'] = new moodle_url($baseurl, array('browse' => 'categories'));
             $catdisplayoptions['viewmoretext'] = new lang_string('viewallsubcategories');
@@ -1757,6 +1765,11 @@ class core_course_renderer extends plugin_renderer_base {
                 $url = new moodle_url('/course/edit.php', array('category' => $CFG->defaultrequestcategory, 'returnto' => 'topcat'));
             }
             $output .= $this->single_button($url, get_string('addnewcourse'), 'get');
+        }
+        if ($guestaccess) {
+            $output .= html_writer::link(new moodle_url($baseurl, array('guestaccess' => 0)), get_string('guestaccessonly'));
+        } else {
+            $output .= html_writer::link(new moodle_url($baseurl, array('guestaccess' => 1)), get_string('guestaccessany'));
         }
         ob_start();
         if (coursecat::count_all() == 1) {

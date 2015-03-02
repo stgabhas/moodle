@@ -28,17 +28,18 @@ require_once($CFG->dirroot. '/course/lib.php');
 require_once($CFG->libdir. '/coursecatlib.php');
 
 $categoryid = optional_param('categoryid', 0, PARAM_INT); // Category id
+$guestaccess = optional_param('guestaccess', 0, PARAM_INT); // Only courses that allow guests
 $site = get_site();
 
 if ($categoryid) {
     $PAGE->set_category_by_id($categoryid);
-    $PAGE->set_url(new moodle_url('/course/index.php', array('categoryid' => $categoryid)));
+    $PAGE->set_url(new moodle_url('/course/index.php', array('categoryid' => $categoryid, 'guestaccess' => $guestaccess)));
     $PAGE->set_pagetype('course-index-category');
     // And the object has been loaded for us no need for another DB call
     $category = $PAGE->category;
 } else {
     $categoryid = 0;
-    $PAGE->set_url('/course/index.php');
+    $PAGE->set_url(new moodle_url('/course/index.php', array('guestaccess' => $guestaccess)));
     $PAGE->set_context(context_system::instance());
 }
 
