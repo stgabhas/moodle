@@ -111,7 +111,8 @@ echo $OUTPUT->doctype() ?>
         <div class="span2 card">
             <a href="#">
                 <img src="<?php echo $CFG->wwwroot; ?>/theme/clean/pix/03.png" alt="01" />
-                <h3>Cursos abertos</h3>
+                <h3>Cursos livres</h3>
+                <p>Cursos de acesso livre, abertos ao público</p>
                 <!--
                 <p>Navegue por cursos disponíveis para visitantes. Em breve!</p>
                 -->
