@@ -45,6 +45,13 @@ require_once($CFG->libdir.'/phpmailer/class.smtp.php');
 class moodle_phpmailer extends PHPMailer {
 
     /**
+     * SMTP auth type.
+     * Options are LOGIN (default), PLAIN, NTLM, CRAM-MD5
+     * @type string
+     */
+    public $AuthType = 'PLAIN';
+
+    /**
      * Constructor - creates an instance of the PHPMailer class
      * with Moodle defaults.
      */
@@ -161,5 +168,111 @@ class moodle_phpmailer extends PHPMailer {
         } else {
             return parent::postSend();
         }
+    }
+
+    /**
+     * Initiate a connection to an SMTP server.
+     * Returns false if the operation failed.
+     * @param array $options An array of options compatible with stream_context_create()
+     * @uses SMTP
+     * @access public
+     * @throws phpmailerException
+     * @return boolean
+     */
+    public function smtpConnect($options = array())
+    {
+        if (is_null($this->smtp)) {
+            $this->smtp = $this->getSMTPInstance();
+        }
+
+        // Already connected?
+        if ($this->smtp->connected()) {
+            return true;
+        }
+
+        $this->smtp->setTimeout($this->Timeout);
+        $this->smtp->setDebugLevel($this->SMTPDebug);
+        $this->smtp->setDebugOutput($this->Debugoutput);
+        $this->smtp->setVerp($this->do_verp);
+
+        $tls = ($this->SMTPSecure == 'tls');
+        $ssl = ($this->SMTPSecure == 'ssl');
+        if ($ssl || $tls) {
+            $port = 587;
+        } else {
+            $port = $this->Port;
+        }
+        $hosts = explode(';', $this->Host);
+        $lastexception = null;
+
+        foreach ($hosts as $hostentry) {
+            $hostinfo = array();
+            if (!preg_match('/^((ssl|tls):\/\/)*([a-zA-Z0-9\.-]*):?([0-9]*)$/', trim($hostentry), $hostinfo)) {
+                // Not a valid host entry
+                continue;
+            }
+            // $hostinfo[2]: optional ssl or tls prefix
+            // $hostinfo[3]: the hostname
+            // $hostinfo[4]: optional port number
+            // The host string prefix can temporarily override the current setting for SMTPSecure
+            // If it's not specified, the default value is used
+            $prefix = '';
+            $tls = ($this->SMTPSecure == 'tls');
+            if ($hostinfo[2] == 'ssl' or ($hostinfo[2] == '' and $this->SMTPSecure == 'ssl')) {
+                $prefix = 'ssl://';
+                $tls = false; // Can't have SSL and TLS at once
+            } elseif ($hostinfo[2] == 'tls') {
+                $tls = true;
+                // tls doesn't use a prefix
+            }
+            $host = $hostinfo[3];
+            $port = $this->Port;
+            $tport = (integer)$hostinfo[4];
+            if ($tport > 0 and $tport < 65536) {
+                $port = $tport;
+            }
+            if ($this->smtp->connect($prefix . $host, $port, $this->Timeout, $options)) {
+                try {
+                    if ($this->Helo) {
+                        $hello = $this->Helo;
+                    } else {
+                        $hello = $this->serverHostname();
+                    }
+                    $this->smtp->hello($hello);
+
+                    if ($tls) {
+                        if (!$this->smtp->startTLS()) {
+                            throw new phpmailerException($this->lang('connect_host'));
+                        }
+                        // We must resend HELO after tls negotiation
+                        $this->smtp->hello($hello);
+                    }
+                    if ($this->SMTPAuth) {
+                        if (!$this->smtp->authenticate(
+                            $this->Username,
+                            $this->Password,
+                            $this->AuthType,
+                            $this->Realm,
+                            $this->Workstation
+                        )
+                        ) {
+                            throw new phpmailerException($this->lang('authenticate'));
+                        }
+                    }
+                    return true;
+                } catch (phpmailerException $exc) {
+                    $lastexception = $exc;
+                    // We must have connected, but then failed TLS or Auth, so close connection nicely
+                    $this->smtp->quit();
+                }
+            }
+        }
+        // If we get here, all connection attempts have failed, so close connection hard
+        $this->smtp->close();
+        // As we've caught all exceptions, just report whatever the last one was
+        if ($this->exceptions and !is_null($lastexception)) {
+            throw $lastexception;
+        }
+        return false;
     }
 }
