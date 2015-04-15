@@ -63,8 +63,42 @@ foreach($enrolinstances as $instance) {
         continue;
     }
     $form = $enrols[$instance->enrol]->enrol_page_hook($instance);
-    if ($form) {
-        $forms[$instance->id] = $form;
+
+    if (strstr($instance->name, 'Oferta') &&
+        (time() >= $instance->enrolstartdate) &&
+        (time() <= $instance->enrolenddate)) {
+
+        $sql = "SELECT e.id, e.name
+                  FROM user_enrolments ue
+                  JOIN enrol e
+                    ON ue.enrolid = e.id
+             LEFT JOIN user_lastaccess ul
+                    ON (e.courseid = ul.courseid AND ul.userid = ue.userid)
+                 WHERE ue.userid = :userid
+                   AND e.enrol = :enrol
+                   AND ul.userid IS NULL";
+
+        $params = array('userid' => $USER->id, 'enrol' => 'self');
+
+        if (!$notaccessed = $DB->get_records_sql($sql, $params)) {
+            $forms[$instance->id] = $form;
+        } else {
+            list($oferta, $oferta_atual) = explode(' ',$instance->name);
+            foreach ($notaccessed as $na) {
+                list($oferta, $oferta_nao_cursada) = explode(' ', $na->name);
+                if (($oferta_atual - $oferta_nao_cursada) > 1) {
+                    if ($form) {
+                        $forms[$instance->id] = $form;
+                    }
+                } else {
+                    $forms[$instance->id] = '<h2>Você não pode se inscrever nesta oferta pois se inscreveu em uma oferta e não acessou o curso.</h2>';
+                }
+            }
+        }
+    } else {
+        if ($form) {
+            $forms[$instance->id] = $form;
+        }
     }
 }
 
