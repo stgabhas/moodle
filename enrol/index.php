@@ -72,17 +72,17 @@ foreach($enrolinstances as $instance) {
 
         // para o usuário autenticado,
         // soma as notas de cada curso em que ele está inscrito
-        $sql = "SELECT e.id as enrolid, e.name as enrolname, gi.id as giid, SUM(gi.rawgrade) as notatotal
+        $sql = "SELECT e.id as enrolid, e.name as enrolname, e.courseid, SUM(gg.finalgrade) as notatotal
                   FROM {user_enrolments} ue
                   JOIN {enrol} e
                     ON ue.enrolid = e.id
-                  JOIN {grade_item} gi
+                  JOIN {grade_items} gi
                     ON (gi.courseid = e.courseid)
              LEFT JOIN {grade_grades} gg
                     ON (gi.id = gg.itemid AND ue.userid = gg.userid)
                  WHERE ue.userid = :userid
                    AND e.enrol = :enrol
-              GROUP BY e.courseid";
+              GROUP BY e.id, e.courseid";
         $params = array('userid' => $USER->id, 'enrol' => 'self');
         if (!$grade_grades = $DB->get_records_sql($sql, $params)) {
             // nao tem inscrição em nenhum curso
@@ -103,6 +103,7 @@ foreach($enrolinstances as $instance) {
             // instancias pendentes são aquelas que o usuário nao tem nota ou tem nota zero
             if ($instancias_pendentes) {
                 $pendente = false;
+                list($oferta, $oferta_atual) = explode(' ', $instance->name);
                 foreach ($instancias_pendentes as $ip) {
                     list($oferta, $oferta_nao_cursada) = explode(' ', $ip->enrolname);
                     if (($oferta_atual - $oferta_nao_cursada) > 1) {
