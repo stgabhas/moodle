@@ -70,40 +70,62 @@ foreach($enrolinstances as $instance) {
         (time() >= $instance->enrolstartdate) &&
         (time() <= $instance->enrolenddate)) {
 
-        // se o usuário tem uma inscrição em qualquer curso
-        // mas nunca acessou aquele curso
-        $sql = "SELECT e.id, e.name
+        // para o usuário autenticado,
+        // soma as notas de cada curso em que ele está inscrito
+        $sql = "SELECT e.id as enrolid, e.name as enrolname, gi.id as giid, SUM(gi.rawgrade) as notatotal
                   FROM {user_enrolments} ue
                   JOIN {enrol} e
                     ON ue.enrolid = e.id
-             LEFT JOIN {user_lastaccess} ul
-                    ON (e.courseid = ul.courseid AND ul.userid = ue.userid)
+                  JOIN {grade_item} gi
+                    ON (gi.courseid = e.courseid)
+             LEFT JOIN {grade_grades} gg
+                    ON (gi.id = gg.itemid AND ue.userid = gg.userid)
                  WHERE ue.userid = :userid
                    AND e.enrol = :enrol
-                   AND ul.userid IS NULL";
-
+              GROUP BY e.courseid";
         $params = array('userid' => $USER->id, 'enrol' => 'self');
-
-        if (!$notaccessed = $DB->get_records_sql($sql, $params)) {
-            // nao existe nenhuma inscricao para este usuario
-            // que ele nao tenha acessado o curso
+        if (!$grade_grades = $DB->get_records_sql($sql, $params)) {
+            // nao tem inscrição em nenhum curso
             $forms[$instance->id] = $form;
         } else {
-            // existe pelo menos uma inscricao para este usuario
-            // que ele nao tenha acessado o curso
-            list($oferta, $oferta_atual) = explode(' ',$instance->name);
-            foreach ($notaccessed as $na) {
-                list($oferta, $oferta_nao_cursada) = explode(' ', $na->name);
-                // se existe o intervalo de pelo menos
-                // uma oferta entre a atual e a que nao foi acessada
-                // o usuario pode se inscrever
-                if (($oferta_atual - $oferta_nao_cursada) > 1) {
+            // se ele se inscreveu em algum curso
+            $instancias_pendentes = array();
+            foreach ($grade_grades as $gg) {
+                // se o usuario nao recebeu nenhuma nota
+                // ou recebeu tudo ou um zero
+                if (is_null($gg->notatotal) OR $gg->notatotal == 0) {
+                    $instancias_pendentes[] = $gg;
+                } else {
+                    continue;
+                }
+            }
+            // pelo menos um curso nao completado (desistente)
+            // instancias pendentes são aquelas que o usuário nao tem nota ou tem nota zero
+            if ($instancias_pendentes) {
+                $pendente = false;
+                foreach ($instancias_pendentes as $ip) {
+                    list($oferta, $oferta_nao_cursada) = explode(' ', $ip->enrolname);
+                    if (($oferta_atual - $oferta_nao_cursada) > 1) {
+                        // se existe um "espaço" de pelo menos uma oferta
+                        // entre a atual e a que o usuário desistiu ou nao completou
+                        continue;
+                    } else {
+                        // se o usuário desistiu de uma oferta 
+                        // imediatamente anterior à atual
+                        $pendente = true;
+                    }
+                }
+                // se o usuário desistiu de uma oferta 
+                // imediatamente anterior à atual
+                if ($pendente) {
+                    $forms[$instance->id] = '<h2>Você não pode se inscrever neste curso pois desistiu de uma oferta imediatamente anterior à esta.</h2>';
+                } else{
                     if ($form) {
                         $forms[$instance->id] = $form;
                     }
-                } else {
-                    $forms[$instance->id] = '<h2>Você não pode se inscrever nesta oferta pois se inscreveu em uma oferta e não acessou o curso.</h2>';
                 }
+            } else {
+                $forms[$instance->id] = $form;
             }
         }
     } else {
