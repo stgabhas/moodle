@@ -64,15 +64,19 @@ foreach($enrolinstances as $instance) {
     }
     $form = $enrols[$instance->enrol]->enrol_page_hook($instance);
 
+    // somente os enrol-instances com nome "Oferta 1,2,3"
     if (strstr($instance->name, 'Oferta') &&
+        // somente o enrol-instance que está com as inscrições em andamento
         (time() >= $instance->enrolstartdate) &&
         (time() <= $instance->enrolenddate)) {
 
+        // se o usuário tem uma inscrição em qualquer curso
+        // mas nunca acessou aquele curso
         $sql = "SELECT e.id, e.name
-                  FROM user_enrolments ue
-                  JOIN enrol e
+                  FROM {user_enrolments} ue
+                  JOIN {enrol} e
                     ON ue.enrolid = e.id
-             LEFT JOIN user_lastaccess ul
+             LEFT JOIN {user_lastaccess} ul
                     ON (e.courseid = ul.courseid AND ul.userid = ue.userid)
                  WHERE ue.userid = :userid
                    AND e.enrol = :enrol
@@ -81,11 +85,18 @@ foreach($enrolinstances as $instance) {
         $params = array('userid' => $USER->id, 'enrol' => 'self');
 
         if (!$notaccessed = $DB->get_records_sql($sql, $params)) {
+            // nao existe nenhuma inscricao para este usuario
+            // que ele nao tenha acessado o curso
             $forms[$instance->id] = $form;
         } else {
+            // existe pelo menos uma inscricao para este usuario
+            // que ele nao tenha acessado o curso
             list($oferta, $oferta_atual) = explode(' ',$instance->name);
             foreach ($notaccessed as $na) {
                 list($oferta, $oferta_nao_cursada) = explode(' ', $na->name);
+                // se existe o intervalo de pelo menos
+                // uma oferta entre a atual e a que nao foi acessada
+                // o usuario pode se inscrever
                 if (($oferta_atual - $oferta_nao_cursada) > 1) {
                     if ($form) {
                         $forms[$instance->id] = $form;
