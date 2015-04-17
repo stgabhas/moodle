@@ -130,7 +130,7 @@ foreach($enrolinstances as $instance) {
                   JOIN {enrol} e
                     ON ue.enrolid = e.id
                   JOIN {course} c
-                 WHERE ".$DB->sql_like('c.fullname', $course_curso)."
+                 WHERE c.fullname LIKE '%{$course_curso}%'
                    AND e.name = :oferta";
 
         if ($DB->record_exists_sql($sql, array('oferta' => $instance->name))) {
