@@ -130,10 +130,10 @@ foreach($enrolinstances as $instance) {
                   JOIN {enrol} e
                     ON ue.enrolid = e.id
                   JOIN {course} c
-                 WHERE c.fullname LIKE ':course_curso%'
+                 WHERE ".$DB->sql_like('c.fullname', $course_curso)."
                    AND e.name = :oferta";
 
-        if ($DB->record_exists_sql($sql, array('course_curso' => $course_curso, 'oferta' => $instance->name))) {
+        if ($DB->record_exists_sql($sql, array('oferta' => $instance->name))) {
             $forms[$instance->id] = '<h2>Você não pode se inscrever neste curso pois já  está inscrito em uma outra turma desta mesma oferta neste mesmo curso.</h2>';
         } else {
             if ($form) {
