@@ -130,7 +130,7 @@ foreach($enrolinstances as $instance) {
                   JOIN {enrol} e
                     ON ue.enrolid = e.id
                   JOIN {course} c
-                    ON e.courseid = c.courseid
+                    ON e.courseid = c.id
                  WHERE c.fullname LIKE '%{$course_curso}%'
                    AND e.name = ?";
 
