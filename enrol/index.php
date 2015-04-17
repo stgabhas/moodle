@@ -120,12 +120,21 @@ foreach($enrolinstances as $instance) {
                 // imediatamente anterior à atual
                 if ($pendente) {
                     $forms[$instance->id] = '<h2>Você não pode se inscrever neste curso pois desistiu de uma oferta imediatamente anterior à esta.</h2>';
-                } else{
-                    if ($form) {
-                        $forms[$instance->id] = $form;
-                    }
+                    continue;
                 }
-            } else {
+            }
+        }
+        list($course_curso, $course_turma) = explode('-',$course->fullname);
+        $sql = "SELECT e.id as enrolid, e.name as enrolname, e.courseid
+                  FROM {user_enrolments} ue
+                  JOIN {enrol} e
+                    ON ue.enrolid = e.id
+                  JOIN {course} c
+                 WHERE c.fullname LIKE ':course_curso%'
+                   AND e.name = :oferta";
+
+        if (!$DB->record_exists_sql($sql, array('course_curso' => $course_curso, 'oferta' => $instance->name))) {
+            if ($form) {
                 $forms[$instance->id] = $form;
             }
         }
