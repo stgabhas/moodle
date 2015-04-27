@@ -19,11 +19,6 @@
 .userlist table#participants {text-align:center;}
 .userlist table#participants td,
 .userlist table#participants th {vertical-align: middle;text-align: left;padding: 4px;}
-.userlist table.controls {width: 100%;}
-.userlist table.controls tr {vertical-align: top;}
-.userlist table.controls td.right,
-.userlist table.controls td.left {padding: 4px;}
-.userlist table.controls .right {text-align: right;}
 
 .userinfobox {width:100%;border:1px solid;border-collapse: separate;padding:10px;}
 .userinfobox .left,
