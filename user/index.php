@@ -187,8 +187,6 @@ if ($course->id == SITEID) {
     $filterselect = $currentgroup;
 }
 
-
-
 // Get the hidden field list.
 if (has_capability('moodle/course:viewhiddenuserfields', $context)) {
     $hiddenfields = array();  // Teachers and admins are allowed to see everything.
@@ -202,10 +200,7 @@ if (isset($hiddenfields['lastaccess'])) {
 }
 
 // Print settings and things in a table across the top.
-$controlstable = new html_table();
-$controlstable->attributes['class'] = 'controls';
-$controlstable->cellspacing = 0;
-$controlstable->data[] = new html_table_row();
+$controlsdiv = '<div class="container-fluid">';
 
 // Print my course menus.
 if ($mycourses = enrol_get_my_courses()) {
@@ -221,10 +216,11 @@ if ($mycourses = enrol_get_my_courses()) {
     }
     $select = new single_select($popupurl, 'id', $courselist, $course->id, null, 'courseform');
     $select->set_label(get_string('mycourses'));
-    $controlstable->data[0]->cells[] = $OUTPUT->render($select);
+    $controlsdiv .= '<div class="row"><div class="span10">' . $OUTPUT->render($select) . '</div></div>';
 }
 
-$controlstable->data[0]->cells[] = groups_print_course_menu($course, $baseurl->out(), true);
+$controlsdiv .= '<div class="row"><div class="span6">'. groups_print_course_menu($course, $baseurl->out(), true) . '</div></div>';
+$controlsdiv .= '<div class="row">';
 
 if (!isset($hiddenfields['lastaccess'])) {
     // Get minimum lastaccess for this course and display a dropbox to filter by lastaccess going back this far.
@@ -279,7 +275,7 @@ if (!isset($hiddenfields['lastaccess'])) {
     if (count($timeoptions) > 1) {
         $select = new single_select($baseurl, 'accesssince', $timeoptions, $accesssince, null, 'timeoptions');
         $select->set_label(get_string('usersnoaccesssince'));
-        $controlstable->data[0]->cells[] = $OUTPUT->render($select);
+        $controlsdiv .= '<div class="span6">' . $OUTPUT->render($select) . '</div>';
     }
 }
 
@@ -287,12 +283,9 @@ $formatmenu = array( '0' => get_string('brief'),
                      '1' => get_string('userdetails'));
 $select = new single_select($baseurl, 'mode', $formatmenu, $mode, null, 'formatmenu');
 $select->set_label(get_string('userlist'));
-$userlistcell = new html_table_cell();
-$userlistcell->attributes['class'] = 'right';
-$userlistcell->text = $OUTPUT->render($select);
-$controlstable->data[0]->cells[] = $userlistcell;
 
-echo html_writer::table($controlstable);
+$controlsdiv .= '<div class="span6">' . $OUTPUT->render($select). '</div></div>';
+echo $controlsdiv . '</div>';
 
 if ($currentgroup and (!$isseparategroups or has_capability('moodle/site:accessallgroups', $context))) {
     // Display info about the group.
