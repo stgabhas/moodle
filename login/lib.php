@@ -283,7 +283,7 @@ function core_login_generate_password_reset ($user) {
  * @return string url the user should be redirected to.
  */
 function core_login_get_return_url() {
-    global $CFG, $SESSION, $USER;
+    global $CFG, $SESSION, $USER, $DB;
     // Prepare redirection.
     if (user_not_fully_set_up($USER)) {
         $urltogo = $CFG->wwwroot.'/user/edit.php';
@@ -306,6 +306,25 @@ function core_login_get_return_url() {
         if ($homepage == HOMEPAGE_MY && !is_siteadmin() && !isguestuser()) {
             if ($urltogo == $CFG->wwwroot or $urltogo == $CFG->wwwroot.'/' or $urltogo == $CFG->wwwroot.'/index.php') {
                 $urltogo = $CFG->wwwroot.'/my/';
+
+                $page_course = get_user_preferences('user_landing_page_course', '');
+                if (!empty($page_course)) {
+                    $courseid = 0;
+                    if (is_numeric($page_course)) {
+                        $courseid = (int)$page_course;
+                        if (!$DB->record_exists('course', array('id'=>$courseid))) {
+                            $courseid = 0;
+                        }
+                    } else {
+                        $courseid = $DB->get_field('course', 'id', array('shortname'=>$page_course));
+                    }
+                    if (!empty($courseid)) {
+                        $context = context_course::instance($courseid);
+                        if (has_capability('moodle/course:view', $context)) {
+                            $urltogo = $CFG->wwwroot .'/course/view.php?id=' . $courseid;
+                        }
+                    }
+                }
             }
         }
     }
