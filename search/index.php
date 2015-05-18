@@ -45,10 +45,9 @@ $mform = new core_search_search_form();
 $data = new stdClass();
 
 require_once($CFG->dirroot . '/search/' . $CFG->search_engine . '/lib.php');
-$search_engine_get_search_client = $CFG->search_engine . '_get_search_client';
 $search_engine_installed = $CFG->search_engine . '_installed';
 $search_engine_check_server = $CFG->search_engine . '_check_server';
-if (!$search_engine_installed() || (!$client = $search_engine_get_search_client()) || !$search_engine_check_server($client)) {
+if (!$search_engine_installed() || !$search_engine_check_server()) {
     redirect('/search/install.php');
 }
 
@@ -63,7 +62,7 @@ if (!empty($search)) { // search executed from URL params
     $data->searchfromtime = $fq_from;
     $data->searchtilltime = $fq_till;
     $mform->set_data($data);
-    $results = $search_function($client, $data);
+    $results = $search_function($data);
 }
 
 if ($data = $mform->get_data()) { // search executed from submitting form
@@ -74,7 +73,7 @@ if ($data = $mform->get_data()) { // search executed from submitting form
     $fq_from = $data->searchfromtime;
     $fq_till = $data->searchtilltime;
     unset($data->submitbutton);
-    $results = $search_function($client, $data);
+    $results = $search_function($data);
 }
 
 $urlparams = array('search' => $search, 'fq_title' => $fq_title, 'fq_author' => $fq_author,

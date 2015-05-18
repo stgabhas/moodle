@@ -62,11 +62,36 @@ class global_search_engine {
     public function delete_by_query($query) {
         return $this->client->deleteByQuery($query);
     }
-
 }
 
-function solr_check_server(global_search_engine $client) {
+function solr_add_document($doc) {
+    $client = solr_get_search_client();
+    return $this->client->addDocument($doc);
+}
+
+function solr_commit() {
+    $client = solr_get_search_client();
+    return $this->client->commit();
+}
+
+function solr_optimize() {
+    $client = solr_get_search_client();
+    return $this->client->optimize();
+}
+
+function solr_delete_by_id($id) {
+    $client = solr_get_search_client();
+    return $this->client->deleteById($id);
+}
+
+function solr_delete_by_query($query) {
+    $client = solr_get_search_client();
+    return $this->client->deleteByQuery($query);
+}
+
+function solr_check_server() {
     try {
+        $client = solr_get_search_client();
         $client->ping();
         return 1;
     } catch (SolrClientException $ex) {

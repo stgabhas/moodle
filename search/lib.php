@@ -115,29 +115,39 @@ function search_get_iterators($requireconfig = true) {
 
 /**
  * Merge separate index segments into one.
- * @param global_search_engine $client
  */
-function search_optimize_index(global_search_engine $client) {
-    $client->optimize();
+function search_optimize_index() {
+    global $CFG;
+    $search_engine_optimize = $CFG->search_engine . '_optimize';
+    $search_engine_optimize();
 }
 
 /**
  * Index all documents.
- * @param global_search_engine $client
  */
-function search_index(global_search_engine $client) {
+function search_index() {
+    global $CFG;
+    $search_engine_add_document = $CFG->search_engine . '_add_document';
+    $search_engine_commit = $CFG->search_engine . '_commit';
+
     set_time_limit(576000);
     $iterators = search_get_iterators();
     foreach ($iterators as $name => $iterator) {
+
         mtrace('Processing module ' . $iterator->module);
         $indexingstart = time();
+
         $iterfunction = $iterator->iterator;
         $getdocsfunction = $iterator->documents;
+
         $lastindexrun = get_config('search', $name . '_lastindexrun');
+
         $recordset = $iterfunction($lastindexrun);
+
         $numrecords = 0;
         $numdocs = 0;
         $numdocsignored = 0;
+
         foreach ($recordset as $record) {
             ++$numrecords;
             $timestart = microtime(true);
@@ -146,7 +156,7 @@ function search_index(global_search_engine $client) {
             foreach ($documents as $document) {
                 switch (($document->getField('type')->values[0])) {
                     case SEARCH_TYPE_HTML:
-                        $client->add_document($document);
+                        $search_engine_add_document($document);
                         ++$numdocs;
                         break;
                     default:
@@ -158,7 +168,7 @@ function search_index(global_search_engine $client) {
         }
         $recordset->close();
         if ($numrecords > 0) {
-            $client->commit();
+            $search_engine_commit();
             $indexingend = time();
             set_config($name . '_indexingstart', $indexingstart, 'search');
             set_config($name . '_indexingend', $indexingend, 'search');
@@ -173,10 +183,10 @@ function search_index(global_search_engine $client) {
 
 /**
  * Index all Rich Document files.
- * @param global_search_engine $client
  */
-function search_index_files(global_search_engine $client) {
+function search_index_files() {
     global $CFG;
+
     set_time_limit(576000);
     $mod_file = array(
                 'lesson' => 'lesson',
@@ -202,7 +212,8 @@ function search_index_files(global_search_engine $client) {
     }
     $timetaken = microtime(true) - $timestart;
     mtrace("Time : $timetaken");
-    $client->commit();
+    $search_engine_commit = $CFG->search_engine . '_commit';
+    $search_engine_commit();
 }
 
 
@@ -236,28 +247,33 @@ function search_reset_config($s = null) {
 
 /**
  * Deletes index.
- * @param global_search_engine $client
  * @param stdClass object $data
  */
-function search_delete_index(global_search_engine $client, $data) {
+function search_delete_index($data) {
+    global $CFG;
+    $search_engine_delete_by_query = $CFG->search_engine . '_delete_by_query';
+
     if (!empty($data->module)) {
-        $client->delete_by_query('module:' . $data->module);
+        $search_engine_delete_by_query('module:' . $data->module);
         search_reset_config($data->module);
     } else {
-        $client->delete_by_query('*:*');
+        $search_engine_delete_by_query('*:*');
         search_reset_config();
     }
-    $client->commit();
+    $search_engine_commit = $CFG->search_engine . '_commit';
+    $search_engine_commit();
 }
 
 /**
  * Deletes index by id.
- * @param global_search_engine $client object
  * @param Solr Document string $id
  */
-function search_delete_index_by_id(global_search_engine $client, $id) {
-    $client->delete_by_id($id);
-    $client->commit();
+function search_delete_index_by_id($id) {
+    global $CFG;
+    $search_engine_delete_by_id = $CFG->search_engine . '_delete_by_query';
+    $search_engine_delete_by_id($id);
+    $search_engine_commit = $CFG->search_engine . '_commit';
+    $search_engine_commit();
 }
 
 /**

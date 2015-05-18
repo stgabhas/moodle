@@ -1170,7 +1170,10 @@ $string['cacheapplicationhelp'] = 'Cached items are shared among all users and e
 /* Global Search admin settings page string values */
 $string['activatemods'] = 'Activate Modules';
 $string['choosesearchengine'] = 'Choose Search Engine';
-$string['choosesearchengine_desc'] = 'Choose your preferred Search Engine. Currently, Global Search supports only Apache Solr.';
+$string['choosesearchengine_desc'] = 'Choose your preferred Search Engine. Currently, Global Search supports Apache Solr and Elastic Search.';
+$string['elasticsearchsetting'] = 'Elastic Search Settings';
+$string['elasticsearch_serverhostname'] = 'Elastic Search Server';
+$string['elasticsearch_serverhostname_desc'] = 'Hostname (full URL, with port number) of the Elastic Search service';
 $string['enableglobalsearch'] = 'Enable Global Search';
 $string['enableglobalsearch_desc'] = 'Enable Global Search feature in Moodle.<br /><br />You must have atleast one search engine functionality installed. See <a href="http://docs.moodle.org/dev/Global_search" target="_new">Moodle Global Search docs</a> for full details.';
 $string['globalsearch'] = 'Global Search';

@@ -30,13 +30,14 @@ require_once($CFG->libdir . '/enrollib.php');
 
 /**
  * Completely prepares a solr query request and executes it.
- * @param global_search_engine $client object.
  * @param object $data containing query and filters.
  * @return mixed array $results containing search results, if found, or
  *              string $results containing an error message.
  */
-function solr_execute_query(global_search_engine $client, $data) {
-    global $USER;
+function solr_execute_query($data) {
+    global $USER, $CFG;
+    $search_engine_get_search_client = $CFG->search_engine . '_get_search_client';
+    $client = $search_engine_get_search_client();
 
     if (!solr_check_server($client)) {
         return 'Solr Jetty Server is not running!';
@@ -213,7 +214,7 @@ function solr_query_response(global_search_engine $client, $query_response) {
                 $acc = $access_func($solr_id[1]);
                 switch ($acc) {
                     case SEARCH_ACCESS_DELETED:
-                        search_delete_index_by_id($client, $value->id);
+                        search_delete_index_by_id($value->id);
                         unset($docs[$key]);
                         break;
                     case SEARCH_ACCESS_DENIED:
