@@ -489,7 +489,8 @@ class assign {
                 $nextpageparams['action'] = 'grading';
             }
         } else if ($action == 'quickgrade') {
-            $message = $this->process_save_quick_grades();
+            $gradingerror = false;
+            $message = $this->process_save_quick_grades($gradingerror);
             $action = 'quickgradingresult';
         } else if ($action == 'saveoptions') {
             $this->process_save_grading_options();
@@ -521,7 +522,7 @@ class assign {
             $o .= $this->view_savegrading_result($message);
         } else if ($action == 'quickgradingresult') {
             $mform = null;
-            $o .= $this->view_quickgrading_result($message);
+            $o .= $this->view_quickgrading_result($message, $gradingerror);
         } else if ($action == 'grade') {
             $o .= $this->view_single_grade_page($mform);
         } else if ($action == 'viewpluginassignfeedback') {
@@ -2502,7 +2503,7 @@ class assign {
      * @param string $message - The message to display.
      * @return string
      */
-    protected function view_quickgrading_result($message) {
+    protected function view_quickgrading_result($message, $gradingerror = false) {
         $o = '';
         $o .= $this->get_renderer()->render(new assign_header($this->get_instance(),
                                                       $this->get_context(),
@@ -2513,7 +2514,7 @@ class assign {
         $gradingresult = new assign_gradingmessage(get_string('quickgradingresult', 'assign'),
                                                    $message,
                                                    $this->get_course_module()->id,
-                                                   false,
+                                                   $gradingerror,
                                                    $lastpage);
         $o .= $this->get_renderer()->render($gradingresult);
         $o .= $this->view_footer();
@@ -5254,9 +5255,10 @@ class assign {
     /**
      * Save quick grades.
      *
+     * @param bool $gradingerror It is set true if any grade could not be updated
      * @return string The result of the save operation
      */
-    protected function process_save_quick_grades() {
+    protected function process_save_quick_grades(&$gradingerror = false) {
         global $USER, $DB, $CFG;
 
         // Need grade permission.
@@ -5267,6 +5269,7 @@ class assign {
         $gradingmanager = get_grading_manager($this->get_context(), 'mod_assign', 'submissions');
         $controller = $gradingmanager->get_active_controller();
         if (!empty($controller)) {
+            $gradingerror = true;
             return get_string('errorquickgradingvsadvancedgrading', 'assign');
         }
 
@@ -5299,6 +5302,7 @@ class assign {
         }
 
         if (empty($users)) {
+            $gradingerror = true;
             return get_string('nousersselected', 'assign');
         }
 
@@ -5352,6 +5356,7 @@ class assign {
                     // handle hidden columns.
                     if ($plugin->is_quickgrading_modified($modified->userid, $grade)) {
                         if ((int)$current->lastmodified > (int)$modified->lastmodified) {
+                            $gradingerror = true;
                             return get_string('errorrecordmodified', 'assign');
                         } else {
                             $modifiedusers[$modified->userid] = $modified;
@@ -5385,6 +5390,7 @@ class assign {
                 }
                 if ((int)$current->lastmodified > (int)$modified->lastmodified) {
                     // Error - record has been modified since viewing the page.
+                    $gradingerror = true;
                     return get_string('errorrecordmodified', 'assign');
                 } else {
                     $modifiedusers[$modified->userid] = $modified;
@@ -5397,6 +5403,7 @@ class assign {
         $adminconfig = $this->get_admin_config();
         $gradebookplugin = $adminconfig->feedback_plugin_for_gradebook;
 
+        $gradeupdateok = true;
         // Ok - ready to process the updates.
         foreach ($modifiedusers as $userid => $modified) {
             $grade = $this->get_user_grade($userid, true);
@@ -5437,7 +5444,8 @@ class assign {
                     \mod_assign\event\workflow_state_updated::create_from_user($this, $user, $flags->workflowstate)->trigger();
                 }
             }
-            $this->update_grade($grade);
+            // Track any errors to inform at the end.
+            $gradeupdateok  = $gradeupdateok && $this->update_grade($grade);
 
             // Allow teachers to skip sending notifications.
             if (optional_param('sendstudentnotifications', true, PARAM_BOOL)) {
@@ -5469,7 +5477,13 @@ class assign {
             }
         }
 
-        return get_string('quickgradingchangessaved', 'assign');
+        if ($gradeupdateok) {
+            $gradingerror = false;
+            return get_string('quickgradingchangessaved', 'assign');
+        } else {
+            $gradingerror = true;
+            return get_string('quickgradingerror', 'assign');
+        }
     }
 
     /**

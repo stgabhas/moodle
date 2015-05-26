@@ -316,6 +316,7 @@ $string['preventsubmissions'] = 'Prevent the user from making any more submissio
 $string['preventsubmissionsshort'] = 'Prevent submission changes';
 $string['previous'] = 'Previous';
 $string['quickgrading'] = 'Quick grading';
+$string['quickgradingerror'] = 'There was a problem while saving changes.';
 $string['quickgradingresult'] = 'Quick grading';
 $string['quickgradingchangessaved'] = 'The grade changes were saved';
 $string['quickgrading_help'] = 'Quick grading allows you to assign grades (and outcomes) directly in the submissions table. Quick grading is not compatible with advanced grading and is not recommended when there are multiple markers.';
