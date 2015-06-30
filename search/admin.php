@@ -117,13 +117,12 @@ echo html_writer::table($gstable);
 echo $OUTPUT->container_start();
 echo $OUTPUT->box_start();
 
-$search_engine_get_search_client = $CFG->search_engine . '_get_search_client';
 $search_engine_installed = $CFG->search_engine . '_installed';
 $search_engine_check_server = $CFG->search_engine . '_check_server';
-if ($search_engine_installed() && ($client = $search_engine_get_search_client()) && $search_engine_check_server($client)) {
-    echo 'Solr Server is not running or properly configured!';
-} else {
+if ($search_engine_installed() && $search_engine_check_server()) {
     echo $mform->display();
+} else {
+    echo 'Search Engine is not running or properly configured!';
 }
 
 echo $OUTPUT->box_end();
