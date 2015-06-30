@@ -65,6 +65,10 @@ class global_search_engine {
 }
 
 function solr_add_document($doc) {
+    $solrdoc = new SolrInputDocument();
+    foreach ($doc as $field => $value) {
+        $doc->addField($field, $value);
+    }
     $client = solr_get_search_client();
     return $this->client->addDocument($doc);
 }

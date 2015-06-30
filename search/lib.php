@@ -86,8 +86,8 @@ function search_get_iterators($requireconfig = true) {
     // Modules
     $mods = search_get_modules($requireconfig);
     foreach ($mods as $mod) {
-        if (file_exists("$CFG->dirroot/mod/{$mod->name}/lib.php")) {
-            include_once("$CFG->dirroot/mod/{$mod->name}/lib.php");
+        if (file_exists("$CFG->dirroot/mod/{$mod->name}/db/search.php")) {
+            include_once("$CFG->dirroot/mod/{$mod->name}/db/search.php");
             if (!function_exists($mod->name . '_search_iterator')) {
                 throw new coding_exception('Module supports GLOBAL_SEARCH but function \'' .
                                             $mod->name . '_search_iterator' . '\' is missing.');
@@ -127,6 +127,7 @@ function search_optimize_index() {
  */
 function search_index() {
     global $CFG;
+
     $search_engine_add_document = $CFG->search_engine . '_add_document';
     $search_engine_commit = $CFG->search_engine . '_commit';
 
@@ -154,7 +155,7 @@ function search_index() {
             $documents = $getdocsfunction($record->id);
 
             foreach ($documents as $document) {
-                switch (($document->getField('type')->values[0])) {
+                switch ($document['type']) {
                     case SEARCH_TYPE_HTML:
                         $search_engine_add_document($document);
                         ++$numdocs;
@@ -206,6 +207,7 @@ function search_index_files() {
     foreach ($mod_file as $mod => $name) {
         mtrace('Indexing files for module ' . $name);
         $lastindexrun = search_get_config_file($name);
+        require_once($CFG->dirroot.'/mod/'.$name.'/db/search.php');
         $indexfunction = $name . '_search_files';
         // This the the indexing function for indexing rich documents. config settings will be updated inside this function only.
         $indexfunction($lastindexrun);
@@ -215,7 +217,6 @@ function search_index_files() {
     $search_engine_commit = $CFG->search_engine . '_commit';
     $search_engine_commit();
 }
-
 
 /**
  * Resets config_plugin table after index deletion as re-indexing will be done from start.
