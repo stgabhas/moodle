@@ -1399,16 +1399,17 @@ class restore_section_structure_step extends restore_structure_step {
                     (object)array('showavailability' => $data->showavailability));
         }
 
-        // Commented out. We never modify course->numsections as far as that is used
-        // by a lot of people to "hide" sections on purpose (so this remains as used to be in Moodle 1.x)
-        // Note: We keep the code here, to know about and because of the possibility of making this
-        // optional based on some setting/attribute in the future
-        // If needed, adjust course->numsections
-        //if ($numsections = $DB->get_field('course', 'numsections', array('id' => $this->get_courseid()))) {
-        //    if ($numsections < $section->section) {
-        //        $DB->set_field('course', 'numsections', $section->section, array('id' => $this->get_courseid()));
-        //    }
-        //}
+        // If needed, adjust course->numsections .
+        $equalizenumsections = get_config('backup', 'restore_equalize_numsections');
+        if ($equalizenumsections) {
+            if ($course_format_option = $DB->get_record('course_format_options',
+                                                        array('courseid' => $this->get_courseid(),
+                                                              'name' => 'numsections'))) {
+                if ($course_format_option->value < $section->section) {
+                    $DB->set_field('course_format_options', 'value', $section->section, array('id' => $course_format_option->id));
+                }
+            }
+        }
     }
 
     /**
