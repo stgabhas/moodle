@@ -202,6 +202,17 @@ if ($hassiteconfig or has_any_capability($capabilities, $systemcontext)) {
 
     $ADMIN->add('backups', $temp);
 
+    // Create a page for general restore configuration and defaults.
+    $temp = new admin_settingpage('restoregeneralsettings',
+                                  new lang_string('generalrestoredefaults', 'backup'),
+                                  'moodle/restore:restorecourse');
+
+    $temp->add(new admin_setting_configcheckbox_with_lock('backup/restore_equalize_numsections',
+                                                          new lang_string('equalizenumsections', 'backup'),
+                                                          new lang_string('configrestoreequalizenumsections', 'backup'),
+                                                          array('value' => 0, 'locked' => 0)));
+    $ADMIN->add('backups', $temp);
+
     // Create a page for general import configuration and defaults.
     $temp = new admin_settingpage('importgeneralsettings', new lang_string('importgeneralsettings', 'backup'), 'moodle/backup:backupcourse');
     $temp->add(new admin_setting_configtext('backup/import_general_maxresults', new lang_string('importgeneralmaxresults', 'backup'), new lang_string('importgeneralmaxresults_desc', 'backup'), 10));
