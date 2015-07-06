@@ -33,3 +33,7 @@ function elasticsearch_commit() {
 
 function elasticsearch_optimize() {
 }
+
+function elasticsearch_post_file() {
+    // TODO
+}

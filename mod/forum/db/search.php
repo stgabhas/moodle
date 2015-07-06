@@ -34,21 +34,21 @@ function forum_search_get_documents($id) {
     $contextlink = '/mod/forum/discuss.php?d=' . $post->discussion . '#p' . $post->id;
     $modulelink = '/mod/forum/view.php?id=' . $cm->id;
 
-    // Declare a new Solr Document and insert fields into it from DB
-    $doc = new SolrInputDocument();
-    $doc->addField('type', SEARCH_TYPE_HTML);
-    $doc->addField('id', 'forum_' . $post->id);
-    $doc->addField('user', $user->firstname . ' ' . $user->lastname);
-    $doc->addField('created', gmdate('Y-m-d\TH:i:s\Z', $post->created));
-    $doc->addField('modified', gmdate('Y-m-d\TH:i:s\Z', $post->modified));
-    $doc->addField('intro', strip_tags($forum->intro));
-    $doc->addField('name', $forum->name);
-    $doc->addField('title', $post->subject);
-    $doc->addField('content', strip_tags($post->message));
-    $doc->addField('courseid', $forum->course);
-    $doc->addField('contextlink', $contextlink);
-    $doc->addField('modulelink', $modulelink);
-    $doc->addField('module', 'forum');
+    // Prepare associative array with data from DB.
+    $doc = array();
+    $doc['type'] = SEARCH_TYPE_HTML;
+    $doc['id']          = 'forum_' . $post->id;
+    $doc['user']        = $user->firstname . ' ' . $user->lastname;
+    $doc['created']     = gmdate('Y-m-d\TH:i:s\Z', $post->created);
+    $doc['modified']    = gmdate('Y-m-d\TH:i:s\Z', $post->modified);
+    $doc['intro']       = strip_tags($forum->intro);
+    $doc['name']        = $forum->name;
+    $doc['title']       = $post->subject;
+    $doc['content']     = strip_tags($post->message);
+    $doc['courseid']    = $forum->course;
+    $doc['contextlink'] = $contextlink;
+    $doc['modulelink']  = $modulelink;
+    $doc['module']      = 'forum';
     $docs[] = $doc;
 
     $fs = get_file_storage();

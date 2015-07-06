@@ -30,20 +30,20 @@ function wiki_search_get_documents($id) {
 
     $contextlink = '/mod/wiki/view.php?pageid=' . $wikipage->id;
 
-    // Declare a new Solr Document and insert fields into it from DB
-    $doc = new SolrInputDocument();
-    $doc->addField('type', SEARCH_TYPE_HTML);
-    $doc->addField('id', 'wiki_' . $wikipage->id);
-    $doc->addField('created', gmdate('Y-m-d\TH:i:s\Z', $wikipage->timecreated));
-    $doc->addField('modified', gmdate('Y-m-d\TH:i:s\Z', $wikipage->timemodified));
-    $doc->addField('intro', strip_tags($wiki->intro));
-    $doc->addField('name', $wiki->name);
-    $doc->addField('content', strip_tags($wikipage->cachedcontent));
-    $doc->addField('title', $wikipage->title);
-    $doc->addField('courseid', $wiki->course);
-    $doc->addField('contextlink', $contextlink);
-    $doc->addField('modulelink', '/mod/wiki/view.php?id=' . $cm->id);
-    $doc->addField('module', 'wiki');
+    // Prepare associative array with data from DB.
+    $doc = array();
+    $doc['type'] = SEARCH_TYPE_HTML;
+    $doc['id']          = 'wiki_' . $wikipage->id;
+    $doc['created']     = gmdate('Y-m-d\TH:i:s\Z', $wikipage->timecreated);
+    $doc['modified']    = gmdate('Y-m-d\TH:i:s\Z', $wikipage->timemodified);
+    $doc['intro']       = strip_tags($wiki->intro);
+    $doc['name']        = $wiki->name;
+    $doc['content']     = strip_tags($wikipage->cachedcontent);
+    $doc['title']       = $wikipage->title;
+    $doc['courseid']    = $wiki->course;
+    $doc['contextlink'] = $contextlink;
+    $doc['modulelink']  = '/mod/wiki/view.php?id=' . $cm->id;
+    $doc['module']      = 'wiki';
     $docs[] = $doc;
 
     return $docs;

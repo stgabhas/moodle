@@ -26,17 +26,17 @@ function label_search_get_documents($id) {
         return $docs;
     }
 
-    // Declare a new Solr Document and insert fields into it from DB
-    $doc = new SolrInputDocument();
-    $doc->addField('type', SEARCH_TYPE_HTML);
-    $doc->addField('id', 'label_' . $label->id);
-    $doc->addField('modified', gmdate('Y-m-d\TH:i:s\Z', $label->timemodified));
-    $doc->addField('intro', strip_tags($label->intro));
-    $doc->addField('name', $label->name);
-    $doc->addField('courseid', $label->course);
-    $doc->addField('contextlink', '/course/view.php?id=' . $label->course);
-    $doc->addField('modulelink', '/course/view.php?id=' . $label->course);
-    $doc->addField('module', 'label');
+    // Prepare associative array with data from DB.
+    $doc = array();
+    $doc['type'] = SEARCH_TYPE_HTML;
+    $doc['id']          = 'label_' . $label->id;
+    $doc['modified']    = gmdate('Y-m-d\TH:i:s\Z', $label->timemodified);
+    $doc['intro']       = strip_tags($label->intro);
+    $doc['name']        = $label->name;
+    $doc['courseid']    = $label->course;
+    $doc['contextlink'] = '/course/view.php?id=' . $label->course;
+    $doc['modulelink']  = '/course/view.php?id=' . $label->course;
+    $doc['module']      = 'label';
     $docs[] = $doc;
 
     return $docs;

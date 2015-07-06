@@ -29,17 +29,17 @@ function resource_search_get_documents($id) {
     $contextlink = '/mod/resource/view.php?r=' . $resource->id;
     $modulelink = '/mod/resource/view.php?id=' . $cm->id;
 
-    // Declare a new Solr Document and insert fields into it from DB
-    $doc = new SolrInputDocument();
-    $doc->addField('type', SEARCH_TYPE_HTML);
-    $doc->addField('id', 'resource_' . $resource->id);
-    $doc->addField('modified', gmdate('Y-m-d\TH:i:s\Z', $resource->timemodified));
-    $doc->addField('intro', strip_tags($resource->intro));
-    $doc->addField('name', $resource->name);
-    $doc->addField('courseid', $resource->course);
-    $doc->addField('contextlink', $contextlink);
-    $doc->addField('modulelink', $modulelink);
-    $doc->addField('module', 'resource');
+    // Prepare associative array with data from DB.
+    $doc = array();
+    $doc['type'] = SEARCH_TYPE_HTML;
+    $doc['id']          = 'resource_' . $resource->id;
+    $doc['modified']    = gmdate('Y-m-d\TH:i:s\Z', $resource->timemodified);
+    $doc['intro']       = strip_tags($resource->intro);
+    $doc['name']        = $resource->name;
+    $doc['courseid']    = $resource->course;
+    $doc['contextlink'] = $contextlink;
+    $doc['modulelink']  = $modulelink;
+    $doc['module']      = 'resource';
     $docs[] = $doc;
 
     $fs = get_file_storage();

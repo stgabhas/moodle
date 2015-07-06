@@ -27,20 +27,20 @@ function book_search_get_documents($id) {
         return $docs;
     }
 
-    // Declare a new Solr Document and insert fields into it from DB
-    $doc = new SolrInputDocument();
-    $doc->addField('id', 'book_' . $chapter->id);
-    $doc->addField('created', gmdate('Y-m-d\TH:i:s\Z', $chapter->timecreated));
-    $doc->addField('modified', gmdate('Y-m-d\TH:i:s\Z', $chapter->timemodified));
-    $doc->addField('name', $book->name);
-    $doc->addField('intro', strip_tags($book->intro));
-    $doc->addField('title', $chapter->title);
-    $doc->addField('content', strip_tags($chapter->content));
-    $doc->addField('type', SEARCH_TYPE_HTML);
-    $doc->addField('courseid', $book->course);
-    $doc->addField('contextlink', '/mod/book/view.php?id=' . $cm->id .'&chapterid=' . $book->id);
-    $doc->addField('modulelink', '/mod/book/view.php?id=' . $cm->id);
-    $doc->addField('module', 'book');
+    // Prepare associative array with data from DB.
+    $doc = array();
+    $doc['type'] = SEARCH_TYPE_HTML;
+    $doc['id']          = 'book_' . $chapter->id;
+    $doc['created']     = gmdate('Y-m-d\TH:i:s\Z', $chapter->timecreated);
+    $doc['modified']    = gmdate('Y-m-d\TH:i:s\Z', $chapter->timemodified);
+    $doc['name']        = $book->name;
+    $doc['intro']       = strip_tags($book->intro);
+    $doc['title']       = $chapter->title;
+    $doc['content']     = strip_tags($chapter->content);
+    $doc['courseid']    = $book->course;
+    $doc['contextlink'] = '/mod/book/view.php?id=' . $cm->id .'&chapterid=' . $book->id;
+    $doc['modulelink']  = '/mod/book/view.php?id=' . $cm->id;
+    $doc['module']      = 'book';
     $docs[] = $doc;
 
     return $docs;

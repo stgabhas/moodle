@@ -26,18 +26,18 @@ function url_search_get_documents($id) {
         return $docs;
     }
 
-    // Declare a new Solr Document and insert fields into it from DB
-    $doc = new SolrInputDocument();
-    $doc->addField('type', SEARCH_TYPE_HTML);
-    $doc->addField('id', 'url_' . $url->id);
-    $doc->addField('modified', gmdate('Y-m-d\TH:i:s\Z', $url->timemodified));
-    $doc->addField('intro', strip_tags($url->intro));
-    $doc->addField('name', $url->name);
-    $doc->addField('content', $url->externalurl);
-    $doc->addField('courseid', $url->course);
-    $doc->addField('contextlink', '/mod/url/view.php?id=' . $cm->id);
-    $doc->addField('modulelink', '/mod/url/view.php?id=' . $cm->id);
-    $doc->addField('module', 'url');
+    // Prepare associative array with data from DB.
+    $doc = array();
+    $doc['type'] = SEARCH_TYPE_HTML;
+    $doc['id']          = 'url_' . $url->id;
+    $doc['modified']    = gmdate('Y-m-d\TH:i:s\Z', $url->timemodified);
+    $doc['intro']       = strip_tags($url->intro);
+    $doc['name']        = $url->name;
+    $doc['content']     = $url->externalurl;
+    $doc['courseid']    = $url->course;
+    $doc['contextlink'] = '/mod/url/view.php?id=' . $cm->id;
+    $doc['modulelink']  = '/mod/url/view.php?id=' . $cm->id;
+    $doc['module']      = 'url';
     $docs[] = $doc;
 
     return $docs;

@@ -31,21 +31,21 @@ function glossary_search_get_documents($id) {
     $contextlink = '/mod/glossary/showentry.php?eid=' . $glossary->id;
     $modulelink = '/mod/glossary/view.php?id=' . $cm->id;
 
-    // Declare a new Solr Document and insert fields into it from DB
-    $doc = new SolrInputDocument();
-    $doc->addField('type', SEARCH_TYPE_HTML);
-    $doc->addField('id', 'glossary_' . $glossaryentry->id);
-    $doc->addField('user', $user->firstname . ' ' . $user->lastname);
-    $doc->addField('created', gmdate('Y-m-d\TH:i:s\Z', $glossaryentry->timecreated));
-    $doc->addField('modified', gmdate('Y-m-d\TH:i:s\Z', $glossaryentry->timemodified));
-    $doc->addField('intro', strip_tags($glossary->intro));
-    $doc->addField('name', $glossary->name);
-    $doc->addField('content', strip_tags($glossaryentry->definition));
-    $doc->addField('title', $glossaryentry->concept);
-    $doc->addField('courseid', $glossary->course);
-    $doc->addField('contextlink', $contextlink);
-    $doc->addField('modulelink', $modulelink);
-    $doc->addField('module', 'glossary');
+    // Prepare associative array with data from DB.
+    $doc = array();
+    $doc['type'] = SEARCH_TYPE_HTML;
+    $doc['id']          = 'glossary_' . $glossaryentry->id;
+    $doc['user']        = $user->firstname . ' ' . $user->lastname;
+    $doc['created']     = gmdate('Y-m-d\TH:i:s\Z', $glossaryentry->timecreated);
+    $doc['modified']    = gmdate('Y-m-d\TH:i:s\Z', $glossaryentry->timemodified);
+    $doc['intro']       = strip_tags($glossary->intro);
+    $doc['name']        = $glossary->name;
+    $doc['content']     = strip_tags($glossaryentry->definition);
+    $doc['title']       = $glossaryentry->concept;
+    $doc['courseid']    = $glossary->course;
+    $doc['contextlink'] = $contextlink;
+    $doc['modulelink']  = $modulelink;
+    $doc['module']      = 'glossary';
     $docs[] = $doc;
 
     $fs = get_file_storage();

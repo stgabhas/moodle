@@ -31,7 +31,6 @@ function lesson_search_get_documents($id) {
         return $docs;
     }
 
-    // Declare a new Solr Document and insert fields into it from DB
     // Prepare associative array with data from DB.
     $doc = array();
     $doc['type'] = SEARCH_TYPE_HTML;
