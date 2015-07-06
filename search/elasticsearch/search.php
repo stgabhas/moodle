@@ -5,15 +5,22 @@ function elasticsearch_execute_query($data) {
 
     $url = $CFG->elasticsearch_server_hostname.'/moodle/_search?pretty';
 
-    $jsonsearch =
-    '{
-          "query": { "match": { "content": "'.$data->queryfield.'" } }
-    }';
+    $search = array('query' => array('bool' => array('must' => array(array('match' => array('content' => $data->queryfield))))));
+    if (!empty($data->titlefilterqueryfield)) {
+        $search['query']['bool']['must'][] = array('match' => array('title' => $data->titlefilterqueryfield));
+    }
+    if (!empty($data->authorfilterqueryfield)) {
+        $search['query']['bool']['should'][] = array('match' => array('author' => $data->authorfilterqueryfield));
+        $search['query']['bool']['should'][] = array('match' => array('user' => $data->authorfilterqueryfield));
+    }
+    if (!empty($data->modulefilterqueryfield)) {
+        $search['query']['bool']['must'][] = array('match' => array('module' => $data->modulefilterqueryfield));
+    }
 
     $c = new curl();
-    $results = json_decode($c->post($url, $jsonsearch));
+    $results = json_decode($c->post($url, json_encode($search)));
     $docs = array();
-    if ($results && $results->hits->total)  {
+    if (isset($results->hits))  {
         $numgranted = 0;
         foreach ($results->hits->hits as $r) {
             $sourceid = explode('_', $r->_source->id);
@@ -30,12 +37,17 @@ function elasticsearch_execute_query($data) {
                     case SEARCH_ACCESS_DENIED:
                         break;
                     case SEARCH_ACCESS_GRANTED:
+                        if (!isset($r->_source->author)) {
+                            $r->_source->author = array($r->_source->user);
+                        }
                         $docs[] = $r->_source;
                         $numgranted++;
                         break;
                 }
             }
         }
+    } else {
+        return $results->error;
     }
     return $docs;
 }

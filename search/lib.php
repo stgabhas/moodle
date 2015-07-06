@@ -418,6 +418,7 @@ function search_display_results($result) {
     $s .= html_writer::end_tag('div'); // End.
 
     echo $s;
+    echo '<hr/>';
     $OUTPUT->box_end();
 }
 
@@ -432,7 +433,11 @@ function search_get_user_url($fullname) {
     try {
         $username = explode(' ', $fullname);
         if (count($username) == 2) {
-            $userdata = $DB->get_record('user', array('firstname' => $username[0], 'lastname' => $username[1]), 'id', MUST_EXIST);
+            $userdata = $DB->get_records('user',
+                                         array('firstname' => $username[0],
+                                               'lastname' => $username[1]),
+                                         'id', 'username,id');
+            $userdata = array_pop($userdata);
             $url = new moodle_url('/user/profile.php?id=' . $userdata->id);
         }
     } catch (dml_missing_record_exception $ex) {
