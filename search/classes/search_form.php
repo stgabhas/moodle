@@ -37,7 +37,6 @@ class core_search_search_form extends moodleform {
         $mform->setType('queryfield', PARAM_TEXT);
         $mform->addRule('queryfield', get_string('emptyqueryfield', 'search'), 'required', null, 'client');
 
-        // -------------------------------------------------------
         $mform->addElement('header', 'filterquerysection', get_string('filterqueryheader', 'search'));
         $mform->addElement('text', 'titlefilterqueryfield', get_string('titlefilterquery', 'search'));
         $mform->setType('titlefilterqueryfield', PARAM_TEXT);

@@ -26,13 +26,13 @@ require_once('../config.php');
 require_once($CFG->dirroot . '/search/lib.php');
 require_once($CFG->dirroot . '/search/locallib.php');
 
-$page = optional_param('page', 0, PARAM_INT);
-$search = trim(optional_param('search', '', PARAM_NOTAGS));
-$fq_title = trim(optional_param('fq_title', '', PARAM_NOTAGS));
+$page      = optional_param('page', 0, PARAM_INT);
+$search    = trim(optional_param('search', '', PARAM_NOTAGS));
+$fq_title  = trim(optional_param('fq_title', '', PARAM_NOTAGS));
 $fq_author = trim(optional_param('fq_author', '', PARAM_NOTAGS));
 $fq_module = trim(optional_param('fq_module', '0', PARAM_NOTAGS));
-$fq_from = optional_param('fq_from', 0, PARAM_INT);
-$fq_till = optional_param('fq_till', 0, PARAM_INT);
+$fq_from   = optional_param('fq_from', 0, PARAM_INT);
+$fq_till   = optional_param('fq_till', 0, PARAM_INT);
 
 $PAGE->set_context(context_system::instance());
 $PAGE->set_pagelayout('standard');
@@ -41,9 +41,6 @@ $PAGE->set_heading(get_string('globalsearch', 'search'));
 
 require_login();
 
-$mform = new core_search_search_form();
-$data = new stdClass();
-
 require_once($CFG->dirroot . '/search/' . $CFG->search_engine . '/lib.php');
 $search_engine_installed = $CFG->search_engine . '_installed';
 $search_engine_check_server = $CFG->search_engine . '_check_server';
@@ -51,55 +48,16 @@ if (!$search_engine_installed() || !$search_engine_check_server()) {
     redirect('/search/install.php');
 }
 
-require_once($CFG->dirroot . '/search/' . $CFG->search_engine . '/search.php');
-$search_function = $CFG->search_engine . '_execute_query';
-
-if (!empty($search)) { // search executed from URL params
-    $data->queryfield = $search;
-    $data->titlefilterqueryfield = $fq_title;
-    $data->authorfilterqueryfield = $fq_author;
-    $data->modulefilterqueryfield = $fq_module;
-    $data->searchfromtime = $fq_from;
-    $data->searchtilltime = $fq_till;
-    $mform->set_data($data);
-    $results = $search_function($data);
-}
-
-if ($data = $mform->get_data()) { // search executed from submitting form
-    $search = $data->queryfield;
-    $fq_title = $data->titlefilterqueryfield;
-    $fq_author = $data->authorfilterqueryfield;
-    $fq_module = $data->modulefilterqueryfield;
-    $fq_from = $data->searchfromtime;
-    $fq_till = $data->searchtilltime;
-    unset($data->submitbutton);
-    $results = $search_function($data);
-}
-
 $urlparams = array('search' => $search, 'fq_title' => $fq_title, 'fq_author' => $fq_author,
                     'fq_module' => $fq_module, 'fq_from' => $fq_from, 'fq_till' => $fq_till,  'page' => $page);
 $url = new moodle_url('/search/index.php', $urlparams);
+
 $PAGE->set_url($url);
 
-echo $OUTPUT->header();
+$searchrenderer = $PAGE->get_renderer('core', 'search');
 
-$mform->display();
+$content = $searchrenderer->index($url, $page, $search, $fq_title, $fq_author, $fq_module, $fq_from, $fq_till);
 
-if (!empty($results) and $CFG->enableglobalsearch) {
-    if (is_array($results)) {
-        $perpage = SEARCH_DISPLAY_RESULTS_PER_PAGE;
-        echo 'Total accessible records: ' . count($results);
-        echo $OUTPUT->paging_bar(count($results), $page, $perpage, $url);
-        $hits = array_slice($results, $page*$perpage, $perpage, true);
-        foreach ($hits as $hit) {
-            search_display_results($hit);
-        }
-        echo $OUTPUT->paging_bar(count($results), $page, $perpage, $url);
-    } else {
-        echo $results;
-    }
-} else if (!$CFG->enableglobalsearch) {
-    echo 'Global Search has been disabled.';
-}
-
-echo $OUTPUT->footer();
+echo $OUTPUT->header(),
+     $content,
+     $OUTPUT->footer();

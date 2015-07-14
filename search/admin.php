@@ -30,10 +30,9 @@ require_once($CFG->dirroot . '/search/' . $CFG->search_engine . '/search.php');
 require_once($CFG->dirroot . '/search/lib.php');
 
 admin_externalpage_setup('statistics');
+
 $PAGE->set_title(get_string('globalsearch', 'search'));
 $PAGE->set_heading(get_string('globalsearch', 'search'));
-
-global $DB;
 
 require_capability('moodle/site:config', context_system::instance());
 
@@ -43,88 +42,10 @@ if (!$search_engine_installed()) {
     exit();
 }
 
-echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('statistics_desc', 'admin'));
+$searchrenderer = $PAGE->get_renderer('core', 'search');
 
-if (!$CFG->enableglobalsearch) {
-    echo $OUTPUT->box_start();
-    echo 'Global Search has been disabled';
-    echo $OUTPUT->box_end();
-    echo $OUTPUT->footer();
-    exit();
-}
+$content = $searchrenderer->admin();
 
-$mform = new core_search_admin_form();
-
-if ($data = $mform->get_data()) {
-    if (!empty($data->delete)) {
-        if (!empty($data->all)) {
-            $data->module = null;
-            search_delete_index($client, $data);
-        } else {
-            $a = '';
-            foreach ($data as $key => $value) {
-                if ($value && $key!='delete' && $key!='submitbutton') {
-                    $a .= $key . ',';
-                }
-            }
-            $data->module = substr($a, 0, -1);
-            search_delete_index($client, $data);
-        }
-    }
-    if (!empty($data->reindex)) {
-        require_once($CFG->dirroot . '/search/' . $CFG->search_engine . '/lib.php');
-        $search_engine_installed = $CFG->search_engine . '_installed';
-        $search_engine_check_server = $CFG->search_engine . '_check_server';
-        if ($search_engine_installed() && $search_engine_check_server()) {
-            // Indexing database records for modules + rich documents of forum.
-            search_index();
-            // Indexing rich documents for lesson, wiki.
-            search_index_files();
-            // Optimize index at last.
-            search_optimize_index();
-        } else {
-            echo "Search engine not installed or check server failed.";
-        }
-    }
-}
-
-$gstable = new html_table();
-$gstable->id = 'gs-control-panel';
-$gstable->head = array(
-    'Name', 'Newest document indexed', 'Last run <br /> (time, # docs, # records, # ignores)');
-$gstable->colclasses = array(
-    'displayname', 'lastrun', 'timetaken'
-);
-
-$mods = search_get_iterators(false);
-$config = search_get_config(array_keys($mods));
-
-foreach ($mods as $name => $mod) {
-    $cname = new html_table_cell(ucfirst($name));
-    $clastrun = new html_table_cell($config[$name]->lastindexrun);
-    $ctimetaken = new html_table_cell($config[$name]->indexingend - $config[$name]->indexingstart . ' , ' .
-                                        $config[$name]->docsprocessed . ' , ' .
-                                        $config[$name]->recordsprocessed . ' , ' .
-                                        $config[$name]->docsignored);
-    $modname = 'gs_support_' . $name;
-    //$cactive = new html_table_cell(($CFG->$modname) ? 'Yes' : 'No');
-    $row = new html_table_row(array($cname, $clastrun, $ctimetaken));
-    $gstable->data[] = $row;
-}
-
-echo html_writer::table($gstable);
-echo $OUTPUT->container_start();
-echo $OUTPUT->box_start();
-
-$search_engine_installed = $CFG->search_engine . '_installed';
-$search_engine_check_server = $CFG->search_engine . '_check_server';
-if ($search_engine_installed() && $search_engine_check_server()) {
-    echo $mform->display();
-} else {
-    echo 'Search Engine is not running or properly configured!';
-}
-
-echo $OUTPUT->box_end();
-echo $OUTPUT->container_end();
-echo $OUTPUT->footer();
+echo $OUTPUT->header(),
+     $content,
+     $OUTPUT->footer();
