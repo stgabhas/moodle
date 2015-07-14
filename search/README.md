@@ -3,13 +3,13 @@ Global Search in Moodle
 
 You have two options to use as backend for Global Search:
 
-* The easier one is to use elastic search. You will only need to download java and elastic search bin. Follow instructions at: [https://www.elastic.co/guide/en/elasticsearch/reference/1.6/_installation.html](ElasticSearcg install instructions).
+* The easier one is to use elastic search. You will only need to download java and elastic search bin. Follow [ElasticSearcg install instructions](https://www.elastic.co/guide/en/elasticsearch/reference/1.6/_installation.html).
  * The ElasticSearch backend do not need any php extensions except curl, that is already needed by Moodle
  * After downloading ElasticSearch and get it running, go to your Moodle website and enable global search and configure it to point to your ElasticSearch running service.
 * If you do not want (or cannot) use ElasticSearch, you can follow the instructions below to download Solr and it's extensions to PHP language.
 
 Using Apache Solr PHP extension
-===============================
+-------------------------------
 Looks like you donot have php-pecl-solr extension installed. You may follow the steps below or refer to [Global Search](http://docs.moodle.org/dev/Global_search) docs.
 
 Downloading PHP Solr extension

@@ -22,6 +22,8 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+require_once('../config.php');
+
 $url = new moodle_url('/search/install.php');
 
 $PAGE->set_context(context_system::instance());
