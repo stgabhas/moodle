@@ -4441,5 +4441,19 @@ function xmldb_main_upgrade($oldversion) {
         upgrade_main_savepoint(true, 2015062500.01);
     }
 
+    if ($oldversion < 2015072300.01) {
+
+        // Define field enddate to be added to course.
+        $table = new xmldb_table('course');
+        $field = new xmldb_field('enddate', XMLDB_TYPE_INTEGER, '10', null, null, null, 0, 'startdate');
+
+        // Conditionally launch add field enddate.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_main_savepoint(true, 2015072300.01);
+    }
+
     return true;
 }

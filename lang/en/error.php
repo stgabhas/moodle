@@ -222,6 +222,7 @@ $string['duplicaterolename'] = 'There is already a role with this name!';
 $string['duplicateroleshortname'] = 'There is already a role with this short name!';
 $string['duplicateusername'] = 'Duplicate username - skipping record';
 $string['emailfail'] = 'Emailing failed';
+$string['enddatebeforstartdate'] = 'The end date must be after start date.';
 $string['error'] = 'Error occurred';
 $string['errorprocessingarchive'] = 'Error processing archive file';
 $string['errorcleaningdirectory'] = 'Error cleaning directory "{$a}"';

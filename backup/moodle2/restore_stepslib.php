@@ -1698,6 +1698,7 @@ class restore_course_structure_step extends restore_structure_step {
         $fullname  = $this->get_setting_value('course_fullname');
         $shortname = $this->get_setting_value('course_shortname');
         $startdate = $this->get_setting_value('course_startdate');
+        $enddate   = $this->get_setting_value('course_enddate');
 
         // Calculate final course names, to avoid dupes
         list($fullname, $shortname) = restore_dbops::calculate_course_names($this->get_courseid(), $fullname, $shortname);
@@ -1751,6 +1752,7 @@ class restore_course_structure_step extends restore_structure_step {
             $data->format = 'singleactivity';
             $data->activitytype = 'scorm';
         }
+        $data->enddate = $this->apply_date_offset($enddate);
 
         // Course record ready, update it
         $DB->update_record('course', $data);

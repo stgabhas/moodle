@@ -50,20 +50,26 @@ abstract class restore_check {
         return true;
     }
 
-    public static function check_security($restore_controller, $apply) {
+    /**
+     * This functions checks capabilities and other security-related constraints
+     *
+     * @param restore_controller $restorecontroller The controller of current restore process.
+     * @param bool $apply If we are allowed to apply changes or must stop with exception.
+     */
+    public static function check_security($restorecontroller, $apply) {
         global $DB;
 
-        if (! $restore_controller instanceof restore_controller) {
+        if (! $restorecontroller instanceof restore_controller) {
             throw new restore_controller_exception('restore_check_security_requires_restore_controller');
         }
-        $restore_controller->log('checking plan security', backup::LOG_INFO);
+        $restorecontroller->log('checking plan security', backup::LOG_INFO);
 
         // Some handy vars
-        $type     = $restore_controller->get_type();
-        $mode     = $restore_controller->get_mode();
-        $courseid = $restore_controller->get_courseid();
+        $type     = $restorecontroller->get_type();
+        $mode     = $restorecontroller->get_mode();
+        $courseid = $restorecontroller->get_courseid();
         $coursectx= context_course::instance($courseid);
-        $userid   = $restore_controller->get_userid();
+        $userid   = $restorecontroller->get_userid();
 
         // Note: all the checks along the function MUST be performed for $userid, that
         // is the user who "requested" the course restore, not current $USER at all!!
@@ -124,7 +130,7 @@ abstract class restore_check {
 
         // Now, enforce 'moodle/restore:userinfo' to 'users' setting, applying changes if allowed,
         // else throwing exception
-        $userssetting = $restore_controller->get_plan()->get_setting('users');
+        $userssetting = $restorecontroller->get_plan()->get_setting('users');
         $prevvalue    = $userssetting->get_value();
         $prevstatus   = $userssetting->get_status();
         $hasusercap   = has_capability('moodle/restore:userinfo', $coursectx, $userid);
@@ -148,7 +154,7 @@ abstract class restore_check {
         // Now, if mode is HUB or IMPORT, and still we are including users in restore, turn them off
         // Defaults processing should have handled this, but we need to be 100% sure
         if ($mode == backup::MODE_IMPORT || $mode == backup::MODE_HUB) {
-            $userssetting = $restore_controller->get_plan()->get_setting('users');
+            $userssetting = $restorecontroller->get_plan()->get_setting('users');
             if ($userssetting->get_value()) {
                 $userssetting->set_value(false);                              // Set the value to false
                 $userssetting->set_status(base_setting::LOCKED_BY_PERMISSION);// Set the status to locked by perm
@@ -162,7 +168,7 @@ abstract class restore_check {
         if ($mode != backup::MODE_IMPORT) {
             $hasconfigcap = has_capability('moodle/restore:configure', $coursectx, $userid);
             if (!$hasconfigcap) {
-                $settings = $restore_controller->get_plan()->get_settings();
+                $settings = $restorecontroller->get_plan()->get_settings();
                 foreach ($settings as $setting) {
                     $setting->set_status(base_setting::LOCKED_BY_PERMISSION);
                 }
@@ -173,7 +179,11 @@ abstract class restore_check {
         // settings so that they cannot change it.
         $hasrolldatescap = has_capability('moodle/restore:rolldates', $coursectx, $userid);
         if ($type == backup::TYPE_1COURSE && !$hasrolldatescap) {
-            $datesetting = $restore_controller->get_plan()->get_setting('course_startdate');
+            $datesetting = $restorecontroller->get_plan()->get_setting('course_startdate');
+            if ($datesetting) {
+                $datesetting->set_status(base_setting::LOCKED_BY_PERMISSION);
+            }
+            $datesetting = $restorecontroller->get_plan()->get_setting('course_enddate');
             if ($datesetting) {
                 $datesetting->set_status(base_setting::LOCKED_BY_PERMISSION);
             }
