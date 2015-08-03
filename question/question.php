@@ -221,6 +221,7 @@ if ($mform->is_cancelled()) {
     }
 
 } else if ($fromform = $mform->get_data()) {
+
     // If we are saving as a copy, break the connection to the old question.
     if ($makecopy) {
         $question->id = 0;
@@ -252,7 +253,12 @@ if ($mform->is_cancelled()) {
     // Ensure we redirect back to the category the question is being saved into.
     $returnurl->param('category', $fromform->category);
 
-    // We are acutally saving the question.
+    // Properly handle comma, see MDL-39195.
+    if ($defaultmark = optional_param('defaultmark', 0, PARAM_RAW_TRIMMED)) {
+        $fromform->defaultmark = clean_param(str_replace(',', '.', $defaultmark), PARAM_FLOAT);
+    }
+
+    // We are actually saving the question.
     if (!empty($question->id)) {
         question_require_capability_on($question, 'edit');
     } else {
