@@ -1,11 +1,9 @@
 <?php
 
 function elasticsearch_execute_query($data) {
-    global $CFG;
-
-    $url = $CFG->elasticsearch_server_hostname.'/moodle/_search?pretty';
 
     $search = array('query' => array('bool' => array('must' => array(array('match' => array('content' => $data->queryfield))))));
+
     if (!empty($data->titlefilterqueryfield)) {
         $search['query']['bool']['must'][] = array('match' => array('title' => $data->titlefilterqueryfield));
     }
@@ -16,6 +14,14 @@ function elasticsearch_execute_query($data) {
     if (!empty($data->modulefilterqueryfield)) {
         $search['query']['bool']['must'][] = array('match' => array('module' => $data->modulefilterqueryfield));
     }
+
+    return elasticsearch_make_request($search);
+}
+
+function elasticsearch_make_request($search) {
+    global $CFG;
+
+    $url = $CFG->elasticsearch_server_hostname.'/moodle/_search?pretty';
 
     $c = new curl();
     $results = json_decode($c->post($url, json_encode($search)));
@@ -47,7 +53,24 @@ function elasticsearch_execute_query($data) {
             }
         }
     } else {
+        if (!$results) {
+            return false;
+        }
         return $results->error;
     }
     return $docs;
+}
+
+function elasticsearch_get_more_like_this_text($text) {
+
+    $search = array('query' =>
+                        array('more_like_this' =>
+                                  array('fields' => array('content'),
+                                        'like_text' => $text,
+                                        'min_term_freq' => 1,
+                                        'max_query_terms' => 12)));
+    return elasticsearch_make_request($search);
+}
+
+function elasticsearch_delete_by_query($query) {
 }

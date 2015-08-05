@@ -27,6 +27,7 @@ defined('MOODLE_INTERNAL') || die;
 
 require_once($CFG->libdir . '/formslib.php');
 require_once($CFG->libdir . '/enrollib.php');
+require_once($CFG->dirroot . '/search/solr/lib.php');
 
 /**
  * Completely prepares a solr query request and executes it.
@@ -253,4 +254,39 @@ function solr_post_file($file, $posturl) {
     $params = array();
     $params[$filename] = $file;
     $curl->post($url, $params);
+}
+
+function solr_get_more_like_this_text($text) {
+    global $CFG;
+
+    $search_engine_get_search_client = $CFG->search_engine . '_get_search_client';
+    $client = $search_engine_get_search_client();
+
+    $query = new \SolrQuery();
+    solr_add_fields($query);
+    $query->setMlt(true);
+    $query->setMltCount(5);
+    $query->addMltField('content');
+    $query->setQuery('"'.$text.'"');
+    $query->setStart(0);
+    $query->setRows(10);
+    $query->setMltMinDocFrequency(1);
+    $query->setMltMinTermFrequency(1);
+    $query->setMltMinWordLength(4);
+    $query->setOmitHeader(5);
+    $query_response = $client->query($query);
+    $response = $query_response->getResponse();
+    if ($mlt = (array) $response->moreLikeThis) {
+        $mlt = array_pop($mlt);
+
+        $cleanresults = array();
+        if ($mlt->numFound > 0) {
+            foreach ($mlt->docs as $r){
+                $link = substr($r->contextlink, 0, strpos($r->contextlink, '#'));
+                $discussion = substr($link, strpos($link, '=') + 1);
+                $cleanresults[$discussion] = array('name' => $r->title, 'link' => $link);
+            }
+        }
+        return $cleanresults;
+    }
 }

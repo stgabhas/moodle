@@ -9,6 +9,9 @@ function elasticsearch_installed() {
 
 function elasticsearch_check_server() {
     global $CFG;
+    if (!isset($CFG->elasticsearch_server_hostname)) {
+        return false;
+    }
     $url = $CFG->elasticsearch_server_hostname.'/?pretty';
     $c = new curl();
     if ($response = json_decode($c->get($url))) {

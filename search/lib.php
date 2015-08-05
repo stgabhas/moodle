@@ -348,3 +348,14 @@ function search_get_user_url($fullname) {
     }
     return $url;
 }
+
+function search_get_more_like_this_text($text) {
+    global $CFG;
+
+    if (!$CFG->enableglobalsearch) {
+        return false;
+    }
+    require_once($CFG->dirroot . '/search/' . $CFG->search_engine . '/search.php');
+
+    return call_user_func($CFG->search_engine.'_get_more_like_this_text', $text);
+}

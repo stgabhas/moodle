@@ -188,7 +188,6 @@ class core_search_renderer extends plugin_renderer_base {
             $content .= $this->output->box_start();
             $content .= 'Global Search has been disabled';
             $content .= $this->output->box_end();
-            $content .= $this->output->footer();
             return $content;
         }
 
@@ -198,7 +197,7 @@ class core_search_renderer extends plugin_renderer_base {
             if (!empty($data->delete)) {
                 if (!empty($data->all)) {
                     $data->module = null;
-                    search_delete_index($client, $data);
+                    search_delete_index($data);
                 } else {
                     $a = '';
                     foreach ($data as $key => $value) {
@@ -207,7 +206,7 @@ class core_search_renderer extends plugin_renderer_base {
                         }
                     }
                     $data->module = substr($a, 0, -1);
-                    search_delete_index($client, $data);
+                    search_delete_index($data);
                 }
             }
             if (!empty($data->reindex)) {
@@ -229,11 +228,8 @@ class core_search_renderer extends plugin_renderer_base {
 
         $gstable = new html_table();
         $gstable->id = 'gs-control-panel';
-        $gstable->head = array(
-            'Name', 'Newest document indexed', 'Last run <br /> (time, # docs, # records, # ignores)');
-        $gstable->colclasses = array(
-            'displayname', 'lastrun', 'timetaken'
-        );
+        $gstable->head = array( 'Name', 'Newest document indexed', 'Last run <br /> (time, # docs, # records, # ignores)');
+        $gstable->colclasses = array('displayname', 'lastrun', 'timetaken');
 
         $mods = search_get_iterators(false);
         $config = search_get_config(array_keys($mods));
