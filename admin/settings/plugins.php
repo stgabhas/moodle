@@ -447,12 +447,46 @@ foreach ($pages as $page) {
     $ADMIN->add('reportplugins', $page);
 }
 
-// Add Global Search
-$ADMIN->add('modules', new admin_category('globasearchplugin', new lang_string('globalsearch', 'admin')));
+// Global Search engine plugins
+$ADMIN->add('modules', new admin_category('searchplugins', new lang_string('globalsearch', 'admin')));
 $temp = new admin_settingpage('manageglobalsearch', new lang_string('globalsearchmanage', 'admin'));
+
 $temp->add(new admin_setting_configcheckbox('enableglobalsearch', new lang_string('enableglobalsearch', 'admin'),
-                                                                        new lang_string('enableglobalsearch_desc', 'admin'), 0, 1, 0));
-$ADMIN->add('globasearchplugin', $temp);
+                                                                new lang_string('enableglobalsearch_desc', 'admin'), 0, 1, 0));
+
+$options = array('solr' => get_string('solr'), 'elasticsearch' => get_string('elasticsearch'));
+
+$temp->add(new admin_setting_configselect('search_engine',
+                            new lang_string('choosesearchengine', 'admin'),
+                            new lang_string('choosesearchengine_desc', 'admin'),
+                            'solr', $options));
+
+$supported_mods = array('course', 'book', 'forum', 'glossary', 'label', 'lesson', 'page', 'resource', 'url', 'wiki'); // add a module here to make it gs_supported
+foreach ($supported_mods as $mod) {
+    $temp->add(new admin_setting_configcheckbox('gs_support_' . $mod, new lang_string('gs_support_mod', 'admin', ucfirst($mod)), new lang_string('gs_support_mod_desc', 'admin', ucfirst($mod)), 1, 1, 0));
+}
+
+$ADMIN->add('searchplugins', $temp);
+
+$ADMIN->add('searchplugins', new admin_externalpage('statistics',
+                                                   new lang_string('statistics', 'admin'),
+                                                   "$CFG->wwwroot/search/admin.php"));
+$pages = array();
+foreach (core_component::get_plugin_list('search') as $report => $plugindir) {
+    $settings_path = "$plugindir/settings.php";
+    if (file_exists($settings_path)) {
+        $settings = new admin_settingpage('search' . $report,
+                new lang_string('pluginname', 'search_' . $report), 'moodle/site:config');
+        include($settings_path);
+        if ($settings) {
+            $pages[] = $settings;
+        }
+    }
+}
+
+foreach ($pages as $page) {
+    $ADMIN->add('searchplugins', $page);
+}
 
 /// Add all admin tools
 if ($hassiteconfig) {

@@ -46,7 +46,6 @@ class core_search_search_form extends moodleform {
         $mform->addElement('text', 'authorfilterqueryfield', get_string('authorfilterquery', 'search'));
         $mform->setType('authorfilterqueryfield', PARAM_TEXT);
 
-        require_once($CFG->dirroot.'/search/lib.php');
         $search = new core_search();
 
         $mods = $search->get_modules();

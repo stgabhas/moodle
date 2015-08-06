@@ -30,7 +30,9 @@
  */
 class core_search_renderer extends plugin_renderer_base {
 
-    public function index($url, $page = 0, $search = '', $fq_title = '', $fq_author = '', $fq_module = '', $fq_from = '', $fq_till = '') {
+    public function index($url, $page = 0, $search = '',
+                          $fq_title = '', $fq_author = '', $fq_module = '',
+                          $fq_from = '', $fq_till = '') {
 
         $mform = new core_search_search_form();
         $data = new stdClass();
@@ -90,6 +92,7 @@ class core_search_renderer extends plugin_renderer_base {
 
         $doc_id = explode('_', $result->id);
         $course = $DB->get_record('course', array('id' => $result->courseid), 'fullname', MUST_EXIST);
+        $globalsearch = new core_search();
 
         $coursefullname = $course->fullname;
         $attributes = array('target' => '_new');
@@ -116,12 +119,12 @@ class core_search_renderer extends plugin_renderer_base {
         $s .= html_writer::start_tag('div', array('class'=>'author'));
         if (!empty($result->user)) {
             $s .='<b><i>By: </i></b>';
-            $s .= html_writer::link(search_get_user_url($result->user), $result->user , $attributes);
+            $s .= html_writer::link($globalsearch->get_user_url($result->user), $result->user , $attributes);
         }
         if (!empty($result->author)) {
             $s .='<b>Document Author(s): </b>';
             foreach ($result->author as $key => $value) {
-                $author_url = search_get_user_url($value);
+                $author_url = $globalsearch->get_user_url($value);
                 if (!empty($author_url)) {
                     $s .= html_writer::link($author_url, $value, $attributes) . ', ';
                 } else {

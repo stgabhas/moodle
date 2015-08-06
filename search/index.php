@@ -23,7 +23,6 @@
  */
 
 require_once('../config.php');
-require_once($CFG->dirroot . '/search/lib.php');
 
 $page      = optional_param('page', 0, PARAM_INT);
 $search    = trim(optional_param('search', '', PARAM_NOTAGS));

@@ -61,7 +61,7 @@ class engine  extends \core_search\engine {
         $c = new \curl();
         if ($result = json_decode($c->post($url, $jsondoc))) {
             return $result->created == true;
-        } else {  
+        } else {
             return false;
         }
     }
@@ -76,6 +76,7 @@ class engine  extends \core_search\engine {
     }
 
     public function execute_query($data) {
+
 
         $search = array('query' => array('bool' => array('must' => array(array('match' => array('content' => $data->queryfield))))));
 

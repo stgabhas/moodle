@@ -39,7 +39,6 @@ class block_globalsearch extends block_base {
             return $this->content;
         }
 
-        require_once($CFG->dirroot.'/search/lib.php');
         $search = new core_search();
 
         $this->content         =  new stdClass;

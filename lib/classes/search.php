@@ -50,24 +50,20 @@ class core_search {
             return null;
         }
 
-        $engine_file = $CFG->dirroot.'/search/engine/'.$CFG->search_engine.'.php';
-        if (file_exists($engine_file)) {
-            require_once($engine_file);
-        } else {
-            throw new Exception('Engine file not found.'); //TODO: write explanation message
-        }
         $classname = 'search_'.$CFG->search_engine.'\\engine';
+        if (!class_exists($classname)) {
+            throw new Exception('Engine class notfound:'.$classname);
+        }
 
-        $this->engine = new $classname(); 
+        $this->engine = new $classname();
 
         if (!$this->engine->is_installed() || !$this->engine->check_server() ) {
-            return null;
-         //   redirect($CFG->wwwroot.'/search/install.php');
+            throw new Exception('Engine not installed or server not found.');
         }
     }
 
     public function search($data) {
-        $this->engine->execute_query($data);
+        return $this->engine->execute_query($data);
     }
 
     /**

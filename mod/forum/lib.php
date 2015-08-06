@@ -7847,10 +7847,9 @@ function mod_forum_myprofile_navigation(core_user\output\myprofile\tree $tree, $
 }
 
 function forum_get_related_discussions($discussion) {
-    global $CFG, $DB;
+    global $DB;
 
     $firstpost = clean_param($DB->get_field('forum_posts', 'message', array('id' => $discussion->firstpost)), PARAM_TEXT);
-    require_once($CFG->dirroot. '/search/lib.php');
     $globalsearch = new core_search();
     return $globalsearch->get_more_like_this_text($firstpost);
 }

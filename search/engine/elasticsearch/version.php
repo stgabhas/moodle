@@ -15,24 +15,15 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Global Search admin settings
+ * Version info.
  *
- * @package   Global Search
- * @copyright Prateek Sachan {@link http://prateeksachan.com}
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package search_elasticsearch
+ * @copyright 2015 Daniel Neis Araujo
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once('../config.php');
-require_once($CFG->libdir . '/adminlib.php');
-require_once($CFG->libdir . '/formslib.php');
+defined('MOODLE_INTERNAL') || die();
 
-admin_externalpage_setup('statistics');
-
-$PAGE->set_title(get_string('globalsearch', 'search'));
-$PAGE->set_heading(get_string('globalsearch', 'search'));
-
-require_capability('moodle/site:config', context_system::instance());
-
-$searchrenderer = $PAGE->get_renderer('core', 'search');
-
-echo $OUTPUT->header(), $searchrenderer->admin(), $OUTPUT->footer();
+$plugin->version = 2015080602;
+$plugin->requires = 2014111000;
+$plugin->component = 'search_elasticsearch';
