@@ -439,6 +439,7 @@ $cache = '.var_export($cache, true).';
             'webservice'    => $CFG->dirroot.'/webservice',
             'repository'    => $CFG->dirroot.'/repository',
             'portfolio'     => $CFG->dirroot.'/portfolio',
+            'search'        => $CFG->dirroot.'/search/engine',
             'qbehaviour'    => $CFG->dirroot.'/question/behaviour',
             'qformat'       => $CFG->dirroot.'/question/format',
             'plagiarism'    => $CFG->dirroot.'/plagiarism',

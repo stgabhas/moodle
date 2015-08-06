@@ -50,7 +50,7 @@ function wiki_search_get_documents($id) {
 }
 
 function wiki_search_files($id = 0) {
-    global $DB, $CFG;
+    global $DB;
 
     $wikifiles = $DB->get_records('files', array('component' => 'mod_wiki'), 'id', 'id, itemid, filepath, filename, filesize');
     foreach ($wikifiles as $wikifile) {
@@ -83,8 +83,8 @@ function wiki_search_files($id = 0) {
             $url = 'literal.id=' . 'wiki_' . $wikipage->id . '_file_' . $wikifile->id . '&literal.module=wiki&literal.type=3' .
                     '&literal.directlink=' . $directlink . '&literal.courseid=' . $wiki->course . '&literal.modulelink=' . $modulelink;
 
-            $index_file_function = $CFG->search_engine . '_post_file';
-            $index_file_function($file, $url);
+            $globalsearch = new core_search();
+            $globalsearch->post_file($file, $url);
         }
     }
     if (!empty($wikifiles)) {

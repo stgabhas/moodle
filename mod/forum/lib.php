@@ -7847,5 +7847,6 @@ function forum_get_related_discussions($discussion) {
 
     $firstpost = clean_param($DB->get_field('forum_posts', 'message', array('id' => $discussion->firstpost)), PARAM_TEXT);
     require_once($CFG->dirroot. '/search/lib.php');
-    return search_get_more_like_this_text($firstpost);
+    $globalsearch = new core_search();
+    return $globalsearch->get_more_like_this_text($firstpost);
 }

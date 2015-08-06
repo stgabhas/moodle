@@ -31,53 +31,52 @@
 class core_search_renderer extends plugin_renderer_base {
 
     public function index($url, $page = 0, $search = '', $fq_title = '', $fq_author = '', $fq_module = '', $fq_from = '', $fq_till = '') {
-        global $CFG;
 
         $mform = new core_search_search_form();
         $data = new stdClass();
 
-        require_once($CFG->dirroot . '/search/' . $CFG->search_engine . '/search.php');
-        $search_function = $CFG->search_engine . '_execute_query';
-
-        if (!empty($search)) { // search executed from URL params
-            $data->queryfield = $search;
-            $data->titlefilterqueryfield = $fq_title;
-            $data->authorfilterqueryfield = $fq_author;
-            $data->modulefilterqueryfield = $fq_module;
-            $data->searchfromtime = $fq_from;
-            $data->searchtilltime = $fq_till;
-            $mform->set_data($data);
-            $results = $search_function($data);
-        }
-
-        if ($data = $mform->get_data()) { // search executed from submitting form
-            $search = $data->queryfield;
-            $fq_title = $data->titlefilterqueryfield;
-            $fq_author = $data->authorfilterqueryfield;
-            $fq_module = $data->modulefilterqueryfield;
-            $fq_from = $data->searchfromtime;
-            $fq_till = $data->searchtilltime;
-            unset($data->submitbutton);
-            $results = $search_function($data);
-        }
-
         $content = $mform->render();
 
-        if (!empty($results) and $CFG->enableglobalsearch) {
-            if (is_array($results)) {
-                $perpage = SEARCH_DISPLAY_RESULTS_PER_PAGE;
-                $content .= 'Total accessible records: ' . count($results);
-                $content .= $this->output->paging_bar(count($results), $page, $perpage, $url);
-                $hits = array_slice($results, $page*$perpage, $perpage, true);
-                foreach ($hits as $hit) {
-                    $content .= $this->render_results($hit);
-                }
-                $content .= $this->output->paging_bar(count($results), $page, $perpage, $url);
-            } else {
-                $content .= $results;
+        if (!$globalsearch = new core_search()) {
+            $content .= 'Global Search is disabled.';
+        } else {
+
+            if (!empty($search)) { // search executed from URL params
+                $data->queryfield = $search;
+                $data->titlefilterqueryfield = $fq_title;
+                $data->authorfilterqueryfield = $fq_author;
+                $data->modulefilterqueryfield = $fq_module;
+                $data->searchfromtime = $fq_from;
+                $data->searchtilltime = $fq_till;
+                $mform->set_data($data);
+                $results = $globalsearch->search($data);
             }
-        } else if (!$CFG->enableglobalsearch) {
-            $content .= 'Global Search has been disabled.';
+
+            if ($data = $mform->get_data()) { // search executed from submitting form
+                $search = $data->queryfield;
+                $fq_title = $data->titlefilterqueryfield;
+                $fq_author = $data->authorfilterqueryfield;
+                $fq_module = $data->modulefilterqueryfield;
+                $fq_from = $data->searchfromtime;
+                $fq_till = $data->searchtilltime;
+                unset($data->submitbutton);
+                $results = $globalsearch->search($data);
+            }
+
+            if (!empty($results)) {
+                if (is_array($results)) {
+                    $perpage = SEARCH_DISPLAY_RESULTS_PER_PAGE;
+                    $content .= 'Total accessible records: ' . count($results);
+                    $content .= $this->output->paging_bar(count($results), $page, $perpage, $url);
+                    $hits = array_slice($results, $page*$perpage, $perpage, true);
+                    foreach ($hits as $hit) {
+                        $content .= $this->render_results($hit);
+                    }
+                    $content .= $this->output->paging_bar(count($results), $page, $perpage, $url);
+                } else {
+                    $content .= $results;
+                }
+            }
         }
         return $content;
     }
@@ -184,9 +183,9 @@ class core_search_renderer extends plugin_renderer_base {
         $content = '';
         $content .= $this->output->heading(get_string('statistics_desc', 'admin'));
 
-        if (!$CFG->enableglobalsearch) {
+        if (!$search = new core_search()) {
             $content .= $this->output->box_start();
-            $content .= 'Global Search has been disabled';
+            $content .= 'Global Search is disabled';
             $content .= $this->output->box_end();
             return $content;
         }
@@ -194,10 +193,11 @@ class core_search_renderer extends plugin_renderer_base {
         $mform = new core_search_admin_form();
 
         if ($data = $mform->get_data()) {
+
             if (!empty($data->delete)) {
                 if (!empty($data->all)) {
                     $data->module = null;
-                    search_delete_index($data);
+                    $search->delete_index($data);
                 } else {
                     $a = '';
                     foreach ($data as $key => $value) {
@@ -206,23 +206,17 @@ class core_search_renderer extends plugin_renderer_base {
                         }
                     }
                     $data->module = substr($a, 0, -1);
-                    search_delete_index($data);
+                    $search->delete_index($data);
                 }
             }
+
             if (!empty($data->reindex)) {
-                require_once($CFG->dirroot . '/search/' . $CFG->search_engine . '/lib.php');
-                $search_engine_installed = $CFG->search_engine . '_installed';
-                $search_engine_check_server = $CFG->search_engine . '_check_server';
-                if ($search_engine_installed() && $search_engine_check_server()) {
-                    // Indexing database records for modules + rich documents of forum.
-                    search_index();
-                    // Indexing rich documents for lesson, wiki.
-                    search_index_files();
-                    // Optimize index at last.
-                    search_optimize_index();
-                } else {
-                    $content .= "Search engine not installed or check server failed.";
-                }
+                // Indexing database records for modules + rich documents of forum.
+                $search->index();
+                // Indexing rich documents for lesson, wiki.
+                $search->index_files();
+                // Optimize index at last.
+                $search->optimize_index();
             }
         }
 
@@ -231,16 +225,16 @@ class core_search_renderer extends plugin_renderer_base {
         $gstable->head = array( 'Name', 'Newest document indexed', 'Last run <br /> (time, # docs, # records, # ignores)');
         $gstable->colclasses = array('displayname', 'lastrun', 'timetaken');
 
-        $mods = search_get_iterators(false);
-        $config = search_get_config(array_keys($mods));
+        $mods = $search->get_iterators(false);
+        $config = $search->get_config(array_keys($mods));
 
         foreach ($mods as $name => $mod) {
             $cname = new html_table_cell(ucfirst($name));
             $clastrun = new html_table_cell($config[$name]->lastindexrun);
             $ctimetaken = new html_table_cell($config[$name]->indexingend - $config[$name]->indexingstart . ' , ' .
-                                                $config[$name]->docsprocessed . ' , ' .
-                                                $config[$name]->recordsprocessed . ' , ' .
-                                                $config[$name]->docsignored);
+                                              $config[$name]->docsprocessed . ' , ' .
+                                              $config[$name]->recordsprocessed . ' , ' .
+                                              $config[$name]->docsignored);
             $modname = 'gs_support_' . $name;
             //$cactive = new html_table_cell(($CFG->$modname) ? 'Yes' : 'No');
             $row = new html_table_row(array($cname, $clastrun, $ctimetaken));
@@ -251,13 +245,7 @@ class core_search_renderer extends plugin_renderer_base {
         $content .= $this->output->container_start();
         $content .= $this->output->box_start();
 
-        $search_engine_installed = $CFG->search_engine . '_installed';
-        $search_engine_check_server = $CFG->search_engine . '_check_server';
-        if ($search_engine_installed() && $search_engine_check_server()) {
-            $content .= $mform->render();
-        } else {
-            $content .= 'Search Engine is not running or properly configured!';
-        }
+        $content .= $mform->render();
 
         $content .= $this->output->box_end();
         $content .= $this->output->container_end();

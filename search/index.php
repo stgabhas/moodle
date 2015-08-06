@@ -24,7 +24,6 @@
 
 require_once('../config.php');
 require_once($CFG->dirroot . '/search/lib.php');
-require_once($CFG->dirroot . '/search/locallib.php');
 
 $page      = optional_param('page', 0, PARAM_INT);
 $search    = trim(optional_param('search', '', PARAM_NOTAGS));
@@ -41,15 +40,9 @@ $PAGE->set_heading(get_string('globalsearch', 'search'));
 
 require_login();
 
-require_once($CFG->dirroot . '/search/' . $CFG->search_engine . '/lib.php');
-$search_engine_installed = $CFG->search_engine . '_installed';
-$search_engine_check_server = $CFG->search_engine . '_check_server';
-if (!$search_engine_installed() || !$search_engine_check_server()) {
-    redirect('/search/install.php');
-}
-
 $urlparams = array('search' => $search, 'fq_title' => $fq_title, 'fq_author' => $fq_author,
-                    'fq_module' => $fq_module, 'fq_from' => $fq_from, 'fq_till' => $fq_till,  'page' => $page);
+                   'fq_module' => $fq_module, 'fq_from' => $fq_from, 'fq_till' => $fq_till,  'page' => $page);
+
 $url = new moodle_url('/search/index.php', $urlparams);
 
 $PAGE->set_url($url);
@@ -58,6 +51,4 @@ $searchrenderer = $PAGE->get_renderer('core', 'search');
 
 $content = $searchrenderer->index($url, $page, $search, $fq_title, $fq_author, $fq_module, $fq_from, $fq_till);
 
-echo $OUTPUT->header(),
-     $content,
-     $OUTPUT->footer();
+echo $OUTPUT->header(), $content, $OUTPUT->footer();

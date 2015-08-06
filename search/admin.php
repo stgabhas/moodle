@@ -25,8 +25,6 @@
 require_once('../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 require_once($CFG->libdir . '/formslib.php');
-require_once($CFG->dirroot . '/search/' . $CFG->search_engine . '/lib.php');
-require_once($CFG->dirroot . '/search/' . $CFG->search_engine . '/search.php');
 require_once($CFG->dirroot . '/search/lib.php');
 
 admin_externalpage_setup('statistics');
@@ -36,16 +34,8 @@ $PAGE->set_heading(get_string('globalsearch', 'search'));
 
 require_capability('moodle/site:config', context_system::instance());
 
-$search_engine_installed = $CFG->search_engine . '_installed';
-if (!$search_engine_installed()) {
-    include($CFG->dirroot . '/search/install.php');
-    exit();
-}
-
 $searchrenderer = $PAGE->get_renderer('core', 'search');
 
 $content = $searchrenderer->admin();
 
-echo $OUTPUT->header(),
-     $content,
-     $OUTPUT->footer();
+echo $OUTPUT->header(), $content, $OUTPUT->footer();

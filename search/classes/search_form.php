@@ -29,6 +29,8 @@ require_once($CFG->libdir . '/formslib.php');
 class core_search_search_form extends moodleform {
 
     function definition() {
+        global $CFG;
+
         $mform =& $this->_form;
         $mform->addElement('header', 'search', get_string('search', 'search'));
 
@@ -44,7 +46,10 @@ class core_search_search_form extends moodleform {
         $mform->addElement('text', 'authorfilterqueryfield', get_string('authorfilterquery', 'search'));
         $mform->setType('authorfilterqueryfield', PARAM_TEXT);
 
-        $mods = search_get_modules();
+        require_once($CFG->dirroot.'/search/lib.php');
+        $search = new core_search();
+
+        $mods = $search->get_modules();
         $modules = array();
         $modules [] = "All modules";
         $modules ['course'] = get_string('course');  // add course

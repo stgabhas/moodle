@@ -26,7 +26,6 @@ defined('MOODLE_INTERNAL') || die;
 
 require_once($CFG->dirroot . '/lib/accesslib.php');
 
-define('SEARCH_INDEX_PATH', $CFG->dataroot . '/search');
 define('SEARCH_TYPE_HTML', 1);
 define('SEARCH_TYPE_TEXT', 2);
 define('SEARCH_TYPE_FILE', 3);
@@ -42,320 +41,333 @@ define('SEARCH_SET_ROWS', 1000);
 define('SEARCH_SET_FRAG_SIZE', 500);
 define('SEARCH_CACHE_TIME', 300);
 
+class core_search {
 
-/**
- * Modules activated for Global Search.
- * @param boolean $requireconfig to check if the admin has de/activated a particular module.
- * @return array $mods
- */
-function search_get_modules($requireconfig = true) {
-    global $CFG, $DB;
-    $mods = $DB->get_records('modules', null, 'name', 'id,name');
-    foreach ($mods as $key => $mod) {
-        $modname = 'gs_support_' . $mod->name;
-        if ($requireconfig) {
-            if (empty($CFG->$modname) or !plugin_supports('mod', $mod->name, FEATURE_GLOBAL_SEARCH)) {
-                unset($mods[$key]);
-            }
-        } else {
-            if (!plugin_supports('mod', $mod->name, FEATURE_GLOBAL_SEARCH)) {
-                unset($mods[$key]);
-            }
+    public function __construct() {
+        global $CFG;
+
+        if (!$CFG->enableglobalsearch) {
+            return null;
         }
-    }
-    return $mods;
-}
 
-/**
- * Search API functions for modules.
- * @param boolean $requireconfig to check if the admin has de/activated a particular module.
- * @return stdClass object $functions
- */
-function search_get_iterators($requireconfig = true) {
-    global $CFG;
-
-    $functions = array();
-
-    // Course
-    $functions['course'] = new stdClass();
-    $functions['course']->iterator = 'course_search_iterator';
-    $functions['course']->documents = 'course_search_get_documents';
-    $functions['course']->access = 'course_search_access';
-    $functions['course']->module = 'course';
-
-    // Modules
-    $mods = search_get_modules($requireconfig);
-    foreach ($mods as $mod) {
-        if (file_exists("$CFG->dirroot/mod/{$mod->name}/db/search.php")) {
-            include_once("$CFG->dirroot/mod/{$mod->name}/db/search.php");
-            if (!function_exists($mod->name . '_search_iterator')) {
-                throw new coding_exception('Module supports GLOBAL_SEARCH but function \'' .
-                                            $mod->name . '_search_iterator' . '\' is missing.');
-            }
-            if (!function_exists($mod->name . '_search_get_documents')) {
-                throw new coding_exception('Module supports GLOBAL_SEARCH but function \'' .
-                                            $mod->name . '_search_get_documents' . '\' is missing.');
-            }
-            if (!function_exists($mod->name . '_search_access')) {
-                throw new coding_exception('Module supports GLOBAL_SEARCH but function \'' .
-                                            $mod->name . '_search_access' . '\' is missing.');
-            }
-            $functions[$mod->name] = new stdClass();
-            $functions[$mod->name]->iterator = $mod->name . '_search_iterator';
-            $functions[$mod->name]->documents = $mod->name . '_search_get_documents';
-            $functions[$mod->name]->access = $mod->name . '_search_access';
-            $functions[$mod->name]->module = $mod->name;
+        $engine_file = $CFG->dirroot.'/search/engine/'.$CFG->search_engine.'.php';
+        if (file_exists($engine_file)) {
+            require_once($engine_file);
         } else {
-            throw new coding_exception('Library file for module \'' . $mod->name . '\' is missing.');
+            throw new Exception('Engine file not found.'); //TODO: write explanation message
+        }
+        $classname = 'search_'.$CFG->search_engine.'\\engine';
+
+        $this->engine = new $classname(); 
+
+        if (!$this->engine->is_installed() || !$this->engine->check_server() ) {
+            return null;
+         //   redirect($CFG->wwwroot.'/search/install.php');
         }
     }
 
-    return $functions;
-}
+    public function search($data) {
+        $this->engine->execute_query($data);
+    }
 
-/**
- * Merge separate index segments into one.
- */
-function search_optimize_index() {
-    global $CFG;
-    $search_engine_optimize = $CFG->search_engine . '_optimize';
-    $search_engine_optimize();
-}
-
-/**
- * Index all documents.
- */
-function search_index() {
-    global $CFG;
-
-    $search_engine_add_document = $CFG->search_engine . '_add_document';
-    $search_engine_commit = $CFG->search_engine . '_commit';
-
-    set_time_limit(576000);
-    $iterators = search_get_iterators();
-    foreach ($iterators as $name => $iterator) {
-
-        mtrace('Processing module ' . $iterator->module);
-        $indexingstart = time();
-
-        $iterfunction = $iterator->iterator;
-        $getdocsfunction = $iterator->documents;
-
-        $lastindexrun = get_config('search', $name . '_lastindexrun');
-
-        $recordset = $iterfunction($lastindexrun);
-
-        $numrecords = 0;
-        $numdocs = 0;
-        $numdocsignored = 0;
-
-        foreach ($recordset as $record) {
-            ++$numrecords;
-            $timestart = microtime(true);
-            $documents = $getdocsfunction($record->id);
-
-            foreach ($documents as $document) {
-                switch ($document['type']) {
-                    case SEARCH_TYPE_HTML:
-                        $search_engine_add_document($document);
-                        ++$numdocs;
-                        break;
-                    default:
-                        ++$numdocsignored;
-                        throw new search_ex('Incorrect document format encountered');
+    /**
+     * Modules activated for Global Search.
+     * @param boolean $requireconfig to check if the admin has de/activated a particular module.
+     * @return array $mods
+     */
+    public function get_modules($requireconfig = true) {
+        global $CFG, $DB;
+        $mods = $DB->get_records('modules', null, 'name', 'id,name');
+        foreach ($mods as $key => $mod) {
+            $modname = 'gs_support_' . $mod->name;
+            if ($requireconfig) {
+                if (empty($CFG->$modname) or !plugin_supports('mod', $mod->name, FEATURE_GLOBAL_SEARCH)) {
+                    unset($mods[$key]);
+                }
+            } else {
+                if (!plugin_supports('mod', $mod->name, FEATURE_GLOBAL_SEARCH)) {
+                    unset($mods[$key]);
                 }
             }
-            $timetaken = microtime(true) - $timestart;
         }
-        $recordset->close();
-        if ($numrecords > 0) {
-            $search_engine_commit();
-            $indexingend = time();
-            set_config($name . '_indexingstart', $indexingstart, 'search');
-            set_config($name . '_indexingend', $indexingend, 'search');
-            set_config($name . '_lastindexrun', $record->modified, 'search');
-            set_config($name . '_docsignored', $numdocsignored, 'search');
-            set_config($name . '_docsprocessed', $numdocs, 'search');
-            set_config($name . '_recordsprocessed', $numrecords, 'search');
-            mtrace("Processed $numrecords records containing $numdocs documents for " . $iterator->module . '. Commits completed.');
-        }
-    }
-}
-
-/**
- * Index all Rich Document files.
- */
-function search_index_files() {
-    global $CFG;
-
-    set_time_limit(576000);
-    $mod_file = array(
-                'lesson' => 'lesson',
-                'wiki' => 'wiki'
-                );
-
-    foreach ($mod_file as $mod => $name) {
-        $modname = 'gs_support_' . $name;
-        if (empty($CFG->$modname)) {
-            unset($mod_file[$mod]);
-        }
+        return $mods;
     }
 
-    mtrace("Memory usage:" . display_size(memory_get_usage()));
-    $timestart = microtime(true);
+    /**
+     * Search API functions for modules.
+     * @param boolean $requireconfig to check if the admin has de/activated a particular module.
+     * @return stdClass object $functions
+     */
+    public function get_iterators($requireconfig = true) {
+        global $CFG;
 
-    foreach ($mod_file as $mod => $name) {
-        mtrace('Indexing files for module ' . $name);
-        $lastindexrun = search_get_config_file($name);
-        require_once($CFG->dirroot.'/mod/'.$name.'/db/search.php');
-        $indexfunction = $name . '_search_files';
-        // This the the indexing function for indexing rich documents. config settings will be updated inside this function only.
-        $indexfunction($lastindexrun);
-    }
-    $timetaken = microtime(true) - $timestart;
-    mtrace("Time : $timetaken");
-    $search_engine_commit = $CFG->search_engine . '_commit';
-    $search_engine_commit();
-}
+        $functions = array();
 
-/**
- * Resets config_plugin table after index deletion as re-indexing will be done from start.
- * optional @param string $s containing modules whose index was chosen to be deleted.
- */
-function search_reset_config($s = null) {
-    if (!empty($s)) {
-        $mods = explode(',', $s);
-    } else {
-        $get_mods = search_get_modules(false);
-        $mods = array();
-        $mods[] = 'course';  // add course
-        foreach ($get_mods as $mod) {
-            $mods[] = $mod->name;
-        }
-    }
-    foreach ($mods as $key => $name) {
-        set_config($name . '_indexingstart', 0, 'search');
-        set_config($name . '_indexingend', 0, 'search');
-        set_config($name . '_lastindexrun', 0, 'search');
-        set_config($name . '_docsignored', 0, 'search');
-        set_config($name . '_docsprocessed', 0, 'search');
-        set_config($name . '_recordsprocessed', 0, 'search');
-        if ($name == 'wiki') { // Extra config setting reset for wiki rich documents.
-            set_config($name . '_lastindexedfilerun', 0, 'search');
-        }
-    }
-}
+        // Course
+        $functions['course'] = new stdClass();
+        $functions['course']->iterator = 'course_search_iterator';
+        $functions['course']->documents = 'course_search_get_documents';
+        $functions['course']->access = 'course_search_access';
+        $functions['course']->module = 'course';
 
-/**
- * Deletes index.
- * @param stdClass object $data
- */
-function search_delete_index($data) {
-    global $CFG;
-    $search_engine_delete_by_query = $CFG->search_engine . '_delete_by_query';
-
-    if (!empty($data->module)) {
-        $search_engine_delete_by_query('module:' . $data->module);
-        search_reset_config($data->module);
-    } else {
-        $search_engine_delete_by_query('*:*');
-        search_reset_config();
-    }
-    $search_engine_commit = $CFG->search_engine . '_commit';
-    $search_engine_commit();
-}
-
-/**
- * Deletes index by id.
- * @param Solr Document string $id
- */
-function search_delete_index_by_id($id) {
-    global $CFG;
-    $search_engine_delete_by_id = $CFG->search_engine . '_delete_by_query';
-    $search_engine_delete_by_id($id);
-    $search_engine_commit = $CFG->search_engine . '_commit';
-    $search_engine_commit();
-}
-
-/**
- * Returns Global Search configuration settings from config_plugin table.
- * @param array $mods
- * @return array $configsettings
- */
-function search_get_config($mods) {
-    $allconfigs = get_config('search');
-    $vars = array('indexingstart', 'indexingend', 'lastindexrun', 'docsignored', 'docsprocessed', 'recordsprocessed');
-
-    $configsettings =  array();
-    foreach ($mods as $mod) {
-        $configsettings[$mod] = new stdClass();
-        foreach ($vars as $var) {
-            $name = "{$mod}_$var";
-            if (!empty($allconfigs->$name)) {
-                $configsettings[$mod]->$var = $allconfigs->$name;
+        // Modules
+        $mods = $this->get_modules($requireconfig);
+        foreach ($mods as $mod) {
+            if (file_exists("$CFG->dirroot/mod/{$mod->name}/db/search.php")) {
+                include_once("$CFG->dirroot/mod/{$mod->name}/db/search.php");
+                if (!function_exists($mod->name . '_search_iterator')) {
+                    throw new coding_exception('Module supports GLOBAL_SEARCH but function \'' .
+                                                $mod->name . '_search_iterator' . '\' is missing.');
+                }
+                if (!function_exists($mod->name . '_search_get_documents')) {
+                    throw new coding_exception('Module supports GLOBAL_SEARCH but function \'' .
+                                                $mod->name . '_search_get_documents' . '\' is missing.');
+                }
+                if (!function_exists($mod->name . '_search_access')) {
+                    throw new coding_exception('Module supports GLOBAL_SEARCH but function \'' .
+                                                $mod->name . '_search_access' . '\' is missing.');
+                }
+                $functions[$mod->name] = new stdClass();
+                $functions[$mod->name]->iterator = $mod->name . '_search_iterator';
+                $functions[$mod->name]->documents = $mod->name . '_search_get_documents';
+                $functions[$mod->name]->access = $mod->name . '_search_access';
+                $functions[$mod->name]->module = $mod->name;
             } else {
-                $configsettings[$mod]->$var = 0;
+                throw new coding_exception('Library file for module \'' . $mod->name . '\' is missing.');
             }
         }
-        if (!empty($configsettings[$mod]->lastindexrun)) {
-            $configsettings[$mod]->lastindexrun = userdate($configsettings[$mod]->lastindexrun);
+
+        return $functions;
+    }
+
+    /**
+     * Merge separate index segments into one.
+     */
+    public function optimize_index() {
+        $this->engine->optimize();
+    }
+
+    /**
+     * Index all documents.
+     */
+    public function index() {
+        global $CFG;
+
+        set_time_limit(576000);
+        $iterators = $this->get_iterators();
+        foreach ($iterators as $name => $iterator) {
+
+            mtrace('Processing module ' . $iterator->module);
+            $indexingstart = time();
+
+            $iterfunction = $iterator->iterator;
+            $getdocsfunction = $iterator->documents;
+
+            $lastindexrun = get_config('search', $name . '_lastindexrun');
+
+            $recordset = $iterfunction($lastindexrun);
+
+            $numrecords = 0;
+            $numdocs = 0;
+            $numdocsignored = 0;
+
+            foreach ($recordset as $record) {
+                ++$numrecords;
+                $timestart = microtime(true);
+                $documents = $getdocsfunction($record->id);
+
+                foreach ($documents as $document) {
+                    switch ($document['type']) {
+                        case SEARCH_TYPE_HTML:
+                            $this->engine->add_document($document);
+                            ++$numdocs;
+                            break;
+                        default:
+                            ++$numdocsignored;
+                            throw new Exception('Incorrect document format encountered');
+                    }
+                }
+                $timetaken = microtime(true) - $timestart;
+            }
+            $recordset->close();
+            if ($numrecords > 0) {
+                $this->engine->commit();
+                $indexingend = time();
+                set_config($name . '_indexingstart', $indexingstart, 'search');
+                set_config($name . '_indexingend', $indexingend, 'search');
+                set_config($name . '_lastindexrun', $record->modified, 'search');
+                set_config($name . '_docsignored', $numdocsignored, 'search');
+                set_config($name . '_docsprocessed', $numdocs, 'search');
+                set_config($name . '_recordsprocessed', $numrecords, 'search');
+                mtrace("Processed $numrecords records containing $numdocs documents for " . $iterator->module . '. Commits completed.');
+            }
+        }
+    }
+
+    /**
+     * Index all Rich Document files.
+     */
+    public function index_files() {
+        global $CFG;
+
+        set_time_limit(576000);
+        $mod_file = array(
+                    'lesson' => 'lesson',
+                    'wiki' => 'wiki'
+                    );
+
+        foreach ($mod_file as $mod => $name) {
+            $modname = 'gs_support_' . $name;
+            if (empty($CFG->$modname)) {
+                unset($mod_file[$mod]);
+            }
+        }
+
+        mtrace("Memory usage:" . display_size(memory_get_usage()));
+        $timestart = microtime(true);
+
+        foreach ($mod_file as $mod => $name) {
+            mtrace('Indexing files for module ' . $name);
+            $lastindexrun = $this->get_config_file($name);
+            require_once($CFG->dirroot.'/mod/'.$name.'/db/search.php');
+            $indexfunction = $name . '_search_files';
+            // This the the indexing function for indexing rich documents. config settings will be updated inside this function only.
+            $indexfunction($lastindexrun);
+        }
+        $timetaken = microtime(true) - $timestart;
+        mtrace("Time : $timetaken");
+        $this->engine->commit();
+    }
+
+    /**
+     * Resets config_plugin table after index deletion as re-indexing will be done from start.
+     * optional @param string $s containing modules whose index was chosen to be deleted.
+     */
+    public function reset_config($s = null) {
+        if (!empty($s)) {
+            $mods = explode(',', $s);
         } else {
-            $configsettings[$mod]->lastindexrun = "Never";
+            $get_mods = $this->get_modules(false);
+            $mods = array();
+            $mods[] = 'course';  // add course
+            foreach ($get_mods as $mod) {
+                $mods[] = $mod->name;
+            }
+        }
+        foreach ($mods as $key => $name) {
+            set_config($name . '_indexingstart', 0, 'search');
+            set_config($name . '_indexingend', 0, 'search');
+            set_config($name . '_lastindexrun', 0, 'search');
+            set_config($name . '_docsignored', 0, 'search');
+            set_config($name . '_docsprocessed', 0, 'search');
+            set_config($name . '_recordsprocessed', 0, 'search');
+            if ($name == 'wiki') { // Extra config setting reset for wiki rich documents.
+                set_config($name . '_lastindexedfilerun', 0, 'search');
+            }
         }
     }
-    return $configsettings;
-}
 
-/**
- * Returns Global Search iterator setting for indexing files.
- * @param string $mod
- * @return string setting value
- */
-function search_get_config_file($mod) {
-    switch ($mod) {
-        case 'lesson':
-            return get_config('search', $mod . '_lastindexrun');
-
-        case 'wiki':
-            return get_config('search', $mod . '_lastindexedfilerun');
-
-        default:
-            return 0;
-    }
-}
-
-
-/**
- * Searches the user table for userid
- * @param string name of user
- * @return string $url of the user's profile
- */
-function search_get_user_url($fullname) {
-    global $DB;
-    $url = '';
-    try {
-        $username = explode(' ', $fullname);
-        if (count($username) == 2) {
-            $userdata = $DB->get_records('user',
-                                         array('firstname' => $username[0],
-                                               'lastname' => $username[1]),
-                                         'id', 'username,id');
-            $userdata = array_pop($userdata);
-            $url = new moodle_url('/user/profile.php?id=' . $userdata->id);
+    /**
+     * Deletes index.
+     * @param stdClass object $data
+     */
+    public function delete_index($data) {
+        if (!empty($data->module)) {
+            $this->engine->delete($data->module);
+            $this->reset_config($data->module);
+        } else {
+            $this->engine->delete();
+            $this->reset_config();
         }
-    } catch (dml_missing_record_exception $ex) {
+        $this->engine->commit();
+    }
+
+    /**
+     * Deletes index by id.
+     * @param Solr Document string $id
+     */
+    public function delete_index_by_id($id) {
+        $this->engine->delete_by_id($id);
+        $this->engine->commit();
+    }
+
+    /**
+     * Returns Global Search configuration settings from config_plugin table.
+     * @param array $mods
+     * @return array $configsettings
+     */
+    public function get_config($mods) {
+        $allconfigs = get_config('search');
+        $vars = array('indexingstart', 'indexingend', 'lastindexrun', 'docsignored', 'docsprocessed', 'recordsprocessed');
+
+        $configsettings =  array();
+        foreach ($mods as $mod) {
+            $configsettings[$mod] = new stdClass();
+            foreach ($vars as $var) {
+                $name = "{$mod}_$var";
+                if (!empty($allconfigs->$name)) {
+                    $configsettings[$mod]->$var = $allconfigs->$name;
+                } else {
+                    $configsettings[$mod]->$var = 0;
+                }
+            }
+            if (!empty($configsettings[$mod]->lastindexrun)) {
+                $configsettings[$mod]->lastindexrun = userdate($configsettings[$mod]->lastindexrun);
+            } else {
+                $configsettings[$mod]->lastindexrun = "Never";
+            }
+        }
+        return $configsettings;
+    }
+
+    /**
+     * Returns Global Search iterator setting for indexing files.
+     * @param string $mod
+     * @return string setting value
+     */
+    public function get_config_file($mod) {
+        switch ($mod) {
+            case 'lesson':
+                return get_config('search', $mod . '_lastindexrun');
+
+            case 'wiki':
+                return get_config('search', $mod . '_lastindexedfilerun');
+
+            default:
+                return 0;
+        }
+    }
+
+
+    /**
+     * Searches the user table for userid
+     * @param string name of user
+     * @return string $url of the user's profile
+     */
+    public function get_user_url($fullname) {
+        global $DB;
+        $url = '';
+        try {
+            $username = explode(' ', $fullname);
+            if (count($username) == 2) {
+                $userdata = $DB->get_records('user',
+                                             array('firstname' => $username[0],
+                                                   'lastname' => $username[1]),
+                                             'id', 'username,id');
+                $userdata = array_pop($userdata);
+                $url = new moodle_url('/user/profile.php?id=' . $userdata->id);
+            }
+        } catch (dml_missing_record_exception $ex) {
+            return $url;
+        }
         return $url;
     }
-    return $url;
-}
 
-function search_get_more_like_this_text($text) {
-    global $CFG;
-
-    if (!$CFG->enableglobalsearch) {
-        return false;
+    public function get_more_like_this_text($text) {
+        return $this->engine->get_more_like_this_text($text);
     }
-    require_once($CFG->dirroot . '/search/' . $CFG->search_engine . '/search.php');
 
-    return call_user_func($CFG->search_engine.'_get_more_like_this_text', $text);
+    public function post_file($file, $url) {
+        return $this->engine->post_file($file, $url);
+    }
 }

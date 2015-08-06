@@ -15,17 +15,23 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Global Search version details.
+ * Defines classes used for plugin info.
  *
- * @package    block_globalsearch
- * @copyright  Prateek Sachan {@link http://prateeksachan.com}
- * @copyright  Daniel Neis
+ * @package    core
+ * @copyright  2013 Petr Skoda {@link http://skodak.org}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+namespace core\plugininfo;
 
-defined('MOODLE_INTERNAL') || die;
+defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2015080600;
-$plugin->requires  = 2015050500;        // Requires this Moodle version
-$plugin->component = 'block_globalsearch';
-$plugin->cron = 300;
+/**
+ * Class for search plugins
+ */
+class search extends base {
+
+    public function is_uninstall_allowed() {
+        return false;
+    }
+}
+

@@ -39,13 +39,14 @@ class block_globalsearch extends block_base {
             return $this->content;
         }
 
-        require_once($CFG->dirroot . '/search/lib.php');
+        require_once($CFG->dirroot.'/search/lib.php');
+        $search = new core_search();
 
         $this->content         =  new stdClass;
         $this->content->footer = '';
 
         // Getting the global search supported mods list.
-        $mods = search_get_modules();
+        $mods = $search->get_modules();
         $modules = array();
         $modules [] = "All modules";
         foreach ($mods as $mod) {

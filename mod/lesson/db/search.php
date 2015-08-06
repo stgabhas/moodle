@@ -50,7 +50,7 @@ function lesson_search_get_documents($id) {
 }
 
 function lesson_search_files($from = 0) {
-    global $DB, $CFG;
+    global $DB;
 
     $sql = "SELECT id, timemodified AS modified FROM {lesson} WHERE timemodified > ? ORDER BY timemodified ASC";
 
@@ -79,8 +79,8 @@ function lesson_search_files($from = 0) {
                         '&literal.module=lesson&literal.type=3' . '&literal.directlink=' . $directlink .
                         '&literal.courseid=' . $lesson->course . '&literal.modulelink=' . $modulelink;
 
-                $index_file_function = $CFG->search_engine . '_post_file';
-                $index_file_function($file, $url);
+                $globalsearch = new core_search();
+                $globalsearch->post_file($file, $url);
             }
         }
     }

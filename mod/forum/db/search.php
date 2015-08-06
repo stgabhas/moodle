@@ -15,7 +15,7 @@ function forum_search_iterator($from = 0) {
 }
 
 function forum_search_get_documents($id) {
-    global $DB, $CFG;
+    global $DB;
 
     $docs = array();
     try {
@@ -63,8 +63,8 @@ function forum_search_get_documents($id) {
                     '&literal.module=forum&literal.type=3' . '&literal.directlink=' . $directlink .
                     '&literal.courseid=' . $forum->course . '&literal.contextlink=' . $contextlink;
 
-            $index_file_function = $CFG->search_engine . '_post_file';
-            $index_file_function($file, $url);
+            $globalsearch = new core_search();
+            $globalsearch->post_file($file, $url);
             $numfile++;
         }
     }

@@ -15,7 +15,7 @@ function glossary_search_iterator($from = 0) {
 }
 
 function glossary_search_get_documents($id) {
-    global $DB, $CFG;
+    global $DB;
 
     $docs = array();
     try {
@@ -60,8 +60,8 @@ function glossary_search_get_documents($id) {
                     '&literal.directlink=' . $directlink . '&literal.courseid=' . $glossary->course .
                     '&literal.contextlink=' . $contextlink . '&literal.modulelink=' . $modulelink;
 
-            $index_file_function = $CFG->search_engine . '_post_file';
-            $index_file_function($file, $url);
+            $globalsearch = new core_search();
+            $globalsearch->post_file($file, $url);
             $numfile++;
         }
     }

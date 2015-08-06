@@ -15,7 +15,7 @@ function resource_search_iterator($from = 0) {
 }
 
 function resource_search_get_documents($id) {
-    global $DB, $CFG;
+    global $DB;
 
     $docs = array();
     try {
@@ -55,8 +55,8 @@ function resource_search_get_documents($id) {
                 '&literal.directlink=' . $directlink . '&literal.courseid=' . $resource->course .
                 '&literal.contextlink=' . $contextlink . '&literal.modulelink=' . $modulelink;
 
-        $index_file_function = $CFG->search_engine . '_post_file';
-        $index_file_function($mainfile, $url);
+        $globalsearch = new core_search();
+        $globalsearch->post_file($mainfile, $url);
     }
 
     return $docs;
