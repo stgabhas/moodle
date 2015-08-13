@@ -58,7 +58,7 @@ class core_search {
         $this->engine = new $classname();
 
         if (!$this->engine->is_installed() || !$this->engine->check_server() ) {
-            throw new Exception('Engine not installed or server not found.');
+            return null;
         }
     }
 
