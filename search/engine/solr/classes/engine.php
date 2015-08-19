@@ -358,3 +358,4 @@ class engine  extends \core_search\engine {
         }
         return null;
     }
+}
